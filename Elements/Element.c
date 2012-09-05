@@ -296,7 +296,9 @@ void mgui_set_colour( element_t* element, uint32 colour )
 
 	hex_to_colour( colour, &element->colour );
 
-	element->text->colour.a = element->colour.a;
+	if ( !element->text )
+		element->text->colour.a = element->colour.a;
+
 	element->on_colour_update( element );
 
 	if ( !element->children ) return;
@@ -311,12 +313,17 @@ void mgui_set_colour( element_t* element, uint32 colour )
 uint32 mgui_get_text_colour( element_t* element )
 {
 	assert( element != NULL );
+
+	if ( !element->text ) return 0;
+
 	return colour_to_hex( &element->text->colour );
 }
 
 void mgui_set_text_colour( element_t* element, uint32 colour )
 {
 	assert( element != NULL );
+
+	if ( !element->text ) return;
 
 	hex_to_colour( colour, &element->text->colour );
 	element->text->colour.a = element->colour.a;
@@ -336,7 +343,10 @@ void mgui_set_alpha( element_t* element, uint8 alpha )
 	assert( element != NULL );
 
 	element->colour.a = alpha;
-	element->text->colour.a = alpha;
+
+	if ( !element->text )
+		element->text->colour.a = alpha;
+
 	element->on_colour_update( element );
 
 	if ( !element->children ) return;
@@ -350,11 +360,15 @@ void mgui_set_alpha( element_t* element, uint8 alpha )
 
 const char_t* mgui_get_text( element_t* element )
 {
+	if ( !element->text ) return NULL;
+
 	return element->text->buffer;
 }
 
 uint32 mgui_get_text_len( element_t* element )
 {
+	if ( !element->text ) return 0;
+
 	return element->text->len;
 }
 
@@ -363,6 +377,8 @@ void mgui_set_text( element_t* element, const char_t* fmt, ... )
 	va_list	marker;
 
 	assert( element != NULL );
+
+	if ( !element->text ) return;
 
 	va_start( marker, fmt );
 	mgui_text_set_buffer_va( element->text, fmt, marker );
@@ -375,6 +391,8 @@ void mgui_set_text_s( element_t* element, const char_t* text )
 {
 	assert( element != NULL );
 
+	if ( !element->text ) return;
+
 	mgui_text_set_buffer_s( element->text, text );
 	element->on_text_update( element );
 }
@@ -382,7 +400,8 @@ void mgui_set_text_s( element_t* element, const char_t* text )
 uint32 mgui_get_alignment( element_t* element )
 {
 	assert( element != NULL );
-	assert( element->text != NULL );
+	
+	if ( !element->text ) return ALIGN_CENTER;
 
 	return element->text->alignment;
 }
@@ -390,7 +409,8 @@ uint32 mgui_get_alignment( element_t* element )
 void mgui_set_alignment( element_t* element, uint32 alignment )
 {
 	assert( element != NULL );
-	assert( element->text != NULL );
+	
+	if ( !element->text ) return;
 
 	element->text->alignment = alignment;
 	mgui_text_update_position( element->text );
@@ -410,7 +430,8 @@ void mgui_get_text_padding( element_t* element, uint8* top, uint8* bottom, uint8
 void mgui_set_text_padding( element_t* element, uint8 top, uint8 bottom, uint8 left, uint8 right )
 {
 	assert( element != NULL );
-	assert( element->text != NULL );
+	
+	if ( !element->text ) return;
 
 	element->text->pad.top = top;
 	element->text->pad.bottom = bottom;
