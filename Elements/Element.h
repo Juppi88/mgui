@@ -101,5 +101,7 @@ void		mgui_element_process	( element_t* element, uint32 ticks );
 
 void		mgui_update_abs_pos		( element_t* element );
 void		mgui_update_abs_size	( element_t* element );
+void		mgui_update_rel_pos		( element_t* element );
+void		mgui_update_rel_size	( element_t* element );
 
 #endif /* __MGUI_ELEMENT_H */

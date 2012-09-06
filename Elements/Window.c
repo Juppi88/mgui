@@ -344,9 +344,18 @@ void mgui_window_set_title_col( window_t* window, uint32 colour )
 	}
 }
 
-void mgui_window_get_drag_offset( window_t* window, vectorscreen_t* pos )
+void mgui_window_get_drag_offset( window_t* window, uint16* x, uint16* y )
 {
 	assert( window != NULL );
+
+	*x = ((struct window_s*)window)->click_offset.x;
+	*y = ((struct window_s*)window)->click_offset.y;
+}
+
+void mgui_window_get_drag_offset_v( window_t* window, vectorscreen_t* pos )
+{
+	assert( window != NULL );
+	assert( pos != NULL );
 
 	*pos = ((struct window_s*)window)->click_offset;
 }

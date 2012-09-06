@@ -155,17 +155,8 @@ void mgui_element_process( element_t* element, uint32 ticks )
 	}
 }
 
-void mgui_get_pos( element_t* element, vector2_t* pos )
-{
-	assert( element != NULL );
-	assert( pos != NULL );
-
-	*pos = element->pos;
-}
-
 void mgui_update_abs_pos( element_t* element )
 {
-	uint16 x, y;
 	rectangle_t* r;
 	node_t* node;
 	element_t* child;
@@ -174,17 +165,15 @@ void mgui_update_abs_pos( element_t* element )
 	{
 		r = &element->parent->bounds;
 
-		x = r->x + (uint16)( element->pos.x * r->w );
-		y = r->y + (uint16)( element->pos.y * r->h );
+		element->bounds.x = r->x + (uint16)( element->pos.x * r->w );
+		element->bounds.y = r->y + (uint16)( element->pos.y * r->h );
 	}
 	else
 	{
-		x = (uint16)( element->pos.x * screen_size.x );
-		y = (uint16)( element->pos.y * screen_size.y );
+		element->bounds.x = (uint16)( element->pos.x * screen_size.x );
+		element->bounds.y = (uint16)( element->pos.y * screen_size.y );
 	}
 
-	element->bounds.x = x;
-	element->bounds.y = y;
 	element->text->bounds = &element->bounds;
 
 	mgui_text_update_position( element->text );
@@ -199,37 +188,8 @@ void mgui_update_abs_pos( element_t* element )
 	}
 }
 
-void mgui_set_pos( element_t* element, float x, float y )
-{
-	assert( element != NULL );
-
-	element->pos.x = x;
-	element->pos.y = y;
-
-	mgui_update_abs_pos( element );
-}
-
-void mgui_set_pos_v( element_t* element, const vector2_t* pos )
-{
-	assert( element != NULL );
-	assert( pos != NULL );
-
-	element->pos = *pos;
-
-	mgui_update_abs_pos( element );
-}
-
-void mgui_get_size( element_t* element, vector2_t* size )
-{
-	assert( element != NULL );
-	assert( size != NULL );
-
-	*size = element->size;
-}
-
 void mgui_update_abs_size( element_t* element )
 {
-	uint16 w, h;
 	rectangle_t* r;
 	node_t* node;
 	element_t* child;
@@ -238,17 +198,14 @@ void mgui_update_abs_size( element_t* element )
 	{
 		r = &element->parent->bounds;
 
-		w = (uint16)( element->size.x * r->w );
-		h = (uint16)( element->size.y * r->h );
+		element->bounds.w  = (uint16)( element->size.x * r->w );
+		element->bounds.h  = (uint16)( element->size.y * r->h );
 	}
 	else
 	{
-		w = (uint16)( element->size.x * screen_size.x );
-		h = (uint16)( element->size.y * screen_size.y );
+		element->bounds.w = (uint16)( element->size.x * screen_size.x );
+		element->bounds.h  = (uint16)( element->size.y * screen_size.y );
 	}
-
-	element->bounds.w = w;
-	element->bounds.h = h;
 
 	element->on_bounds_update( element, false, true );
 
@@ -257,8 +214,97 @@ void mgui_update_abs_size( element_t* element )
 	list_foreach( element->children, node )
 	{
 		child = cast_elem(node);
-		mgui_update_abs_size( child ); 
+
+		if ( BIT_ON( child->flags, FLAG_RESIZE ) )
+			mgui_update_abs_size( child ); 
 	}
+}
+
+void mgui_update_rel_pos( element_t* element )
+{
+	node_t* node;
+	element_t* child;
+
+	if ( element->parent )
+	{
+		element->pos.x = (float)( element->bounds.x - element->parent->bounds.x ) / element->parent->bounds.w;
+		element->pos.y = (float)( element->bounds.y - element->parent->bounds.y ) / element->parent->bounds.h;
+	}
+	else
+	{
+		element->pos.x = (float)element->bounds.x / screen_size.x;
+		element->pos.y = (float)element->bounds.y / screen_size.y;
+	}
+
+	element->text->bounds = &element->bounds;
+
+	mgui_text_update_position( element->text );
+	element->on_bounds_update( element, true, false );
+
+	if ( !element->children ) return;
+
+	list_foreach( element->children, node )
+	{
+		child = cast_elem(node);
+		mgui_update_abs_pos( child ); 
+	}
+}
+
+void mgui_update_rel_size( element_t* element )
+{
+	node_t* node;
+	element_t* child;
+
+	if ( element->parent )
+	{
+		element->size.x = (float)element->bounds.w / element->parent->bounds.w;
+		element->size.y = (float)element->bounds.h / element->parent->bounds.h;
+	}
+	else
+	{
+		element->size.x = (float)element->bounds.w / screen_size.x;
+		element->size.y = (float)element->bounds.h / screen_size.y;
+	}
+
+	element->text->bounds = &element->bounds;
+
+	element->on_bounds_update( element, false, true );
+
+	if ( !element->children ) return;
+
+	list_foreach( element->children, node )
+	{
+		child = cast_elem(node);
+
+		if ( BIT_ON( child->flags, FLAG_RESIZE ) )
+			mgui_update_abs_size( child ); 
+	}
+}
+
+void mgui_get_pos( element_t* element, float* x, float* y )
+{
+	assert( element != NULL );
+
+	*x = element->pos.x;
+	*y = element->pos.y;
+}
+
+void mgui_get_size( element_t* element, float* w, float* h )
+{
+	assert( element != NULL );
+
+	*w = element->size.x;
+	*h = element->size.y;
+}
+
+void mgui_set_pos( element_t* element, float x, float y )
+{
+	assert( element != NULL );
+
+	element->pos.x = x;
+	element->pos.y = y;
+
+	mgui_update_abs_pos( element );
 }
 
 void mgui_set_size( element_t* element, float w, float h )
@@ -271,6 +317,32 @@ void mgui_set_size( element_t* element, float w, float h )
 	mgui_update_abs_size( element );
 }
 
+void mgui_get_pos_v( element_t* element, vector2_t* pos )
+{
+	assert( element != NULL );
+	assert( pos != NULL );
+
+	*pos = element->pos;
+}
+
+void mgui_get_size_v( element_t* element, vector2_t* size )
+{
+	assert( element != NULL );
+	assert( size != NULL );
+
+	*size = element->size;
+}
+
+void mgui_set_pos_v( element_t* element, const vector2_t* pos )
+{
+	assert( element != NULL );
+	assert( pos != NULL );
+
+	element->pos = *pos;
+
+	mgui_update_abs_pos( element );
+}
+
 void mgui_set_size_v( element_t* element, const vector2_t* size )
 {
 	assert( element != NULL );
@@ -279,6 +351,90 @@ void mgui_set_size_v( element_t* element, const vector2_t* size )
 	element->size = *size;
 
 	mgui_update_abs_size( element );
+}
+
+void mgui_get_abs_pos( element_t* element, uint16* x, uint16* y )
+{
+	assert( element != NULL );
+
+	if ( element->parent )
+	{
+		*x = element->bounds.x - element->parent->bounds.x;
+		*y = element->bounds.y - element->parent->bounds.y;
+	}
+	else
+	{
+		*x = element->bounds.x;
+		*y = element->bounds.y;
+	}
+}
+
+void mgui_get_abs_size( element_t* element, uint16* w, uint16* h )
+{
+	assert( element != NULL );
+
+	*w = element->bounds.w;
+	*h = element->bounds.h;
+}
+
+void mgui_set_abs_pos( element_t* element, uint16 x, uint16 y )
+{
+	assert( element != NULL );
+
+	if ( element->parent )
+	{
+		element->bounds.x = element->parent->bounds.x + x;
+		element->bounds.y = element->parent->bounds.y + y;
+	}
+	else
+	{
+		element->bounds.x = x;
+		element->bounds.y = y;
+	}
+
+	mgui_update_rel_pos( element );
+}
+
+void mgui_set_abs_size( element_t* element, uint16 w, uint16 h )
+{
+	assert( element != NULL );
+
+	element->bounds.w = w;
+	element->bounds.h = h;
+
+	mgui_update_rel_size( element );
+}
+
+void mgui_get_abs_pos_v( element_t* element, vectorscreen_t* pos )
+{
+	assert( element != NULL );
+	assert( pos != NULL );
+
+	mgui_get_abs_pos( element, &pos->x, &pos->y );
+}
+
+void mgui_get_abs_size_v( element_t* element, vectorscreen_t* size )
+{
+	assert( element != NULL );
+	assert( size != NULL );
+
+	mgui_get_abs_size( element, &size->x, &size->y );
+}
+
+void mgui_set_abs_pos_v( element_t* element, const vectorscreen_t* pos )
+{
+	assert( element != NULL );
+	assert( pos != NULL );
+
+	mgui_set_abs_pos( element, pos->x, pos->y );
+}
+
+void mgui_set_abs_size_v( element_t* element, const vectorscreen_t* size )
+{
+	assert( element != NULL );
+	assert( size != NULL );
+
+	mgui_set_abs_size( element, size->x, size->y );
 }
 
 uint32 mgui_get_colour( element_t* element )
