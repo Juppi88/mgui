@@ -187,7 +187,7 @@ void mgui_gdiplus_draw_text( void* font, const char_t* text, uint x, uint y, uin
 	Gdiplus::StringFormat format( Gdiplus::StringFormat::GenericDefault() );
 
 	Gdiplus::SolidBrush brush( colour );
-	Gdiplus::RectF r( (float)x, (float)( y - fnt->size - 2 ), 1000, 1000 );
+	Gdiplus::RectF r( (float)x, (float)( y - 2 ), 1000, 1000 );
 
 #ifndef MGUI_UNICODE
 	wchar_t wtext[512];
@@ -197,7 +197,7 @@ void mgui_gdiplus_draw_text( void* font, const char_t* text, uint x, uint y, uin
 
 	if ( flags & FFLAG_SHADOW )
 	{
-		Gdiplus::RectF rshadow( (float)x + SHADOW_OFFSET, (float)( y - fnt->size - 2 + SHADOW_OFFSET ), 1000, 1000 );
+		Gdiplus::RectF rshadow( (float)x + SHADOW_OFFSET, (float)( y - 2 + SHADOW_OFFSET ), 1000, 1000 );
 		Gdiplus::SolidBrush shadowbrush( shadow_col );
 
 		graphics->DrawString( wtext, len-1, (Gdiplus::Font*)fnt->font, rshadow, &format, &shadowbrush );
@@ -207,7 +207,7 @@ void mgui_gdiplus_draw_text( void* font, const char_t* text, uint x, uint y, uin
 #else
 	if ( flags & FFLAG_SHADOW )
 	{
-		Gdiplus::RectF rshadow( (float)x + SHADOW_OFFSET, (float)( y - fnt->size - 2 + SHADOW_OFFSET ), 1000, 1000 );
+		Gdiplus::RectF rshadow( (float)x + SHADOW_OFFSET, (float)( y - 2 + SHADOW_OFFSET ), 1000, 1000 );
 		Gdiplus::SolidBrush shadowbrush( shadow_col );
 
 		graphics->DrawString( text, len-1, (Gdiplus::Font*)fnt->font, rshadow, &format, &shadowbrush );

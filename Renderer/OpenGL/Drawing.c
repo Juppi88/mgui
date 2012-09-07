@@ -241,18 +241,13 @@ void mgui_opengl_draw_text( void* font, const char_t* text, uint x, uint y, uint
 	glColor4ubv( (const GLubyte*)&colour );
 
 	dx = x;
-	dy = y - fnt->size;
+	dy = y;
 
 	for ( s = text; *s; s += sizeof(char_t) )
 	{
 		c = *(uchar_t*)s;
 
-		if ( *s == '\n' )
-		{
-			dy += fnt->size;
-			dx = x;
-		}	
-		else if ( c < fnt->first_char || c > fnt->last_char )
+		if ( c < fnt->first_char || c > fnt->last_char )
 		{
 			continue;
 		}
@@ -284,13 +279,7 @@ void mgui_opengl_measure_text( void* font, const char_t* text, uint* x_out, uint
 	{
 		c = *(uchar_t*)s;
 
-		if ( c == '\n' )
-		{
-			y += fnt->size;
-			xout = math_max( xout, x );
-			x = 0;
-		}	
-		else if ( c < fnt->first_char || c > fnt->last_char )
+		if ( c < fnt->first_char || c > fnt->last_char )
 		{
 			continue;
 		}
