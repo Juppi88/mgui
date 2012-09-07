@@ -49,6 +49,8 @@ typedef struct skin_s
 	void			( *draw_button )				( const rectangle_t* r, const colour_t* col, uint32 flags, const text_t* text );
 	void			( *draw_editbox )				( const rectangle_t* r, colour_t* col, uint32 flags, const text_t* text );
 	void			( *draw_label )					( const rectangle_t* r, colour_t* col, uint32 flags, const text_t* text );
+	void			( *draw_memobox )				( const rectangle_t* r, colour_t* col, uint32 flags );
+	void			( *draw_memobox_lines )			( const rectangle_t* r, uint32 flags, list_t* lines, node_t* first, uint32 count );
 	void			( *draw_window )				( const rectangle_t* r, const colour_t* col, uint32 flags );
 	void			( *draw_window_titlebar )		( const rectangle_t* r, const colour_t* col, const text_t* text );
 }

@@ -11,6 +11,7 @@
 
 #include "Skin.h"
 #include "Element.h"
+#include "MemoBox.h"
 #include "Renderer.h"
 #include "Platform/Platform.h"
 #include <assert.h>
@@ -118,12 +119,12 @@ static void __draw_editbox( const rectangle_t* r, const colour_t* col, uint32 fl
 	if ( BIT_ON( flags, FLAG_BORDER ) )
 	{
 		c = *col;
-		colour_add( &c, 40 );
+		colour_add( &c, 60 );
 		c.a = col->a;
 
 		__draw_border( r, &c, BORDER_BOTTOM|BORDER_RIGHT, 1 );
 
-		colour_add( &c, -40 );
+		colour_add( &c, -60 );
 		c.a = col->a;
 
 		__draw_border( r, &c, BORDER_TOP|BORDER_LEFT, 1 );
@@ -182,6 +183,60 @@ static void __draw_label( const rectangle_t* r, const colour_t* col, uint32 flag
 	}
 }
 
+static void __draw_memobox( const rectangle_t* r, const colour_t* col, uint32 flags )
+{
+	colour_t c;
+
+	if ( BIT_ON( flags, FLAG_BACKGROUND ) )
+	{
+		__draw_panel( r, col );
+	}
+
+	if ( BIT_ON( flags, FLAG_BORDER ) )
+	{
+		c = *col;
+		colour_add( &c, 60 );
+		c.a = col->a;
+
+		__draw_border( r, &c, BORDER_BOTTOM|BORDER_RIGHT, 1 );
+
+		colour_add( &c, -60 );
+		c.a = col->a;
+
+		__draw_border( r, &c, BORDER_TOP|BORDER_LEFT, 1 );
+	}
+}
+
+static void __draw_memobox_lines( const rectangle_t* r, uint32 flags, list_t* lines, node_t* first, uint32 count )
+{
+	struct memoline_s* line;
+	node_t* node;
+	uint32 i;
+
+	if ( lines->size == 0 ) return;
+	if ( count == 0 ) count = 0xFFFFFFFF;
+
+	if ( BIT_ON( flags, FLAG_CLIP ) )
+	{
+		render->start_clip( r->x, r->y, r->w, r->h );
+	}
+
+	for ( node = first, i = 0;
+		  node != lines->end && i < count;
+		  node = node->prev, i++ )
+	{
+		line = (struct memoline_s*)node;
+
+		render->set_draw_colour( &line->colour );
+		render->draw_text( line->font->data, line->text, line->pos.x, line->pos.y, line->font->flags );
+	}
+
+	if ( BIT_ON( flags, FLAG_CLIP ) )
+	{
+		render->end_clip();
+	}
+}
+
 static void __draw_window( const rectangle_t* r, const colour_t* col, uint32 flags )
 {
 	UNREFERENCED_PARAM(flags);
@@ -228,6 +283,8 @@ skin_t* mgui_setup_skin_simple( void )
 	skin->draw_button			= __draw_button;
 	skin->draw_editbox			= __draw_editbox;
 	skin->draw_label			= __draw_label;
+	skin->draw_memobox			= __draw_memobox;
+	skin->draw_memobox_lines	= __draw_memobox_lines;
 	skin->draw_window			= __draw_window;
 	skin->draw_window_titlebar	= __draw_window_titlebar;
 

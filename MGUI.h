@@ -28,22 +28,17 @@ MGUI_ELEMENT_DECL( button_t );
 MGUI_ELEMENT_DECL( editbox_t );
 MGUI_ELEMENT_DECL( label_t );
 MGUI_ELEMENT_DECL( memobox_t );
+//MGUI_ELEMENT_DECL( scrollbar_t );
 MGUI_ELEMENT_DECL( window_t );
-/*typedef struct button_s			button_t;
-typedef struct checkbox_s		checkbox_t;
+/*typedef struct checkbox_s		checkbox_t;
 typedef struct droplist_s		droplist_t;
 typedef struct gridlist_s		gridlist_t;
-typedef struct inputbox_s		inputbox_t;
-typedef struct label_s			label_t;
-typedef struct memobox_s		memobox_t;
 typedef struct menubar_s		menubar_t;
 typedef struct progbar_s		progbar_t;
 typedef struct radiobutton_s	radiobutton_t;
-typedef struct scrollbar_s		scrollbar_t;
 typedef struct slider_s			slider_t;
 typedef struct sprite_s			sprite_t;
-typedef struct tab_s			tab_t;
-typedef struct window_s			window_t;*/
+typedef struct tab_s			tab_t;*/
 
 #define cast_elem(x) ((element_t*)x)
 #define cast_ctrl(x) ((control_t*)x)
@@ -157,7 +152,9 @@ MYLLY_API bool				mgui_is_child_of				( control_t* parent, element_t* child );
 MYLLY_API button_t*			mgui_create_button				( control_t* parent );
 MYLLY_API editbox_t*		mgui_create_editbox				( control_t* parent );
 MYLLY_API label_t*			mgui_create_label				( control_t* parent );
+MYLLY_API memobox_t*		mgui_create_memobox				( control_t* parent );
 MYLLY_API window_t*			mgui_create_window				( control_t* parent );
+
 MYLLY_API void				mgui_destroy_element			( element_t* element );
 
 MYLLY_API control_t*		mgui_create_control				( void );
@@ -220,6 +217,19 @@ MYLLY_API void				mgui_editbox_set_cursor_pos		( editbox_t* editbox, uint32 pos 
 
 /* Label functions */
 MYLLY_API void				mgui_label_make_text_fit		( label_t* label );
+
+/* Memobox functions */
+MYLLY_API void				mgui_memobox_add_line			( memobox_t* memobox, const char* fmt, ... );
+MYLLY_API void				mgui_memobox_add_line_col		( memobox_t* memobox, const char* fmt, uint32 col, ... );
+MYLLY_API void				mgui_memobox_add_line_s			( memobox_t* memobox, const char* text );
+MYLLY_API void				mgui_memobox_add_line_col_s		( memobox_t* memobox, const char* text, uint32 col );
+MYLLY_API void				mgui_memobox_clear				( memobox_t* memobox );
+MYLLY_API float				mgui_memobox_get_display_pos	( memobox_t* memobox );
+MYLLY_API void				mgui_memobox_set_display_pos	( memobox_t* memobox, float pos );
+MYLLY_API bool				mgui_memobox_get_top_to_bottom	( memobox_t* memobox );
+MYLLY_API void				mgui_memobox_set_top_to_bottom	( memobox_t* memobox, bool enable );
+MYLLY_API uint32			mgui_memobox_get_history		( memobox_t* memobox );
+MYLLY_API void				mgui_memobox_set_history		( memobox_t* memobox, uint32 lines );
 
 /* Window functions */
 MYLLY_API bool				mgui_window_get_titlebar		( window_t* window );

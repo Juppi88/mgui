@@ -31,9 +31,10 @@ enum MGUI_INTERNAL_FLAGS
 	FLAG_TITLEBAR	= 0x00400000,	/* Enable window titlebar */
 	FLAG_CLOSEBTN	= 0x00800000,	/* Enable window close button */
 	FLAG_MASKINPUT	= 0x01000000,	/* Mask user input */
-	FLAG_INACTIVE	= 0x02000000,	/* This element is inactive (=background) */
-	FLAG_FOCUS		= 0x04000000,	/* This element has focus */
-	FLAG_ELEMENT	= 0x80000000,	/* This is an element (not a control) */
+	FLAG_TOPBOTTOM	= 0x02000000,	/* Memobox order is top to bottom */
+	FLAG_INACTIVE	= 0x10000000,	/* This element is inactive (=background) */
+	FLAG_FOCUS		= 0x20000000,	/* This element has focus */
+	FLAG_ELEMENT	= 0x40000000,	/* This is an element (not a control) */
 };
 
 enum MGUI_TYPE

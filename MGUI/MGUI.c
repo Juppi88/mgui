@@ -52,10 +52,20 @@ void mgui_shutdown( void )
 
 void mgui_process( void )
 {
-	// Handle element processing (animations etc.)
-	mgui_process_controls();
+	uint32 ticks;
+	static uint32 last_ticks;
+
+	ticks = timer_get_ticks();
+
+	mgui_process_controls( ticks );
 
 #ifdef MGUI_USE_REDRAW
+	if ( ticks - last_ticks >= 1000 )
+	{
+		last_ticks = ticks;
+		mgui_redraw();
+	}
+
 	if ( !redraw ) return;
 	redraw = false;
 #endif
