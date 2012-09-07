@@ -142,7 +142,7 @@ void* mgui_opengl_load_font( const char* name, uint32 size, uint32 flags, uint32
 		flags & FFLAG_ULINE ? TRUE : FALSE,
 		flags & FFLAG_STRIKE ? TRUE : FALSE,
 		charset, OUT_DEFAULT_PRECIS, CLIP_DEFAULT_PRECIS,
-		flags & FFLAG_NOAA ? DRAFT_QUALITY : CLEARTYPE_QUALITY,
+		flags & FFLAG_NOAA ? NONANTIALIASED_QUALITY : CLEARTYPE_QUALITY,
 		VARIABLE_PITCH, name );
 
 	if ( !newfnt ) return NULL;

@@ -11,5 +11,6 @@ project "MGUI Renderer GDI+"
 	-- Windows specific stuff
 	configuration "windows"
 		targetextension ".lib"
+		buildoptions { "/wd4996" } -- C4996: This function or variable may be unsafe (mbstowcs)
 		configuration "Debug" targetname "mguigdid"
 		configuration "Release" targetname "mguigdi"

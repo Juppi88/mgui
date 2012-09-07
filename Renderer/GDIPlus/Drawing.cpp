@@ -10,6 +10,7 @@
  **********************************************************************/
 
 #include "Drawing.h"
+#include "Stringy/Stringy.h"
 #include <gdiplus.h>
 
 static Gdiplus::Graphics*	graphics	= NULL;
@@ -148,12 +149,9 @@ void* mgui_gdiplus_load_font( const char* name, uint size, uint flags, uint char
 	if ( BIT_ON( flags, FFLAG_STRIKE ) )	style |= Gdiplus::FontStyleStrikeout;
 
 #ifndef MGUI_UNICODE
-	// BS GDI doesnt support character strings
+	// BS GDI+ doesnt support character strings
 	wchar_t wname[128];
-	size_t len = strlen(name) + 1;
-
-	MultiByteToWideChar( CP_ACP, 0, name, len-1, wname, 128 );
-	wname[len-1] = '\0';
+	mbstowcs( wname, name, lengthof(wname) );
 	
 	font->font = new Gdiplus::Font( wname, (float)size, style, Gdiplus::UnitPixel, NULL );
 #else
@@ -170,8 +168,8 @@ void mgui_gdiplus_destroy_font( void* font )
 
 	if ( fnt->font )
 	{
-		//Gdiplus::Font* f = (Gdiplus::Font*)fnt->font;
-		//delete font;
+		Gdiplus::Font* f = (Gdiplus::Font*)fnt->font;
+		delete f;
 	}
 
 	delete fnt;
@@ -191,19 +189,17 @@ void mgui_gdiplus_draw_text( void* font, const char_t* text, uint x, uint y, uin
 
 #ifndef MGUI_UNICODE
 	wchar_t wtext[512];
-	size_t len = strlen(text) + 1;
-
-	MultiByteToWideChar( CP_UTF7, 0, text, len-1, wtext, 512 );
+	mbstowcs( wtext, text, lengthof(wtext) );
 
 	if ( flags & FFLAG_SHADOW )
 	{
 		Gdiplus::RectF rshadow( (float)x + SHADOW_OFFSET, (float)( y - 2 + SHADOW_OFFSET ), 1000, 1000 );
 		Gdiplus::SolidBrush shadowbrush( shadow_col );
 
-		graphics->DrawString( wtext, len-1, (Gdiplus::Font*)fnt->font, rshadow, &format, &shadowbrush );
+		graphics->DrawString( wtext, -1, (Gdiplus::Font*)fnt->font, rshadow, &format, &shadowbrush );
 	}
 
-	graphics->DrawString( wtext, len-1, (Gdiplus::Font*)fnt->font, r, &format, &brush );
+	graphics->DrawString( wtext, -1, (Gdiplus::Font*)fnt->font, r, &format, &brush );
 #else
 	if ( flags & FFLAG_SHADOW )
 	{
@@ -222,6 +218,7 @@ void mgui_gdiplus_measure_text( void* font, const char_t* text, uint* w, uint* h
 	Gdiplus::SizeF size;
 	Gdiplus::Graphics gfx(hwnd);
 	gdifont_t* fnt;
+
 	fnt = (gdifont_t*)font;
 
 	if ( !text ) return;
@@ -231,15 +228,13 @@ void mgui_gdiplus_measure_text( void* font, const char_t* text, uint* w, uint* h
 
 #ifndef MGUI_UNICODE
 	wchar_t wtext[512];
-	size_t len = strlen(text) + 1;
+	mbstowcs( wtext, text, lengthof(wtext) );
 
-	MultiByteToWideChar( CP_UTF7, 0, text, len-1, wtext, 512 );
-
-	gfx.MeasureString( wtext, len-1, (Gdiplus::Font*)fnt->font, Gdiplus::SizeF( 10000, 10000 ), &format, &size );
+	gfx.MeasureString( wtext, -1, (Gdiplus::Font*)fnt->font, Gdiplus::SizeF( 10000, 10000 ), &format, &size );
 #else
 	gfx.MeasureString( text, -1, (Gdiplus::Font*)fnt->font, Gdiplus::SizeF( 10000, 10000 ), &format, &size );
 #endif
 
-	*w = (uint16)( size.Width + 1 );
+	*w = (uint16)size.Width;
 	*h = (uint16)( size.Height + 1 );
 }
