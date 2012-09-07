@@ -103,7 +103,7 @@ static void __mgui_editbox_render( element_t* element )
 			// Draw the selection. TODO: Change text colour as well
 			col = editbox->colour;
 			colour_invert( &col );
-			col.a = 100;
+			col.a = 90;
 
 			skin->draw_panel( &editbox->selection, &col );
 		}
@@ -384,8 +384,6 @@ static void __mgui_editbox_on_character( element_t* element, char_t c )
 {
 	char_t tmp[2];
 
-	if ( input_get_key_state( MKEY_CONTROL ) ) return;
-	if ( input_get_key_state( MKEY_ALT ) ) return;
 	if ( (uchar_t)c < ' ' ) return;
 
 	tmp[0] = c;

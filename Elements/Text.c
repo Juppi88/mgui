@@ -46,6 +46,9 @@ void mgui_text_set_buffer( text_t* text, const char_t* fmt, ... )
 
 	assert( text != NULL );
 
+	if ( text->buffer )
+		mem_free( text->buffer );
+
 	va_start( marker, fmt );
 	len = msnprintf( tmp, lengthof(tmp), fmt, marker );
 	va_end( marker );
@@ -65,6 +68,9 @@ void mgui_text_set_buffer_s( text_t* text, const char_t* str )
 
 	assert( text != NULL );
 
+	if ( text->buffer )
+		mem_free( text->buffer );
+
 	len = mstrlen( str );
 	len = math_max( len, text->bufsize );
 
@@ -82,6 +88,9 @@ void mgui_text_set_buffer_va( text_t* text, const char_t* fmt, va_list list )
 
 	assert( text != NULL );
 
+	if ( text->buffer )
+		mem_free( text->buffer );
+
 	len = msnprintf( tmp, lengthof(tmp), fmt, list );
 	len = math_max( len, text->bufsize );
 
@@ -95,6 +104,8 @@ void mgui_text_set_buffer_va( text_t* text, const char_t* fmt, va_list list )
 void mgui_text_update_dimensions( text_t* text )
 {
 	uint32 w, h;
+
+	assert( text != NULL );
 
 	render->measure_text( text->font->data, text->buffer, &w, &h );
 	h -= 2;
@@ -113,7 +124,7 @@ void mgui_text_update_position( text_t* text )
 	assert( text->bounds != NULL );
 
 	x = text->bounds->x + text->pad.left;
-	y = text->bounds->y + text->pad.top;
+	y = text->bounds->y + text->pad.top - text->font->size;
 	w = text->bounds->w - text->pad.left - text->pad.right;
 	h = text->bounds->h - text->pad.top - text->pad.bottom;
 

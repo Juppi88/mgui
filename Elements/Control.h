@@ -29,7 +29,7 @@ struct control_s
 
 void		mgui_do_cleanup			( void );
 void		mgui_render_controls	( void );
-void		mgui_process_controls	( void );
+void		mgui_process_controls	( uint32 ticks );
 element_t*	mgui_get_element_at		( control_t* parent, uint16 x, uint16 y );
 
 #endif /* __MYLLY_GUI_CONTROL_H */

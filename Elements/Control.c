@@ -186,15 +186,12 @@ void mgui_render_controls( void )
 	}
 }
 
-void mgui_process_controls( void )
+void mgui_process_controls( uint32 ticks )
 {
 	node_t*	cnode;
 	node_t*	enode;
 	control_t* control;
 	element_t* element;
-	uint32 ticks;
-
-	ticks = timer_get_ticks();
 
 	assert( controls != NULL );
 

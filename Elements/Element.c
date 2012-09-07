@@ -626,6 +626,9 @@ void mgui_set_font_name( element_t* element, const char_t* font )
 	assert( element->font != NULL );
 
 	mgui_font_set_font( element->font, font );
+
+	if ( element->text && element->text->buffer )
+		mgui_text_update_dimensions( element->text );
 }
 
 void mgui_set_font_size( element_t* element, uint8 size )
@@ -634,6 +637,9 @@ void mgui_set_font_size( element_t* element, uint8 size )
 	assert( element->font != NULL );
 
 	mgui_font_set_size( element->font, size );
+
+	if ( element->text && element->text->buffer )
+		mgui_text_update_dimensions( element->text );
 }
 
 void mgui_set_font_flags( element_t* element, uint8 flags )
@@ -642,6 +648,9 @@ void mgui_set_font_flags( element_t* element, uint8 flags )
 	assert( element->font != NULL );
 
 	mgui_font_set_flags( element->font, flags );
+
+	if ( element->text && element->text->buffer )
+		mgui_text_update_dimensions( element->text );
 }
 
 void mgui_set_font( element_t* element, const char_t* font, uint8 size, uint8 flags, uint8 charset )
@@ -658,7 +667,12 @@ void mgui_set_font( element_t* element, const char_t* font, uint8 size, uint8 fl
 	element->font = mgui_font_create( font, size, flags, charset );
 
 	if ( element->text )
+	{
 		element->text->font = element->font;
+
+		if ( element->text->buffer )
+			mgui_text_update_dimensions( element->text );
+	}
 }
 
 uint32 mgui_get_flags( element_t* element )
