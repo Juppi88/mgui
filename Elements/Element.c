@@ -174,9 +174,12 @@ void mgui_update_abs_pos( element_t* element )
 		element->bounds.y = (uint16)( element->pos.y * screen_size.y );
 	}
 
-	element->text->bounds = &element->bounds;
+	if ( element->text )
+	{
+		element->text->bounds = &element->bounds;
+		mgui_text_update_position( element->text );
+	}
 
-	mgui_text_update_position( element->text );
 	element->on_bounds_update( element, true, false );
 
 	if ( !element->children ) return;
@@ -236,9 +239,12 @@ void mgui_update_rel_pos( element_t* element )
 		element->pos.y = (float)element->bounds.y / screen_size.y;
 	}
 
-	element->text->bounds = &element->bounds;
+	if ( element->text )
+	{
+		element->text->bounds = &element->bounds;
+		mgui_text_update_position( element->text );
+	}
 
-	mgui_text_update_position( element->text );
 	element->on_bounds_update( element, true, false );
 
 	if ( !element->children ) return;
@@ -266,7 +272,8 @@ void mgui_update_rel_size( element_t* element )
 		element->size.y = (float)element->bounds.h / screen_size.y;
 	}
 
-	element->text->bounds = &element->bounds;
+	if ( element->text )
+		element->text->bounds = &element->bounds;
 
 	element->on_bounds_update( element, false, true );
 
@@ -452,7 +459,7 @@ void mgui_set_colour( element_t* element, uint32 colour )
 
 	hex_to_colour( colour, &element->colour );
 
-	if ( !element->text )
+	if ( element->text )
 		element->text->colour.a = element->colour.a;
 
 	element->on_colour_update( element );
@@ -500,7 +507,7 @@ void mgui_set_alpha( element_t* element, uint8 alpha )
 
 	element->colour.a = alpha;
 
-	if ( !element->text )
+	if ( element->text )
 		element->text->colour.a = alpha;
 
 	element->on_colour_update( element );
