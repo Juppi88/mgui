@@ -600,6 +600,8 @@ void mgui_set_text_padding( element_t* element, uint8 top, uint8 bottom, uint8 l
 	element->text->pad.bottom = bottom;
 	element->text->pad.left = left;
 	element->text->pad.right = right;
+
+	element->on_bounds_update( element, false, true );
 }
 
 const char_t* mgui_get_font_name( element_t* element )

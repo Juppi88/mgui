@@ -28,7 +28,7 @@ MGUI_ELEMENT_DECL( button_t );
 MGUI_ELEMENT_DECL( editbox_t );
 MGUI_ELEMENT_DECL( label_t );
 MGUI_ELEMENT_DECL( memobox_t );
-//MGUI_ELEMENT_DECL( scrollbar_t );
+MGUI_ELEMENT_DECL( scrollbar_t );
 MGUI_ELEMENT_DECL( window_t );
 /*typedef struct checkbox_s		checkbox_t;
 typedef struct droplist_s		droplist_t;
@@ -153,6 +153,7 @@ MYLLY_API button_t*			mgui_create_button				( control_t* parent );
 MYLLY_API editbox_t*		mgui_create_editbox				( control_t* parent );
 MYLLY_API label_t*			mgui_create_label				( control_t* parent );
 MYLLY_API memobox_t*		mgui_create_memobox				( control_t* parent );
+MYLLY_API scrollbar_t*		mgui_create_scrollbar			( control_t* parent );
 MYLLY_API window_t*			mgui_create_window				( control_t* parent );
 
 MYLLY_API void				mgui_destroy_element			( element_t* element );
@@ -228,8 +229,19 @@ MYLLY_API float				mgui_memobox_get_display_pos	( memobox_t* memobox );
 MYLLY_API void				mgui_memobox_set_display_pos	( memobox_t* memobox, float pos );
 MYLLY_API bool				mgui_memobox_get_top_to_bottom	( memobox_t* memobox );
 MYLLY_API void				mgui_memobox_set_top_to_bottom	( memobox_t* memobox, bool enable );
+MYLLY_API uint32			mgui_memobox_get_lines			( memobox_t* memobox );
 MYLLY_API uint32			mgui_memobox_get_history		( memobox_t* memobox );
 MYLLY_API void				mgui_memobox_set_history		( memobox_t* memobox, uint32 lines );
+
+/* Scrollbar functions */
+MYLLY_API float				mgui_scrollbar_get_bar_pos		( scrollbar_t* scrollbar );
+MYLLY_API void				mgui_scrollbar_set_bar_pos		( scrollbar_t* scrollbar, float pos );
+MYLLY_API float				mgui_scrollbar_get_bar_size		( scrollbar_t* scrollbar );
+MYLLY_API void				mgui_scrollbar_set_bar_size		( scrollbar_t* scrollbar, float size );
+MYLLY_API float				mgui_scrollbar_get_nudge		( scrollbar_t* scrollbar );
+MYLLY_API void				mgui_scrollbar_set_nudge		( scrollbar_t* scrollbar, float amount );
+MYLLY_API uint32			mgui_scrollbar_get_track_colour	( scrollbar_t* scrollbar );
+MYLLY_API void				mgui_scrollbar_set_track_colour	( scrollbar_t* scrollbar, uint32 colour );
 
 /* Window functions */
 MYLLY_API bool				mgui_window_get_titlebar		( window_t* window );

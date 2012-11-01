@@ -237,6 +237,57 @@ static void __draw_memobox_lines( const rectangle_t* r, uint32 flags, list_t* li
 	}
 }
 
+static void __draw_scrollbar( const rectangle_t* r, colour_t* col, uint32 flags )
+{
+	UNREFERENCED_PARAM( flags );
+
+	__draw_panel( r, col );
+}
+
+static void __draw_scrollbar_bar( const rectangle_t* r, colour_t* col, uint32 flags )
+{
+	__draw_button( r, col, flags|FLAG_BORDER, NULL );
+}
+
+static void __draw_scrollbar_button( const rectangle_t* r, colour_t* col, uint32 flags, colour_t* arrowcol, uint32 direction )
+{
+	uint32 x1, x2, y1, y2, xm, ym;
+	colour_t c;
+
+	__draw_button( r, col, flags|FLAG_BORDER, NULL );
+
+	c = *arrowcol;
+	colour_add( &c, -10 );
+
+	render->set_draw_colour( &c );
+
+	x1 = r->x + r->w / 3;
+	x2 = r->x + 2 * r->w / 3;
+	y1 = r->y + r->h / 3;
+	y2 = r->y + 2 * r->h / 3;
+	xm = r->x + r->w / 2;
+	ym = r->y + r->h / 2;
+
+	switch ( direction )
+	{
+	case ARROW_UP:
+		render->draw_triangle( xm, y1, x2, y2, x1, y2 );
+		break;
+
+	case ARROW_DOWN:
+		render->draw_triangle( xm, y2, x1, y1, x2, y1 );
+		break;
+
+	case ARROW_LEFT:
+		render->draw_triangle( x1, ym, x2, y1, x2, y2 );
+		break;
+
+	case ARROW_RIGHT:
+		render->draw_triangle( x2, ym, x1, y2, x1, y1 );
+		break;
+	}
+}
+
 static void __draw_window( const rectangle_t* r, const colour_t* col, uint32 flags )
 {
 	UNREFERENCED_PARAM(flags);
@@ -285,6 +336,9 @@ skin_t* mgui_setup_skin_simple( void )
 	skin->draw_label			= __draw_label;
 	skin->draw_memobox			= __draw_memobox;
 	skin->draw_memobox_lines	= __draw_memobox_lines;
+	skin->draw_scrollbar		= __draw_scrollbar;
+	skin->draw_scrollbar_bar	= __draw_scrollbar_bar;
+	skin->draw_scrollbar_button	= __draw_scrollbar_button;
 	skin->draw_window			= __draw_window;
 	skin->draw_window_titlebar	= __draw_window_titlebar;
 

@@ -39,6 +39,12 @@
 #define BORDER_BOTTOM	0x8
 #define BORDER_ALL		(BORDER_LEFT|BORDER_RIGHT|BORDER_TOP|BORDER_BOTTOM)
 
+// Arrow directions
+#define ARROW_UP		0x1
+#define ARROW_DOWN		0x2
+#define ARROW_LEFT		0x3
+#define ARROW_RIGHT		0x4
+
 // Skin interface 
 typedef struct skin_s
 {
@@ -51,6 +57,9 @@ typedef struct skin_s
 	void			( *draw_label )					( const rectangle_t* r, colour_t* col, uint32 flags, const text_t* text );
 	void			( *draw_memobox )				( const rectangle_t* r, colour_t* col, uint32 flags );
 	void			( *draw_memobox_lines )			( const rectangle_t* r, uint32 flags, list_t* lines, node_t* first, uint32 count );
+	void			( *draw_scrollbar )				( const rectangle_t* r, colour_t* col, uint32 flags );
+	void			( *draw_scrollbar_bar )			( const rectangle_t* r, colour_t* col, uint32 flags );
+	void			( *draw_scrollbar_button )		( const rectangle_t* r, colour_t* col, uint32 flags, colour_t* arrowcol, uint32 direction );
 	void			( *draw_window )				( const rectangle_t* r, const colour_t* col, uint32 flags );
 	void			( *draw_window_titlebar )		( const rectangle_t* r, const colour_t* col, const text_t* text );
 }
