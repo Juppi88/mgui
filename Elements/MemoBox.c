@@ -361,7 +361,7 @@ void mgui_memobox_add_line( memobox_t* memobox, const char* fmt, ... )
 	len = msnprintf( tmp, lengthof(tmp), fmt, marker );
 	va_end( marker );
 
-	mgui_memobox_add_line_col_s( memobox, &tmp[0], colour_to_hex(&memobox->text->colour) );
+	mgui_memobox_add_line_col_s( memobox, &tmp[0], memobox->text->colour.hex );
 }
 
 void mgui_memobox_add_line_col( memobox_t* memobox, const char* fmt, uint32 colour, ... )
@@ -384,7 +384,7 @@ void mgui_memobox_add_line_s( memobox_t* memobox, const char* text )
 	assert( memobox != NULL );
 	assert( memobox->text != NULL );
 
-	mgui_memobox_add_line_col_s( memobox, text, colour_to_hex(&memobox->text->colour) );
+	mgui_memobox_add_line_col_s( memobox, text, memobox->text->colour.hex );
 }
 
 void mgui_memobox_add_line_col_s( memobox_t* memobox, const char* text, uint32 colour )
@@ -402,7 +402,7 @@ void mgui_memobox_add_line_col_s( memobox_t* memobox, const char* text, uint32 c
 	len = mstrlen( text );
 
 	line->text = mstrdup( text, len );
-	hex_to_colour( colour, &line->colour );
+	line->colour.hex = colour;
 
 	__mgui_memobox_process_new_line( memo, line );
 }

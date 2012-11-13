@@ -34,8 +34,8 @@ struct titlebar_s* mgui_create_titlebar( struct window_s* parent )
 	titlebar->font = parent->font;
 	titlebar->text->font = titlebar->font;
 
-	hex_to_colour( COL_TITLEBAR, &titlebar->colour );
-	hex_to_colour( COL_TITLETEXT, &titlebar->text->colour );
+	titlebar->colour.hex = COL_TITLEBAR;
+	titlebar->text->colour.hex = COL_TITLETEXT;
 
 	// Inherit some values from the parent window
 	titlebar->colour.a = parent->colour.a;

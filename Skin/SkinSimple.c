@@ -41,7 +41,7 @@ static void __draw_border( const rectangle_t* r, const colour_t* col, uint8 bord
 
 static void __draw_shadow( const rectangle_t* r, uint offset )
 {
-	static const colour_t c = { 10, 10, 10, 50 };
+	static const colour_t c = { 0x0A0A0A32 };
 
 	render->set_draw_colour( &c );
 	
@@ -57,7 +57,7 @@ static void __draw_button( const rectangle_t* r, const colour_t* col, uint32 fla
 	// Actual button
 	if ( BIT_ON( flags, FLAG_HOVER ) )
 	{
-		colour_add( &c, 10 );
+		colour_add_scalar( &c, &c, 10 );
 	}
 
 	render->set_draw_colour( &c );
@@ -79,7 +79,7 @@ static void __draw_button( const rectangle_t* r, const colour_t* col, uint32 fla
 	if ( BIT_OFF( flags, FLAG_BORDER ) ) return;
 
 	// Borders
-	colour_add( &c, 40 );
+	colour_add_scalar( &c, &c, 40 );
 
 	if ( BIT_OFF( flags, FLAG_PRESSED ) )
 	{
@@ -87,7 +87,7 @@ static void __draw_button( const rectangle_t* r, const colour_t* col, uint32 fla
 		render->draw_rect( r->x, r->y, r->w, 1 );
 		render->draw_rect( r->x, r->y, 1, r->h );
 
-		colour_add( &c, -80 );
+		colour_subtract_scalar( &c, &c, 80 );
 
 		render->set_draw_colour( &c );
 		render->draw_rect( r->x + r->w - 1, r->y, 1, r->h );
@@ -99,7 +99,7 @@ static void __draw_button( const rectangle_t* r, const colour_t* col, uint32 fla
 		render->draw_rect( r->x + r->w - 1, r->y, 1, r->h );
 		render->draw_rect( r->x, r->y + r->h - 1, r->w, 1 );
 
-		colour_add( &c, -80 );
+		colour_subtract_scalar( &c, &c, 80 );
 
 		render->set_draw_colour( &c );
 		render->draw_rect( r->x, r->y, r->w, 1 );
@@ -118,13 +118,12 @@ static void __draw_editbox( const rectangle_t* r, const colour_t* col, uint32 fl
 
 	if ( BIT_ON( flags, FLAG_BORDER ) )
 	{
-		c = *col;
-		colour_add( &c, 60 );
+		colour_add_scalar( &c, col, 60 );
 		c.a = col->a;
 
 		__draw_border( r, &c, BORDER_BOTTOM|BORDER_RIGHT, 1 );
 
-		colour_add( &c, -60 );
+		colour_subtract_scalar( &c, &c, 60 );
 		c.a = col->a;
 
 		__draw_border( r, &c, BORDER_TOP|BORDER_LEFT, 1 );
@@ -194,13 +193,12 @@ static void __draw_memobox( const rectangle_t* r, const colour_t* col, uint32 fl
 
 	if ( BIT_ON( flags, FLAG_BORDER ) )
 	{
-		c = *col;
-		colour_add( &c, 60 );
+		colour_add_scalar( &c, col, 60 );
 		c.a = col->a;
 
 		__draw_border( r, &c, BORDER_BOTTOM|BORDER_RIGHT, 1 );
 
-		colour_add( &c, -60 );
+		colour_subtract_scalar( &c, &c, 60 );
 		c.a = col->a;
 
 		__draw_border( r, &c, BORDER_TOP|BORDER_LEFT, 1 );
@@ -256,8 +254,7 @@ static void __draw_scrollbar_button( const rectangle_t* r, colour_t* col, uint32
 
 	__draw_button( r, col, flags|FLAG_BORDER, NULL );
 
-	c = *arrowcol;
-	colour_add( &c, -10 );
+	colour_subtract_scalar( &c, arrowcol, 10 );
 
 	render->set_draw_colour( &c );
 
@@ -308,7 +305,7 @@ static void __draw_window_titlebar( const rectangle_t* r, const colour_t* col, c
 	render->set_draw_colour( &c );
 	render->draw_rect( r->x, r->y+h, r->w, h2 );
 
-	colour_add( &c, 8 );
+	colour_add_scalar( &c, &c, 8 );
 
 	render->set_draw_colour( &c );
 	render->draw_rect( r->x, r->y, r->w, h );

@@ -10,6 +10,7 @@
  **********************************************************************/
 
 #include "Drawing.h"
+#include "stdtypes.h"
 #include "Stringy/Stringy.h"
 #include <gdiplus.h>
 

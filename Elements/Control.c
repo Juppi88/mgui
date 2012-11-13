@@ -221,7 +221,7 @@ static __inline element_t* __mgui_get_element_at_test_self( element_t* element, 
 		{
 			window = (struct window_s*)element;
 
-			if ( !point_in_rect( &window->window_bounds, x, y ) )
+			if ( !rect_is_point_in( &window->window_bounds, x, y ) )
 				return NULL;
 
 			if ( window->closebtn )
@@ -236,7 +236,7 @@ static __inline element_t* __mgui_get_element_at_test_self( element_t* element, 
 		}
 
 	default:
-		if ( !point_in_rect( &element->bounds, x, y ) )
+		if ( !rect_is_point_in( &element->bounds, x, y ) )
 			return NULL;
 	}
 

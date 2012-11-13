@@ -16,6 +16,7 @@
 #include "Platform/Platform.h"
 #include <malloc.h>
 #include <assert.h>
+#include <math.h>
 
 HWND hwnd;
 HDC dc;

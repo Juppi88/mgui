@@ -17,6 +17,7 @@
 
 #include "MGUI.h"
 #include "Text.h"
+#include "Types/List.h"
 
 // Some default element values
 #define COL_BACKGROUND		0xAFAF9FFF

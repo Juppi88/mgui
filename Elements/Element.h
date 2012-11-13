@@ -17,7 +17,6 @@
 #include "Text.h"
 #include "Control.h"
 #include "Input/Input.h"
-#include "Types/Types.h"
 
 /* The following are internal flags and should not be used by the library user */
 enum MGUI_INTERNAL_FLAGS

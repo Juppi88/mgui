@@ -17,6 +17,8 @@
 #define __MYLLY_GUI_CONTROL_H
 
 #include "MGUI.h"
+#include "Math/MathDefs.h"
+#include "Types/List.h"
 
 struct control_s
 {

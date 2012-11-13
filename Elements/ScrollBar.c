@@ -95,7 +95,7 @@ uint32 mgui_scrollbar_get_track_colour( scrollbar_t* scrollbar )
 	struct scrollbar_s* bar;
 	bar = (struct scrollbar_s*)scrollbar;
 
-	return colour_to_hex( &bar->track_col );
+	return bar->track_col.hex;
 }
 
 void mgui_scrollbar_set_track_colour( scrollbar_t* scrollbar, uint32 colour )
@@ -103,6 +103,6 @@ void mgui_scrollbar_set_track_colour( scrollbar_t* scrollbar, uint32 colour )
 	struct scrollbar_s* bar;
 	bar = (struct scrollbar_s*)scrollbar;
 
-	hex_to_colour( colour, &bar->track_col );
+	bar->track_col.hex = colour;
 	bar->track_col.a = bar->colour.a;
 }

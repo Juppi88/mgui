@@ -32,7 +32,7 @@ button_t* mgui_create_button( control_t* parent )
 	button->flags |= (FLAG_BORDER|FLAG_BACKGROUND|FLAG_MOUSECTRL|FLAG_KBCTRL);
 	button->type = GUI_BUTTON;
 
-	hex_to_colour( COL_ELEMENT_DARK, &button->colour );
+	button->colour.hex = COL_ELEMENT_DARK;
 
 	button->font = mgui_font_create( DEFAULT_FONT, 11, FFLAG_NONE, ANSI_CHARSET );
 	button->text->font = button->font;

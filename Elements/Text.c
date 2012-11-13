@@ -23,7 +23,7 @@ text_t* mgui_text_create( void )
 	text = (text_t*)mem_alloc_clean( sizeof(*text) );
 
 	text->alignment = ALIGN_CENTER;
-	hex_to_colour( COL_TEXT, &text->colour );
+	text->colour.hex = COL_TEXT;
 
 	return text;
 }

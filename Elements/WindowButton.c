@@ -86,6 +86,7 @@ static void __mgui_windowbutton_on_colour_update( element_t* button )
 {
 	struct windowbutton_s* btn;
 	struct window_s* wnd;
+	uint8 alpha;
 
 	btn = (struct windowbutton_s*)button;
 	wnd = (struct window_s*)btn->window;
@@ -95,10 +96,10 @@ static void __mgui_windowbutton_on_colour_update( element_t* button )
 	if ( wnd->titlebar )
 		btn->colour = wnd->titlebar->colour;
 
-	btn->text->colour.r = colour_clamp( btn->colour.r + 75 );
-	btn->text->colour.g = colour_clamp( btn->colour.g + 75 );
-	btn->text->colour.b = colour_clamp( btn->colour.b + 75 );
-	btn->text->colour.a = btn->colour.a;
+	alpha = btn->colour.a;
+
+	colour_add_scalar( &btn->text->colour, &btn->colour, 75 );
+	btn->text->colour.a = alpha;
 }
 
 static void __mgui_windowbutton_on_mouse_click( element_t* element, MOUSEBTN button, uint16 x, uint16 y )

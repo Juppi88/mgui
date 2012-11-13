@@ -44,10 +44,10 @@ void mgui_element_create( element_t* element, control_t* parent, bool has_text )
 	{
 		element->text = mgui_text_create();
 		element->text->bounds = &element->bounds;
-		hex_to_colour( COL_TEXT, &element->text->colour );
+		element->text->colour.hex = COL_TEXT;
 	}
 
-	hex_to_colour( COL_ELEMENT, &element->colour );
+	element->colour.hex = COL_ELEMENT;
 
 	// Setup default callbacks
 	element->render = __mgui_render;
@@ -447,7 +447,7 @@ void mgui_set_abs_size_v( element_t* element, const vectorscreen_t* size )
 uint32 mgui_get_colour( element_t* element )
 {
 	assert( element != NULL );
-	return colour_to_hex( &element->colour );
+	return element->colour.hex;
 }
 
 void mgui_set_colour( element_t* element, uint32 colour )
@@ -457,7 +457,7 @@ void mgui_set_colour( element_t* element, uint32 colour )
 
 	assert( element != NULL );
 
-	hex_to_colour( colour, &element->colour );
+	element->colour.hex = colour;
 
 	if ( element->text )
 		element->text->colour.a = element->colour.a;
@@ -479,7 +479,7 @@ uint32 mgui_get_text_colour( element_t* element )
 
 	if ( !element->text ) return 0;
 
-	return colour_to_hex( &element->text->colour );
+	return element->text->colour.hex;
 }
 
 void mgui_set_text_colour( element_t* element, uint32 colour )
@@ -488,7 +488,7 @@ void mgui_set_text_colour( element_t* element, uint32 colour )
 
 	if ( !element->text ) return;
 
-	hex_to_colour( colour, &element->text->colour );
+	element->text->colour.hex = colour;
 	element->text->colour.a = element->colour.a;
 }
 

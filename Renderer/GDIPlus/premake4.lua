@@ -1,6 +1,6 @@
 -- Mylly GUI renderer
 
-project "MGUI Renderer GDI+"
+project "Lib-MGUI Renderer GDI+"
 	kind "StaticLib"
 	language "C++"
 	files { "*.h", "*.c", "*.cpp", "premake4.lua" }
@@ -11,6 +11,7 @@ project "MGUI Renderer GDI+"
 	-- Windows specific stuff
 	configuration "windows"
 		targetextension ".lib"
-		buildoptions { "/wd4996" } -- C4996: This function or variable may be unsafe (mbstowcs)
+		defines { "MGUI_GDIPLUS", "__MYLLY_USE_GDIPLUS" }
+		buildoptions { "/wd4201 /wd4996" } -- -- C4201: nameless struct/union, C4996: This function or variable may be unsafe (mbstowcs)
 		configuration "Debug" targetname "mguigdid"
 		configuration "Release" targetname "mguigdi"

@@ -1,6 +1,6 @@
 -- Mylly GUI renderer
 
-project "MGUI Renderer DirectX9"
+project "Lib-MGUI Renderer DirectX9"
 	kind "StaticLib"
 	language "C++"
 	files { "*.h", "*.c", "*.cpp", "premake4.lua" }

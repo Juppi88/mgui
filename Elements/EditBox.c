@@ -52,7 +52,7 @@ editbox_t* mgui_create_editbox( control_t* parent )
 
 	editbox->cursor.w = 1;
 
-	hex_to_colour( COL_ELEMENT_DARK, &editbox->colour );
+	editbox->colour.hex = COL_ELEMENT_DARK;
 
 	// Editbox callbacks
 	editbox->destroy = __mgui_destroy_editbox;
@@ -102,7 +102,7 @@ static void __mgui_editbox_render( element_t* element )
 		{
 			// Draw the selection. TODO: Change text colour as well
 			col = editbox->colour;
-			colour_invert( &col );
+			colour_invert( &col, &col );
 			col.a = 90;
 
 			skin->draw_panel( &editbox->selection, &col );

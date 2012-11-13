@@ -14,8 +14,8 @@
 #ifndef __MYLLY_GUI_H
 #define __MYLLY_GUI_H
 
-#include "Defines.h"
-#include "Types/Types.h"
+#include "stdtypes.h"
+#include "Math/MathDefs.h"
 
 // Interface types
 typedef struct control_s	control_t;

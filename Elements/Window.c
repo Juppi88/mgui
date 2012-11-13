@@ -94,9 +94,7 @@ static void __mgui_window_render( element_t* window )
 			border.w = wnd->bounds.w - 2;
 			border.h = wnd->bounds.h;
 
-			col.r = colour_clamp( wnd->titlebar->colour.r + 60 );
-			col.g = colour_clamp( wnd->titlebar->colour.g + 60 );
-			col.b = colour_clamp( wnd->titlebar->colour.b + 60 );
+			colour_add_scalar( &col, &wnd->titlebar->colour, 60 );
 			col.a = wnd->titlebar->colour.a;
 
 			skin->draw_border( &border, &wnd->titlebar->colour, BORDER_ALL&(~BORDER_TOP), 2 );
@@ -109,9 +107,7 @@ static void __mgui_window_render( element_t* window )
 
 		if ( flags & FLAG_BORDER )
 		{
-			col.r = colour_clamp( wnd->colour.r - 40 );
-			col.g = colour_clamp( wnd->colour.g - 40 );
-			col.b = colour_clamp( wnd->colour.b - 40 );
+			colour_subtract_scalar( &col, &wnd->colour, 40 );
 			col.a = wnd->colour.a;
 
 			skin->draw_border( r, &col, BORDER_ALL, 2 );
@@ -323,7 +319,7 @@ uint32 mgui_window_get_title_col( window_t* window )
 	titlebar = ((struct window_s*)window)->titlebar;
 	if ( !titlebar ) return 0;
 
-	return colour_to_hex( &titlebar->colour );
+	return titlebar->colour.hex;
 }
 
 void mgui_window_set_title_col( window_t* window, uint32 colour )
@@ -335,7 +331,7 @@ void mgui_window_set_title_col( window_t* window, uint32 colour )
 
 	if ( !wnd->titlebar ) return;
 
-	hex_to_colour( colour, &wnd->titlebar->colour );
+	wnd->titlebar->colour.hex = colour;
 	wnd->titlebar->colour.a = window->colour.a;
 
 	if ( wnd->closebtn )

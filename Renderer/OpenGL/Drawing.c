@@ -16,7 +16,7 @@ static uint32			num_vertices = 0;				// Number of vetrices stored into the temp 
 static vertex_t			vertices[MYLLY_GUI_MAX_VERT];	// Temp buffer for vertices
 
 static colour_t			colour;							// Current drawing colour
-static const colour_t	shadow_col = { 0, 0, 0, 125 };	// Text shadow colour
+static const colour_t	shadow_col = { 0x0000007F };	// Text shadow colour
 
 #define SHADOW_OFFSET 1 // Text shadow offset in pixels
 
