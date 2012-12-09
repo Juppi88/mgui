@@ -494,7 +494,7 @@ static void __mgui_editbox_move_left( struct editbox_s* editbox )
 	
 	__mgui_editbox_refresh_cursor_bounds( editbox );
 
-	editbox->last_update = timer_get_ticks();
+	editbox->last_update = get_tick_count();
 	editbox->cursor_visible = true;
 
 	mgui_force_redraw();
@@ -509,7 +509,7 @@ static void __mgui_editbox_move_right( struct editbox_s* editbox )
 
 	__mgui_editbox_refresh_cursor_bounds( editbox );
 
-	editbox->last_update = timer_get_ticks();
+	editbox->last_update = get_tick_count();
 	editbox->cursor_visible = true;
 
 	mgui_force_redraw();
@@ -524,7 +524,7 @@ static void __mgui_editbox_press_home( struct editbox_s* editbox )
 
 	__mgui_editbox_refresh_cursor_bounds( editbox );
 
-	editbox->last_update = timer_get_ticks();
+	editbox->last_update = get_tick_count();
 	editbox->cursor_visible = true;
 
 	mgui_force_redraw();
@@ -539,7 +539,7 @@ static void __mgui_editbox_press_end( struct editbox_s* editbox )
 
 	__mgui_editbox_refresh_cursor_bounds( editbox );
 
-	editbox->last_update = timer_get_ticks();
+	editbox->last_update = get_tick_count();
 	editbox->cursor_visible = true;
 
 	mgui_force_redraw();

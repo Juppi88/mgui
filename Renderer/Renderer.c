@@ -15,16 +15,16 @@
 #include "Renderer/OpenGL/OpenGL.h"
 #endif
 #ifdef MGUI_DIRECTX8
-#include "Renderer/DirectX8/DirectX8.h"
+#include "Renderer/DirectX8/DX8.h"
 #endif
 #ifdef MGUI_DIRECTX9
-#include "Renderer/DirectX9/DirectX9.h"
+#include "Renderer/DirectX9/DX9.h"
 #endif
 #ifdef MGUI_DIRECTX10
-#include "Renderer/DirectX10/DirectX10.h"
+#include "Renderer/DirectX10/DX10.h"
 #endif
 #ifdef MGUI_DIRECTX11
-#include "Renderer/DirectX9/DirectX11.h"
+#include "Renderer/DirectX9/DX11.h"
 #endif
 #ifdef MGUI_GDIPLUS
 #include "Renderer/GDIPlus/GDI.h"

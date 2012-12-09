@@ -55,7 +55,7 @@ void mgui_process( void )
 	uint32 ticks;
 	static uint32 last_ticks;
 
-	ticks = timer_get_ticks();
+	ticks = get_tick_count();
 
 	mgui_process_controls( ticks );
 
