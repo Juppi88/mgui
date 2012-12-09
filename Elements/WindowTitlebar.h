@@ -18,14 +18,13 @@
 
 #define TITLE_H 26
 
-struct titlebar_s
+struct _MGuiTitlebar
 {
-	element_t;							// Inherit all generic element properties
-
-	struct window_s*	window;			// Parent window
+	MGuiElement;			// Inherit all generic element properties
+	MGuiWindow*	window;		// Parent window
 };
 
-struct titlebar_s*	mgui_create_titlebar		( struct window_s* parent );
-void				mgui_destroy_titlebar		( struct titlebar_s* titlebar );
+MGuiTitlebar*	mgui_create_titlebar		( MGuiWindow* parent );
+void			mgui_destroy_titlebar		( MGuiTitlebar* titlebar );
 
 #endif /* __MGUI_WINDOWTITLEBAR_H */

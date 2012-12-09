@@ -12,9 +12,9 @@
 #include "OpenGL.h"
 #include "Drawing.h"
 
-static mgui_renderer_t		renderer;
+static MGuiRenderer		renderer;
 
-mgui_renderer_t* mgui_opengl_initialize( void* syswindow )
+MGuiRenderer* mgui_opengl_initialize( void* syswindow )
 {
 	renderer.type = GUIREND_OPENGL;
 	renderer.device_context = mgui_opengl_create_context( syswindow );

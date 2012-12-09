@@ -132,14 +132,14 @@ void mgui_gdiplus_draw_textured_rect( void* texture, uint x, uint y, uint w, uin
 
 void* mgui_gdiplus_load_font( const char* name, uint size, uint flags, uint charset, uint firstc, uint lastc )
 {
-	gdifont_t* font;
+	MGuiGDIFont* font;
 	int style = 0;
 
 	UNREFERENCED_PARAM(charset);
 	UNREFERENCED_PARAM(firstc);
 	UNREFERENCED_PARAM(lastc);
 
-	font = new gdifont_t;
+	font = new MGuiGDIFont;
 
 	font->size = size;
 	font->flags = flags;
@@ -164,8 +164,8 @@ void* mgui_gdiplus_load_font( const char* name, uint size, uint flags, uint char
 
 void mgui_gdiplus_destroy_font( void* font )
 {
-	gdifont_t* fnt;
-	fnt = (gdifont_t*)font;
+	MGuiGDIFont* fnt;
+	fnt = (MGuiGDIFont*)font;
 
 	if ( fnt->font )
 	{
@@ -178,8 +178,8 @@ void mgui_gdiplus_destroy_font( void* font )
 
 void mgui_gdiplus_draw_text( void* font, const char_t* text, uint x, uint y, uint flags )
 {
-	gdifont_t* fnt;
-	fnt = (gdifont_t*)font;
+	MGuiGDIFont* fnt;
+	fnt = (MGuiGDIFont*)font;
 
 	if ( !text ) return;
 
@@ -218,9 +218,9 @@ void mgui_gdiplus_measure_text( void* font, const char_t* text, uint* w, uint* h
 {
 	Gdiplus::SizeF size;
 	Gdiplus::Graphics gfx(hwnd);
-	gdifont_t* fnt;
+	MGuiGDIFont* fnt;
 
-	fnt = (gdifont_t*)font;
+	fnt = (MGuiGDIFont*)font;
 
 	if ( !text ) return;
 

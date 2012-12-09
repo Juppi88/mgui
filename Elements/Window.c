@@ -10,21 +10,23 @@
  **********************************************************************/
 
 #include "Window.h"
+#include "WindowButton.h"
+#include "WindowTitlebar.h"
 #include "Skin.h"
 #include "Font.h"
 #include "Platform/Platform.h"
 #include <assert.h>
 
-static void __mgui_destroy_window( element_t* window );
-static void __mgui_window_render( element_t* window );
-static void __mgui_window_on_bounds_update( element_t* window, bool pos, bool size );
-static void __mgui_window_on_colour_update( element_t* window );
-static void __mgui_window_on_mouse_click( element_t* element, MOUSEBTN button, uint16 x, uint16 y );
-static void __mgui_window_on_mouse_drag( element_t* element, uint16 x, uint16 y );
+static void __mgui_destroy_window( MGuiElement* window );
+static void __mgui_window_render( MGuiElement* window );
+static void __mgui_window_on_bounds_update( MGuiElement* window, bool pos, bool size );
+static void __mgui_window_on_colour_update( MGuiElement* window );
+static void __mgui_window_on_mouse_click( MGuiElement* element, MOUSEBTN button, uint16 x, uint16 y );
+static void __mgui_window_on_mouse_drag( MGuiElement* element, uint16 x, uint16 y );
 
-window_t* mgui_create_window( control_t* parent )
+MGuiWindow* mgui_create_window( MGuiControl* parent )
 {
-	struct window_s* window;
+	struct _MGuiWindow* window;
 
 	window = mem_alloc_clean( sizeof(*window) );
 	mgui_element_create( cast_elem(window), parent, true );
@@ -49,10 +51,10 @@ window_t* mgui_create_window( control_t* parent )
 	return cast_elem(window);
 }
 
-static void __mgui_destroy_window( element_t* window )
+static void __mgui_destroy_window( MGuiElement* window )
 {
-	struct window_s* wnd;
-	wnd = (struct window_s*)window;
+	struct _MGuiWindow* wnd;
+	wnd = (struct _MGuiWindow*)window;
 
 	if ( wnd->titlebar )
 		mgui_destroy_titlebar( wnd->titlebar );
@@ -61,13 +63,13 @@ static void __mgui_destroy_window( element_t* window )
 		mgui_destroy_windowbutton( wnd->closebtn );
 }
 
-static void __mgui_window_render( element_t* window )
+static void __mgui_window_render( MGuiElement* window )
 {
 	rectangle_t* r;
 	rectangle_t border;
 	uint32 flags;
 	colour_t col;
-	struct window_s* wnd = (struct window_s*)window;
+	struct _MGuiWindow* wnd = (struct _MGuiWindow*)window;
 
 	r = &window->bounds;
 	flags = window->flags;
@@ -79,7 +81,7 @@ static void __mgui_window_render( element_t* window )
 
 	if ( BIT_ON( flags, FLAG_TITLEBAR ) && wnd->titlebar )
 	{
-		skin->draw_window_titlebar( &wnd->titlebar->bounds, &wnd->titlebar->colour, window->text );
+		skin->draw_MGuiWindowitlebar( &wnd->titlebar->bounds, &wnd->titlebar->colour, window->text );
 		skin->draw_window( r, &window->colour, flags );
 
 		if ( BIT_ON( flags, FLAG_CLOSEBTN ) && wnd->closebtn )
@@ -115,10 +117,10 @@ static void __mgui_window_render( element_t* window )
 	}
 }
 
-static void __mgui_window_on_bounds_update( element_t* window, bool pos, bool size )
+static void __mgui_window_on_bounds_update( MGuiElement* window, bool pos, bool size )
 {
-	struct window_s* wnd;
-	wnd = (struct window_s*)window;
+	struct _MGuiWindow* wnd;
+	wnd = (struct _MGuiWindow*)window;
 
 	UNREFERENCED_PARAM(pos);
 
@@ -157,10 +159,10 @@ static void __mgui_window_on_bounds_update( element_t* window, bool pos, bool si
 	}
 }
 
-static void __mgui_window_on_colour_update( element_t* window )
+static void __mgui_window_on_colour_update( MGuiElement* window )
 {
-	struct window_s* wnd;
-	wnd = (struct window_s*)window;
+	struct _MGuiWindow* wnd;
+	wnd = (struct _MGuiWindow*)window;
 
 	if ( wnd->titlebar )
 	{
@@ -172,26 +174,26 @@ static void __mgui_window_on_colour_update( element_t* window )
 	}
 }
 
-static void __mgui_window_on_mouse_click( element_t* element, MOUSEBTN button, uint16 x, uint16 y )
+static void __mgui_window_on_mouse_click( MGuiElement* element, MOUSEBTN button, uint16 x, uint16 y )
 {
-	struct window_s* window;
+	struct _MGuiWindow* window;
 	extern rectangle_t screen_rect;
 
 	UNREFERENCED_PARAM(button);
 
-	window = (struct window_s*)element;
+	window = (struct _MGuiWindow*)element;
 
 	window->click_offset.x = x;
 	window->click_offset.y = y;
 }
 
-static void __mgui_window_on_mouse_drag( element_t* element, uint16 x, uint16 y )
+static void __mgui_window_on_mouse_drag( MGuiElement* element, uint16 x, uint16 y )
 {
 	node_t* node;
-	element_t* child;
-	guievent_t guievent;
+	MGuiElement* child;
+	MGuiEvent guievent;
 	extern vectorscreen_t screen_size;
-	struct window_s* window = (struct window_s*)element;
+	struct _MGuiWindow* window = (struct _MGuiWindow*)element;
 
 	window->bounds.x = (uint16)math_clamp( (int16)x - window->click_offset.x, 0, screen_size.x - window->window_bounds.w );
 	window->bounds.y = (uint16)math_clamp( (int16)y - window->click_offset.y, 0, screen_size.y - window->window_bounds.h );
@@ -218,16 +220,16 @@ static void __mgui_window_on_mouse_drag( element_t* element, uint16 x, uint16 y 
 	}
 }
 
-bool mgui_window_get_titlebar( window_t* window )
+bool mgui_window_get_titlebar( MGuiWindow* window )
 {
 	assert( window != NULL );
 	return BIT_ON( window->flags, FLAG_TITLEBAR );
 }
 
-void mgui_window_set_titlebar( window_t* window, bool enabled )
+void mgui_window_set_titlebar( MGuiWindow* window, bool enabled )
 {
-	struct window_s* wnd;
-	wnd = (struct window_s*)window;
+	struct _MGuiWindow* wnd;
+	wnd = (struct _MGuiWindow*)window;
 
 	assert( window != NULL );
 
@@ -236,7 +238,7 @@ void mgui_window_set_titlebar( window_t* window, bool enabled )
 		if ( BIT_ON( window->flags, FLAG_TITLEBAR ) ) return;
 
 		window->flags |= FLAG_TITLEBAR;
-		wnd->titlebar = mgui_create_titlebar( wnd );
+		wnd->titlebar = mgui_create_titlebar( window );
 
 		wnd->titlebar->bounds.x = window->bounds.x;
 		wnd->titlebar->bounds.y = window->bounds.y;
@@ -271,16 +273,16 @@ void mgui_window_set_titlebar( window_t* window, bool enabled )
 	}
 }
 
-bool mgui_window_get_closebtn( window_t* window )
+bool mgui_window_get_closebtn( MGuiWindow* window )
 {
 	assert( window != NULL );
 	return BIT_ON( window->flags, FLAG_CLOSEBTN );
 }
 
-void mgui_window_set_closebtn( window_t* window, bool enabled )
+void mgui_window_set_closebtn( MGuiWindow* window, bool enabled )
 {
-	struct window_s* wnd;
-	wnd = (struct window_s*)window;
+	struct _MGuiWindow* wnd;
+	wnd = (struct _MGuiWindow*)window;
 
 	assert( window != NULL );
 
@@ -292,7 +294,7 @@ void mgui_window_set_closebtn( window_t* window, bool enabled )
 		window->flags |= FLAG_CLOSEBTN;
 
 		if ( !wnd->closebtn )
-			wnd->closebtn = mgui_create_windowbutton( wnd );
+			wnd->closebtn = mgui_create_windowbutton( window );
 
 		wnd->closebtn->on_bounds_update( cast_elem(wnd->closebtn), true, true );
 	}
@@ -310,22 +312,22 @@ void mgui_window_set_closebtn( window_t* window, bool enabled )
 	}
 }
 
-uint32 mgui_window_get_title_col( window_t* window )
+uint32 mgui_window_get_title_col( MGuiWindow* window )
 {
-	struct titlebar_s* titlebar;
+	MGuiTitlebar* titlebar;
 
 	assert( window != NULL );
 
-	titlebar = ((struct window_s*)window)->titlebar;
+	titlebar = ((struct _MGuiWindow*)window)->titlebar;
 	if ( !titlebar ) return 0;
 
 	return titlebar->colour.hex;
 }
 
-void mgui_window_set_title_col( window_t* window, uint32 colour )
+void mgui_window_set_title_col( MGuiWindow* window, uint32 colour )
 {
-	struct window_s* wnd;
-	wnd = (struct window_s*)window;
+	struct _MGuiWindow* wnd;
+	wnd = (struct _MGuiWindow*)window;
 
 	assert( window != NULL );
 
@@ -340,18 +342,18 @@ void mgui_window_set_title_col( window_t* window, uint32 colour )
 	}
 }
 
-void mgui_window_get_drag_offset( window_t* window, uint16* x, uint16* y )
+void mgui_window_get_drag_offset( MGuiWindow* window, uint16* x, uint16* y )
 {
 	assert( window != NULL );
 
-	*x = ((struct window_s*)window)->click_offset.x;
-	*y = ((struct window_s*)window)->click_offset.y;
+	*x = ((struct _MGuiWindow*)window)->click_offset.x;
+	*y = ((struct _MGuiWindow*)window)->click_offset.y;
 }
 
-void mgui_window_get_drag_offset_v( window_t* window, vectorscreen_t* pos )
+void mgui_window_get_drag_offset_v( MGuiWindow* window, vectorscreen_t* pos )
 {
 	assert( window != NULL );
 	assert( pos != NULL );
 
-	*pos = ((struct window_s*)window)->click_offset;
+	*pos = ((struct _MGuiWindow*)window)->click_offset;
 }

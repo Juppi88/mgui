@@ -170,7 +170,7 @@ void mgui_opengl_draw_textured_rect( void* texture, uint x, uint y, uint w, uint
 // Font loading related functions are platform dependent,
 // hence they're located in OpenGLWin/X11.c
 
-static __inline uint32 __render_char( oglfont_t* font, uint32 c, uint32 x, uint32 y, uint32 flags )
+static __inline uint32 __render_char( MGuiGLFont* font, uint32 c, uint32 x, uint32 y, uint32 flags )
 {
 	float x1, y1, x2, y2;
 	float space, offset;
@@ -226,7 +226,7 @@ void mgui_opengl_draw_text( void* font, const char_t* text, uint x, uint y, uint
 {
 	uint32 dx, dy, c;
 	register const char_t* s;
-	oglfont_t* fnt = font;
+	MGuiGLFont* fnt = font;
 
 	assert( font != NULL );
 
@@ -267,7 +267,7 @@ void mgui_opengl_measure_text( void* font, const char_t* text, uint* x_out, uint
 	float tmp1, tmp2;
 	register const char_t* s;
 	uint32 c;
-	oglfont_t* fnt = font;
+	MGuiGLFont* fnt = font;
 
 	assert( font != NULL );
 	assert( text != NULL );

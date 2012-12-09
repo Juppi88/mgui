@@ -17,8 +17,8 @@
 
 __BEGIN_DECLS
 
-MYLLY_API mgui_renderer_t*	mgui_dx8_initialize			( void* syswindow );
-MYLLY_API void				mgui_dx8_shutdown			( void );
+MYLLY_API MGuiRenderer*	mgui_dx8_initialize			( void* syswindow );
+MYLLY_API void			mgui_dx8_shutdown			( void );
 
 __END_DECLS
 

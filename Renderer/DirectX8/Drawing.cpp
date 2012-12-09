@@ -41,7 +41,7 @@ typedef struct
 	uint32		data_len;
 	float**		coords;
 	IDirect3DTexture8 * texture;
-} dxfont_t;
+} MGuiDX8Font;
 
 extern IDirect3DDevice8*		D3DDevice;
 
@@ -217,7 +217,7 @@ void mgui_dx8_draw_textured_rect( void* texture, uint x, uint y, uint w, uint h 
 
 }
 
-static bool __measure_font( HDC tmpdc, dxfont_t* font, bool print )
+static bool __measure_font( HDC tmpdc, MGuiDX8Font* font, bool print )
 {
 	SIZE size;
 	uint32 x, y;
@@ -262,73 +262,6 @@ static bool __measure_font( HDC tmpdc, dxfont_t* font, bool print )
 
 	return true;
 }
-#include <fstream>
-using namespace std;
-void CaptureScreen(HWND window, const char* filename,HBITMAP mappi)
-{
-	// get screen rectangle
-	RECT windowRect;
-	GetWindowRect(window, &windowRect);
-
-	// bitmap dimensions
-	int bitmap_dx = windowRect.right - windowRect.left;
-	int bitmap_dy = windowRect.bottom - windowRect.top;
-
-	// create file
-	ofstream file(filename, ios::binary);
-	if(!file) return;
-
-	// save bitmap file headers
-	BITMAPFILEHEADER fileHeader;
-	BITMAPINFOHEADER infoHeader;
-	file.write((char*)&fileHeader, sizeof(fileHeader));
-	file.write((char*)&infoHeader, sizeof(infoHeader));
-
-	fileHeader.bfType      = 0x4d42;
-	fileHeader.bfSize      = 0;
-	fileHeader.bfReserved1 = 0;
-	fileHeader.bfReserved2 = 0;
-	fileHeader.bfOffBits   = sizeof(BITMAPFILEHEADER) + sizeof(BITMAPINFOHEADER);
-
-	infoHeader.biSize          = sizeof(infoHeader);
-	infoHeader.biWidth         = bitmap_dx;
-	infoHeader.biHeight        = bitmap_dy;
-	infoHeader.biPlanes        = 1;
-	infoHeader.biBitCount      = 24;
-	infoHeader.biCompression   = BI_RGB;
-	infoHeader.biSizeImage     = 0;
-	infoHeader.biXPelsPerMeter = 0;
-	infoHeader.biYPelsPerMeter = 0;
-	infoHeader.biClrUsed       = 0;
-	infoHeader.biClrImportant  = 0;
-
-	file.write((char*)&fileHeader, sizeof(fileHeader));
-	file.write((char*)&infoHeader, sizeof(infoHeader));
-
-	// dibsection information
-	BITMAPINFO info;
-	info.bmiHeader = infoHeader; 
-
-	// ------------------
-	// THE IMPORTANT CODE
-	// ------------------
-	// create a dibsection and blit the window contents to the bitmap
-	HDC winDC = GetWindowDC(window);
-	HDC memDC = CreateCompatibleDC(winDC);
-	BYTE* memory = 0;
-	HBITMAP bitmap = CreateDIBSection(winDC, &info, DIB_RGB_COLORS, (void**)&memory, 0, 0);
-	SelectObject(memDC, bitmap);
-	BitBlt(memDC, 0, 0, bitmap_dx, bitmap_dy, winDC, 0, 0, SRCCOPY);
-	DeleteDC(memDC);
-	ReleaseDC(window, winDC);
-
-	// save dibsection data
-	int bytes = (((24*bitmap_dx + 31) & (~31))/8)*bitmap_dy;
-	file.write((const char*)memory, bytes);
-
-	// HA HA, forgot paste in the DeleteObject lol, happy now ;)?
-	DeleteObject(bitmap);
-}
 
 void* mgui_dx8_load_font( const char* name, uint32 size, uint32 flags, uint32 charset, uint32 firstc, uint32 lastc )
 {
@@ -338,7 +271,7 @@ void* mgui_dx8_load_font( const char* name, uint32 size, uint32 flags, uint32 ch
 	HBITMAP bitmap;
 	HGDIOBJ bmold;
 	BITMAP bm;
-	dxfont_t* font;
+	MGuiDX8Font* font;
 	HDC tmpdc;
 	uint32 i, *pixels;
 	float ratio;
@@ -361,7 +294,7 @@ void* mgui_dx8_load_font( const char* name, uint32 size, uint32 flags, uint32 ch
 	firstc = firstc > 32 ? firstc : 32;
 	lastc = lastc > firstc ? lastc : 255;
 
-	font = (dxfont_t*)mem_alloc( sizeof(*font) );
+	font = (MGuiDX8Font*)mem_alloc( sizeof(*font) );
 	font->first_char = firstc;
 	font->last_char = lastc++;
 	font->data_len = lastc - firstc;
@@ -414,29 +347,6 @@ void* mgui_dx8_load_font( const char* name, uint32 size, uint32 flags, uint32 ch
 
 	GetObject( bitmap, sizeof(BITMAP), &bm );
 
-	//------------------------------------------------------------------------------------------------
-	extern HWND wnd;
-///CaptureScreen( wnd, "paskaa.bmp" );
-
-	ofstream file("paskaa.bmp", ios::binary);
-
-	// save bitmap file headers
-	BITMAPFILEHEADER fileHeader;
-	BITMAPINFOHEADER infoHeader;
-
-	fileHeader.bfType      = 0x4d42;
-	fileHeader.bfSize      = 0;
-	fileHeader.bfReserved1 = 0;
-	fileHeader.bfReserved2 = 0;
-	fileHeader.bfOffBits   = sizeof(BITMAPFILEHEADER) + sizeof(BITMAPINFOHEADER);
-
-	file.write((char*)&fileHeader, sizeof(fileHeader));
-	file.write((char*)&bmi.bmiHeader, sizeof(bmi.bmiHeader));
-
-//	int bytes = (((24*font->width + 31) & (~31))/8)*font->height;
-	file.write((const char*)&bm_bits, bm.bmWidthBytes*bm.bmHeight);
-
-
 	// Hacky method to convert the background colour (black) to alpha
 #if 1
 	for ( i = 0, pixels = (uint32*)bm.bmBits; i < font->width * font->height; i++ )
@@ -479,7 +389,7 @@ void* mgui_dx8_load_font( const char* name, uint32 size, uint32 flags, uint32 ch
 
 void mgui_dx8_destroy_font( void* font )
 {
-	dxfont_t* dxfont = (dxfont_t*)font;
+	MGuiDX8Font* dxfont = (MGuiDX8Font*)font;
 
 	if ( dxfont->texture )
 		dxfont->texture->Release();
@@ -489,7 +399,7 @@ void mgui_dx8_destroy_font( void* font )
 	mem_free( font );
 }
 
-static __inline uint32 __render_char( dxfont_t* font, uint32 c, uint32 x, uint32 y, uint32 flags )
+static __inline uint32 __render_char( MGuiDX8Font* font, uint32 c, uint32 x, uint32 y, uint32 flags )
 {
 	float x1, y1, x2, y2;
 	float space, offset;
@@ -551,7 +461,7 @@ void mgui_dx8_draw_text( void* font, const char_t* text, uint x, uint y, uint fl
 {
 	uint32 dx, dy, c;
 	register const char_t* s;
-	dxfont_t* fnt = (dxfont_t*)font;
+	MGuiDX8Font* fnt = (MGuiDX8Font*)font;
 
 	assert( font != NULL );
 
@@ -586,7 +496,7 @@ void mgui_dx8_measure_text( void* font, const char_t* text, uint* x_out, uint* y
 	float tmp1, tmp2;
 	register const char_t* s;
 	uint32 c;
-	dxfont_t* fnt = (dxfont_t*)font;
+	MGuiDX8Font* fnt = (MGuiDX8Font*)font;
 
 	assert( font != NULL );
 	assert( text != NULL );

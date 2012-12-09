@@ -15,14 +15,14 @@
 #include "Input/Input.h"
 #include "Platform/Platform.h"
 
-static void __mgui_destroy_button( element_t* button );
-static void __mgui_button_render( element_t* button );
-static void __mgui_button_on_bounds_update( element_t* button, bool pos, bool size );
-static void __mgui_button_on_mouse_enter( element_t* button );
-static void __mgui_button_on_mouse_leave( element_t* button );
-static void __mgui_button_on_key_press( element_t* element, uint key, bool down );
+static void __mgui_destroy_button( MGuiElement* button );
+static void __mgui_button_render( MGuiElement* button );
+static void __mgui_button_on_bounds_update( MGuiElement* button, bool pos, bool size );
+static void __mgui_button_on_mouse_enter( MGuiElement* button );
+static void __mgui_button_on_mouse_leave( MGuiElement* button );
+static void __mgui_button_on_key_press( MGuiElement* element, uint key, bool down );
 
-button_t* mgui_create_button( control_t* parent )
+MGuiButton* mgui_create_button( MGuiControl* parent )
 {
 	struct button_s* button;
 
@@ -47,30 +47,30 @@ button_t* mgui_create_button( control_t* parent )
 	return cast_elem(button);
 }
 
-static void __mgui_destroy_button( element_t* button )
+static void __mgui_destroy_button( MGuiElement* button )
 {
 	UNREFERENCED_PARAM(button);
 	// Nothing to do here.
 }
 
-static void __mgui_button_render( element_t* button )
+static void __mgui_button_render( MGuiElement* button )
 {
 	skin->draw_button( &button->bounds, &button->colour, button->flags, button->text );
 }
 
-static void __mgui_button_on_mouse_enter( element_t* button )
+static void __mgui_button_on_mouse_enter( MGuiElement* button )
 {
 	UNREFERENCED_PARAM( button );
 }
 
-static void __mgui_button_on_mouse_leave( element_t* button )
+static void __mgui_button_on_mouse_leave( MGuiElement* button )
 {
 	UNREFERENCED_PARAM( button );
 }
 
-static void __mgui_button_on_key_press( element_t* element, uint key, bool down )
+static void __mgui_button_on_key_press( MGuiElement* element, uint key, bool down )
 {
-	guievent_t guievent;
+	MGuiEvent guievent;
 	
 	if ( key != MKEY_RETURN && key != MKEY_SPACE ) return;
 

@@ -18,30 +18,30 @@
 #include "Math/MathDefs.h"
 
 // Interface types
-typedef struct control_s	control_t;
-typedef struct element_s	element_t;
+typedef struct _MGuiControl	MGuiControl;
+typedef struct _MGuiElement	MGuiElement;
 
-#define MGUI_ELEMENT_DECL(x) typedef element_t x
+#define MGUI_ELEMENT_DECL(x) typedef MGuiElement x
 
 // GUI elements
-MGUI_ELEMENT_DECL( button_t );
-MGUI_ELEMENT_DECL( editbox_t );
-MGUI_ELEMENT_DECL( label_t );
-MGUI_ELEMENT_DECL( memobox_t );
-MGUI_ELEMENT_DECL( scrollbar_t );
-MGUI_ELEMENT_DECL( window_t );
+MGUI_ELEMENT_DECL( MGuiButton );
+MGUI_ELEMENT_DECL( MGuiEditbox );
+MGUI_ELEMENT_DECL( MGuiLabel );
+MGUI_ELEMENT_DECL( MGuiMemobox );
+MGUI_ELEMENT_DECL( MGuiScrollbar );
+MGUI_ELEMENT_DECL( MGuiWindow );
 /*typedef struct checkbox_s		checkbox_t;
 typedef struct droplist_s		droplist_t;
 typedef struct gridlist_s		gridlist_t;
 typedef struct menubar_s		menubar_t;
 typedef struct progbar_s		progbar_t;
-typedef struct radiobutton_s	radiobutton_t;
+typedef struct radiobutton_s	radioMGuiButton;
 typedef struct slider_s			slider_t;
 typedef struct sprite_s			sprite_t;
 typedef struct tab_s			tab_t;*/
 
-#define cast_elem(x) ((element_t*)x)
-#define cast_ctrl(x) ((control_t*)x)
+#define cast_elem(x) ((MGuiElement*)x)
+#define cast_ctrl(x) ((MGuiControl*)x)
 #define cast_node(x) ((node_t*)x)
 
 typedef enum
@@ -107,7 +107,7 @@ typedef enum
 typedef struct 
 {
 	MGUI_EVENT		type;		// Event type
-	element_t*		element;	// The element which triggered this event
+	MGuiElement*		element;	// The element which triggered this event
 	void*			data;		// User specified data
 
 	union {
@@ -120,10 +120,10 @@ typedef struct
 			uint32	key;		// Keyboard key
 		} keyboard;
 	};
-} guievent_t;
+} MGuiEvent;
 
 // GUI event hook type
-typedef void ( *mgui_event_handler_t )( guievent_t* event );
+typedef void ( *mgui_event_handler_t )( MGuiEvent* event );
 
 __BEGIN_DECLS
 
@@ -136,122 +136,122 @@ MYLLY_API void				mgui_set_renderer				( MGUI_RENDERER renderer );
 MYLLY_API void				mgui_set_skin					( const char_t* skinimg );
 
 /* Misc functions */
-MYLLY_API element_t*		mgui_get_focus					( void );
-MYLLY_API void				mgui_set_focus					( element_t* element );
+MYLLY_API MGuiElement*		mgui_get_focus					( void );
+MYLLY_API void				mgui_set_focus					( MGuiElement* element );
 
 /* Element relations */
-MYLLY_API void				mgui_add_child					( control_t* parent, element_t* child );
-MYLLY_API void				mgui_remove_child				( element_t* child );
-MYLLY_API void				mgui_move_forward				( element_t* child );
-MYLLY_API void				mgui_move_backward				( element_t* child );
-MYLLY_API void				mgui_send_to_top				( element_t* child );
-MYLLY_API void				mgui_send_to_bottom				( element_t* child );
-MYLLY_API bool				mgui_is_child_of				( control_t* parent, element_t* child );
+MYLLY_API void				mgui_add_child					( MGuiControl* parent, MGuiElement* child );
+MYLLY_API void				mgui_remove_child				( MGuiElement* child );
+MYLLY_API void				mgui_move_forward				( MGuiElement* child );
+MYLLY_API void				mgui_move_backward				( MGuiElement* child );
+MYLLY_API void				mgui_send_to_top				( MGuiElement* child );
+MYLLY_API void				mgui_send_to_bottom				( MGuiElement* child );
+MYLLY_API bool				mgui_is_child_of				( MGuiControl* parent, MGuiElement* child );
 
 /* Element constructors */
-MYLLY_API button_t*			mgui_create_button				( control_t* parent );
-MYLLY_API editbox_t*		mgui_create_editbox				( control_t* parent );
-MYLLY_API label_t*			mgui_create_label				( control_t* parent );
-MYLLY_API memobox_t*		mgui_create_memobox				( control_t* parent );
-MYLLY_API scrollbar_t*		mgui_create_scrollbar			( control_t* parent );
-MYLLY_API window_t*			mgui_create_window				( control_t* parent );
+MYLLY_API MGuiButton*		mgui_create_button				( MGuiControl* parent );
+MYLLY_API MGuiEditbox*		mgui_create_editbox				( MGuiControl* parent );
+MYLLY_API MGuiLabel*			mgui_create_label				( MGuiControl* parent );
+MYLLY_API MGuiMemobox*		mgui_create_memobox				( MGuiControl* parent );
+MYLLY_API MGuiScrollbar*	mgui_create_scrollbar			( MGuiControl* parent );
+MYLLY_API MGuiWindow*		mgui_create_window				( MGuiControl* parent );
 
-MYLLY_API void				mgui_destroy_element			( element_t* element );
+MYLLY_API void				mgui_destroy_element			( MGuiElement* element );
 
-MYLLY_API control_t*		mgui_create_control				( void );
-MYLLY_API void				mgui_destroy_control			( control_t* control );
+MYLLY_API MGuiControl*		mgui_create_control				( void );
+MYLLY_API void				mgui_destroy_control			( MGuiControl* control );
 
 /* Generic element manipulation */
-MYLLY_API void				mgui_get_pos					( element_t* element, float* x, float* y );
-MYLLY_API void				mgui_get_size					( element_t* element, float* w, float* h );
-MYLLY_API void				mgui_set_pos					( element_t* element, float x, float y );
-MYLLY_API void				mgui_set_size					( element_t* element, float w, float h );
-MYLLY_API void				mgui_get_pos_v					( element_t* element, vector2_t* pos );
-MYLLY_API void				mgui_get_size_v					( element_t* element, vector2_t* size );
-MYLLY_API void				mgui_set_pos_v					( element_t* element, const vector2_t* pos );
-MYLLY_API void				mgui_set_size_v					( element_t* element, const vector2_t* size );
-MYLLY_API void				mgui_get_abs_pos				( element_t* element, uint16* x, uint16* y );
-MYLLY_API void				mgui_get_abs_size				( element_t* element, uint16* w, uint16* h );
-MYLLY_API void				mgui_set_abs_pos				( element_t* element, uint16 x, uint16 y );
-MYLLY_API void				mgui_set_abs_size				( element_t* element, uint16 w, uint16 h );
-MYLLY_API void				mgui_get_abs_pos_v				( element_t* element, vectorscreen_t* pos );
-MYLLY_API void				mgui_get_abs_size_v				( element_t* element, vectorscreen_t* size );
-MYLLY_API void				mgui_set_abs_pos_v				( element_t* element, const vectorscreen_t* pos );
-MYLLY_API void				mgui_set_abs_size_v				( element_t* element, const vectorscreen_t* size );
+MYLLY_API void				mgui_get_pos					( MGuiElement* element, float* x, float* y );
+MYLLY_API void				mgui_get_size					( MGuiElement* element, float* w, float* h );
+MYLLY_API void				mgui_set_pos					( MGuiElement* element, float x, float y );
+MYLLY_API void				mgui_set_size					( MGuiElement* element, float w, float h );
+MYLLY_API void				mgui_get_pos_v					( MGuiElement* element, vector2_t* pos );
+MYLLY_API void				mgui_get_size_v					( MGuiElement* element, vector2_t* size );
+MYLLY_API void				mgui_set_pos_v					( MGuiElement* element, const vector2_t* pos );
+MYLLY_API void				mgui_set_size_v					( MGuiElement* element, const vector2_t* size );
+MYLLY_API void				mgui_get_abs_pos				( MGuiElement* element, uint16* x, uint16* y );
+MYLLY_API void				mgui_get_abs_size				( MGuiElement* element, uint16* w, uint16* h );
+MYLLY_API void				mgui_set_abs_pos				( MGuiElement* element, uint16 x, uint16 y );
+MYLLY_API void				mgui_set_abs_size				( MGuiElement* element, uint16 w, uint16 h );
+MYLLY_API void				mgui_get_abs_pos_v				( MGuiElement* element, vectorscreen_t* pos );
+MYLLY_API void				mgui_get_abs_size_v				( MGuiElement* element, vectorscreen_t* size );
+MYLLY_API void				mgui_set_abs_pos_v				( MGuiElement* element, const vectorscreen_t* pos );
+MYLLY_API void				mgui_set_abs_size_v				( MGuiElement* element, const vectorscreen_t* size );
 
-MYLLY_API uint32			mgui_get_colour					( element_t* element );
-MYLLY_API void				mgui_set_colour					( element_t* element, uint32 colour );
-MYLLY_API uint8				mgui_get_alpha					( element_t* element );
-MYLLY_API void				mgui_set_alpha					( element_t* element, uint8 alpha );
-MYLLY_API uint32			mgui_get_text_colour			( element_t* element );
-MYLLY_API void				mgui_set_text_colour			( element_t* element, uint32 colour );
+MYLLY_API uint32			mgui_get_colour					( MGuiElement* element );
+MYLLY_API void				mgui_set_colour					( MGuiElement* element, uint32 colour );
+MYLLY_API uint8				mgui_get_alpha					( MGuiElement* element );
+MYLLY_API void				mgui_set_alpha					( MGuiElement* element, uint8 alpha );
+MYLLY_API uint32			mgui_get_text_colour			( MGuiElement* element );
+MYLLY_API void				mgui_set_text_colour			( MGuiElement* element, uint32 colour );
 
-MYLLY_API const char_t*		mgui_get_text					( element_t* element );
-MYLLY_API uint32			mgui_get_text_len				( element_t* element );
-MYLLY_API void				mgui_set_text					( element_t* element, const char_t* fmt, ... );
-MYLLY_API void				mgui_set_text_s					( element_t* element, const char_t* text );
-MYLLY_API uint32			mgui_get_alignment				( element_t* element );
-MYLLY_API void				mgui_set_alignment				( element_t* element, uint32 alignment );
-MYLLY_API void				mgui_get_text_padding			( element_t* element, uint8* top, uint8* bottom, uint8* left, uint8* right );
-MYLLY_API void				mgui_set_text_padding			( element_t* element, uint8 top, uint8 bottom, uint8 left, uint8 right );
+MYLLY_API const char_t*		mgui_get_text					( MGuiElement* element );
+MYLLY_API uint32			mgui_get_text_len				( MGuiElement* element );
+MYLLY_API void				mgui_set_text					( MGuiElement* element, const char_t* fmt, ... );
+MYLLY_API void				mgui_set_text_s					( MGuiElement* element, const char_t* text );
+MYLLY_API uint32			mgui_get_alignment				( MGuiElement* element );
+MYLLY_API void				mgui_set_alignment				( MGuiElement* element, uint32 alignment );
+MYLLY_API void				mgui_get_text_padding			( MGuiElement* element, uint8* top, uint8* bottom, uint8* left, uint8* right );
+MYLLY_API void				mgui_set_text_padding			( MGuiElement* element, uint8 top, uint8 bottom, uint8 left, uint8 right );
 
-MYLLY_API const char_t*		mgui_get_font_name				( element_t* element );
-MYLLY_API uint8				mgui_get_font_size				( element_t* element );
-MYLLY_API uint8				mgui_get_font_flags				( element_t* element );
-MYLLY_API void				mgui_set_font_name				( element_t* element, const char_t* font );
-MYLLY_API void				mgui_set_font_size				( element_t* element, uint8 size );
-MYLLY_API void				mgui_set_font_flags				( element_t* element, uint8 flags );
-MYLLY_API void				mgui_set_font					( element_t* element, const char_t* font, uint8 size, uint8 flags, uint8 charset );
+MYLLY_API const char_t*		mgui_get_font_name				( MGuiElement* element );
+MYLLY_API uint8				mgui_get_font_size				( MGuiElement* element );
+MYLLY_API uint8				mgui_get_font_flags				( MGuiElement* element );
+MYLLY_API void				mgui_set_font_name				( MGuiElement* element, const char_t* font );
+MYLLY_API void				mgui_set_font_size				( MGuiElement* element, uint8 size );
+MYLLY_API void				mgui_set_font_flags				( MGuiElement* element, uint8 flags );
+MYLLY_API void				mgui_set_font					( MGuiElement* element, const char_t* font, uint8 size, uint8 flags, uint8 charset );
 
-MYLLY_API uint32			mgui_get_flags					( element_t* element );
-MYLLY_API void				mgui_set_flags					( element_t* element, const uint32 flags );
-MYLLY_API void				mgui_add_flags					( element_t* element, const uint32 flags );
-MYLLY_API void				mgui_remove_flags				( element_t* element, const uint32 flags );
+MYLLY_API uint32			mgui_get_flags					( MGuiElement* element );
+MYLLY_API void				mgui_set_flags					( MGuiElement* element, const uint32 flags );
+MYLLY_API void				mgui_add_flags					( MGuiElement* element, const uint32 flags );
+MYLLY_API void				mgui_remove_flags				( MGuiElement* element, const uint32 flags );
 
-MYLLY_API void				mgui_set_event_handler			( element_t* element, mgui_event_handler_t handler, void* data );
+MYLLY_API void				mgui_set_event_handler			( MGuiElement* element, mgui_event_handler_t handler, void* data );
 
 /* Editbox functions */
-MYLLY_API void				mgui_editbox_get_selection		( editbox_t* editbox, char_t* buf, size_t buflen );
-MYLLY_API void				mgui_editbox_select_text		( editbox_t* editbox, uint32 begin, uint32 end );
-MYLLY_API uint32			mgui_editbox_get_cursor_pos		( editbox_t* editbox );
-MYLLY_API void				mgui_editbox_set_cursor_pos		( editbox_t* editbox, uint32 pos );
+MYLLY_API void				mgui_editbox_get_selection		( MGuiEditbox* editbox, char_t* buf, size_t buflen );
+MYLLY_API void				mgui_editbox_select_text		( MGuiEditbox* editbox, uint32 begin, uint32 end );
+MYLLY_API uint32			mgui_editbox_get_cursor_pos		( MGuiEditbox* editbox );
+MYLLY_API void				mgui_editbox_set_cursor_pos		( MGuiEditbox* editbox, uint32 pos );
 
 /* Label functions */
-MYLLY_API void				mgui_label_make_text_fit		( label_t* label );
+MYLLY_API void				mgui_label_make_text_fit		( MGuiLabel* label );
 
 /* Memobox functions */
-MYLLY_API void				mgui_memobox_add_line			( memobox_t* memobox, const char* fmt, ... );
-MYLLY_API void				mgui_memobox_add_line_col		( memobox_t* memobox, const char* fmt, uint32 col, ... );
-MYLLY_API void				mgui_memobox_add_line_s			( memobox_t* memobox, const char* text );
-MYLLY_API void				mgui_memobox_add_line_col_s		( memobox_t* memobox, const char* text, uint32 col );
-MYLLY_API void				mgui_memobox_clear				( memobox_t* memobox );
-MYLLY_API float				mgui_memobox_get_display_pos	( memobox_t* memobox );
-MYLLY_API void				mgui_memobox_set_display_pos	( memobox_t* memobox, float pos );
-MYLLY_API bool				mgui_memobox_get_top_to_bottom	( memobox_t* memobox );
-MYLLY_API void				mgui_memobox_set_top_to_bottom	( memobox_t* memobox, bool enable );
-MYLLY_API uint32			mgui_memobox_get_lines			( memobox_t* memobox );
-MYLLY_API uint32			mgui_memobox_get_history		( memobox_t* memobox );
-MYLLY_API void				mgui_memobox_set_history		( memobox_t* memobox, uint32 lines );
+MYLLY_API void				mgui_memobox_add_line			( MGuiMemobox* memobox, const char* fmt, ... );
+MYLLY_API void				mgui_memobox_add_line_col		( MGuiMemobox* memobox, const char* fmt, uint32 col, ... );
+MYLLY_API void				mgui_memobox_add_line_s			( MGuiMemobox* memobox, const char* text );
+MYLLY_API void				mgui_memobox_add_line_col_s		( MGuiMemobox* memobox, const char* text, uint32 col );
+MYLLY_API void				mgui_memobox_clear				( MGuiMemobox* memobox );
+MYLLY_API float				mgui_memobox_get_display_pos	( MGuiMemobox* memobox );
+MYLLY_API void				mgui_memobox_set_display_pos	( MGuiMemobox* memobox, float pos );
+MYLLY_API bool				mgui_memobox_get_top_to_bottom	( MGuiMemobox* memobox );
+MYLLY_API void				mgui_memobox_set_top_to_bottom	( MGuiMemobox* memobox, bool enable );
+MYLLY_API uint32			mgui_memobox_get_lines			( MGuiMemobox* memobox );
+MYLLY_API uint32			mgui_memobox_get_history		( MGuiMemobox* memobox );
+MYLLY_API void				mgui_memobox_set_history		( MGuiMemobox* memobox, uint32 lines );
 
 /* Scrollbar functions */
-MYLLY_API float				mgui_scrollbar_get_bar_pos		( scrollbar_t* scrollbar );
-MYLLY_API void				mgui_scrollbar_set_bar_pos		( scrollbar_t* scrollbar, float pos );
-MYLLY_API float				mgui_scrollbar_get_bar_size		( scrollbar_t* scrollbar );
-MYLLY_API void				mgui_scrollbar_set_bar_size		( scrollbar_t* scrollbar, float size );
-MYLLY_API float				mgui_scrollbar_get_nudge		( scrollbar_t* scrollbar );
-MYLLY_API void				mgui_scrollbar_set_nudge		( scrollbar_t* scrollbar, float amount );
-MYLLY_API uint32			mgui_scrollbar_get_track_colour	( scrollbar_t* scrollbar );
-MYLLY_API void				mgui_scrollbar_set_track_colour	( scrollbar_t* scrollbar, uint32 colour );
+MYLLY_API float				mgui_scrollbar_get_bar_pos		( MGuiScrollbar* scrollbar );
+MYLLY_API void				mgui_scrollbar_set_bar_pos		( MGuiScrollbar* scrollbar, float pos );
+MYLLY_API float				mgui_scrollbar_get_bar_size		( MGuiScrollbar* scrollbar );
+MYLLY_API void				mgui_scrollbar_set_bar_size		( MGuiScrollbar* scrollbar, float size );
+MYLLY_API float				mgui_scrollbar_get_nudge		( MGuiScrollbar* scrollbar );
+MYLLY_API void				mgui_scrollbar_set_nudge		( MGuiScrollbar* scrollbar, float amount );
+MYLLY_API uint32			mgui_scrollbar_get_track_colour	( MGuiScrollbar* scrollbar );
+MYLLY_API void				mgui_scrollbar_set_track_colour	( MGuiScrollbar* scrollbar, uint32 colour );
 
 /* Window functions */
-MYLLY_API bool				mgui_window_get_titlebar		( window_t* window );
-MYLLY_API void				mgui_window_set_titlebar		( window_t* window, bool enabled );
-MYLLY_API uint32			mgui_window_get_title_col		( window_t* window );
-MYLLY_API void				mgui_window_set_title_col		( window_t* window, uint32 colour );
-MYLLY_API bool				mgui_window_get_closebtn		( window_t* window );
-MYLLY_API void				mgui_window_set_closebtn		( window_t* window, bool enabled );
-MYLLY_API void				mgui_window_get_drag_offset		( window_t* window, uint16* x, uint16* y );
-MYLLY_API void				mgui_window_get_drag_offset_v	( window_t* window, vectorscreen_t* pos );
+MYLLY_API bool				mgui_window_get_titlebar		( MGuiWindow* window );
+MYLLY_API void				mgui_window_set_titlebar		( MGuiWindow* window, bool enabled );
+MYLLY_API uint32			mgui_window_get_title_col		( MGuiWindow* window );
+MYLLY_API void				mgui_window_set_title_col		( MGuiWindow* window, uint32 colour );
+MYLLY_API bool				mgui_window_get_closebtn		( MGuiWindow* window );
+MYLLY_API void				mgui_window_set_closebtn		( MGuiWindow* window, bool enabled );
+MYLLY_API void				mgui_window_get_drag_offset		( MGuiWindow* window, uint16* x, uint16* y );
+MYLLY_API void				mgui_window_get_drag_offset_v	( MGuiWindow* window, vectorscreen_t* pos );
 
 __END_DECLS
 

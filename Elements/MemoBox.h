@@ -15,16 +15,16 @@
 
 #include "Element.h"
 
-struct memoline_s
+struct _MGuiMemoLine
 {
 	node_t;
 	char_t*			text;
-	font_t*			font;
+	MGuiFont*			font;
 	colour_t		colour;
 	vectorscreen_t	pos;
 };
 
-struct memoraw_s
+struct _MGuiMemoRaw
 {
 	node_t;
 	char_t*		text;
@@ -33,7 +33,7 @@ struct memoraw_s
 
 struct memobox_s
 {
-	element_t;					// Inherit all generic element properties
+	MGuiElement;				// Inherit all generic element properties
 
 	float		position;		// Scroll position of the editbox 'screen'
 	uint32		max_history;	// Max number of lines to keep as history

@@ -14,17 +14,18 @@
 #define __MGUI_WINDOW_H
 
 #include "Element.h"
-#include "WindowButton.h"
-#include "WindowTitlebar.h"
 
-struct window_s
+typedef struct _MGuiTitlebar MGuiTitlebar;
+typedef struct _MGuiWindowButton MGuiWindowButton;
+
+struct _MGuiWindow
 {
-	element_t;								// Inherit all generic element properties
+	MGuiElement;						// Inherit all generic element properties
 
-	rectangle_t				window_bounds;	// Window boundaries including the titlebar
-	vectorscreen_t			click_offset;	// Position offset when dragging this element
-	struct titlebar_s*		titlebar;		// Window titlebar
-	struct windowbutton_s*	closebtn;		// Close button
+	rectangle_t			window_bounds;	// Window boundaries including the titlebar
+	vectorscreen_t		click_offset;	// Position offset when dragging this element
+	MGuiTitlebar*		titlebar;		// Window titlebar
+	MGuiWindowButton*	closebtn;		// Close button
 };
 
 #endif /* __MGUI_WINDOW_H */

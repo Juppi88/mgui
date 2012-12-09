@@ -24,9 +24,9 @@
 #define SBFLAG_BARPRESSED	0x0020		// Bar is pressed/dragged
 #define SBFLAG_HORIZONTAL	0x0040		// Scrollbar is horizontal
 
-struct scrollbar_s
+struct _MGuiScrollBar
 {
-	element_t;						// Inherit all generic element properties
+	MGuiElement;					// Inherit all generic element properties
 
 	rectangle_t		button1;		// Bounds of button 1 (up/right) 
 	rectangle_t		button2;		// Bounds of button 2 (down/left)

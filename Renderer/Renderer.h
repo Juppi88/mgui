@@ -15,7 +15,7 @@
 
 #include "MGUI.h"
 
-typedef struct mgui_renderer_s
+typedef struct _MGuiRenderer
 {
 	MGUI_RENDERER	type;
 	void*			device_context;
@@ -39,21 +39,21 @@ typedef struct mgui_renderer_s
 	void		( *destroy_font )		( void* font );
 	void		( *draw_text )			( void* font, const char_t* text, uint x, uint y, uint flags );
 	void		( *measure_text )		( void* font, const char_t* text, uint* w, uint* h );
-} mgui_renderer_t;
+} MGuiRenderer;
 
 
 void	mgui_render_initialize		( MGUI_RENDERER type, void* syswindow );
 void	mgui_render_shutdown		( void );
 
 // Pointer to the current renderer
-extern	mgui_renderer_t*			render;
+extern	MGuiRenderer*		render;
 
 // Redraw system
 #define MGUI_USE_REDRAW
 
 #ifdef MGUI_USE_REDRAW
 #define mgui_force_redraw mgui_redraw
-extern	bool						redraw;
+extern	bool				redraw;
 #else
 #define mgui_force_redraw
 #endif

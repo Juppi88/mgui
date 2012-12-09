@@ -15,9 +15,9 @@
 
 #include "Element.h"
 
-struct label_s
+struct _MGuiLabel
 {
-	element_t;			// Inherit all generic element properties
+	MGuiElement;	// Inherit all generic element properties
 };
 
 #endif /* __MGUI_LABEL_H */

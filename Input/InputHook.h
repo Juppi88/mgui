@@ -17,6 +17,6 @@
 
 void	mgui_input_initialize_hooks		( void );
 void	mgui_input_shutdown_hooks		( void );
-void	mgui_input_cleanup_references	( element_t* element );
+void	mgui_input_cleanup_references	( MGuiElement* element );
 
 #endif /* __MYLLY_GUI_INPUTHOOK_H */

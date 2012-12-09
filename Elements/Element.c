@@ -21,22 +21,22 @@
 extern vectorscreen_t screen_size;
 
 // Default callbacks
-static void		__mgui_render			( element_t* e )					{ (void)e; }
-static void		__mgui_destroy			( element_t* e )					{ (void)e; }
-static void		__mgui_process			( element_t* e, uint32 u )			{ (void)e; (void)u; }
-static void		__mgui_on_bounds_update	( element_t* e, bool b1, bool b2 )	{ (void)e; (void)b1; (void)b2; }
-static void		__mgui_on_colour_update	( element_t* e )					{ (void)e; }
-static void		__mgui_on_text_update	( element_t* e )					{ (void)e; }
-static void		__mgui_on_mouse_enter	( element_t* e )					{ (void)e; }
-static void		__mgui_on_mouse_leave	( element_t* e )					{ (void)e; }
-static void		__mgui_on_mouse_click	( element_t* e, MOUSEBTN b, uint16 x, uint16 y )	{ (void)e; (void)b; (void)x; (void)y; }
-static void		__mgui_on_mouse_release	( element_t* e, MOUSEBTN b, uint16 x, uint16 y )	{ (void)e; (void)b; (void)x; (void)y; }
-static void		__mgui_on_mouse_drag	( element_t* e, uint16 x, uint16 y ){ (void)e; (void)x; (void)y; }
-static void		__mgui_on_mouse_wheel	( element_t* e, float f )			{ (void)e; (void)f; }
-static void		__mgui_on_character		( element_t* e, char_t c )			{ (void)e; (void)c; }
-static void		__mgui_on_key_press		( element_t* e, uint i, bool b )	{ (void)e; (void)i; (void)b; }
+static void		__mgui_render			( MGuiElement* e )					{ (void)e; }
+static void		__mgui_destroy			( MGuiElement* e )					{ (void)e; }
+static void		__mgui_process			( MGuiElement* e, uint32 u )			{ (void)e; (void)u; }
+static void		__mgui_on_bounds_update	( MGuiElement* e, bool b1, bool b2 )	{ (void)e; (void)b1; (void)b2; }
+static void		__mgui_on_colour_update	( MGuiElement* e )					{ (void)e; }
+static void		__mgui_on_text_update	( MGuiElement* e )					{ (void)e; }
+static void		__mgui_on_mouse_enter	( MGuiElement* e )					{ (void)e; }
+static void		__mgui_on_mouse_leave	( MGuiElement* e )					{ (void)e; }
+static void		__mgui_on_mouse_click	( MGuiElement* e, MOUSEBTN b, uint16 x, uint16 y )	{ (void)e; (void)b; (void)x; (void)y; }
+static void		__mgui_on_mouse_release	( MGuiElement* e, MOUSEBTN b, uint16 x, uint16 y )	{ (void)e; (void)b; (void)x; (void)y; }
+static void		__mgui_on_mouse_drag	( MGuiElement* e, uint16 x, uint16 y ){ (void)e; (void)x; (void)y; }
+static void		__mgui_on_mouse_wheel	( MGuiElement* e, float f )			{ (void)e; (void)f; }
+static void		__mgui_on_character		( MGuiElement* e, char_t c )			{ (void)e; (void)c; }
+static void		__mgui_on_key_press		( MGuiElement* e, uint i, bool b )	{ (void)e; (void)i; (void)b; }
 
-void mgui_element_create( element_t* element, control_t* parent, bool has_text )
+void mgui_element_create( MGuiElement* element, MGuiControl* parent, bool has_text )
 {
 	element->flags |= (FLAG_VISIBLE|FLAG_ELEMENT|FLAG_CLIP);
 
@@ -80,10 +80,10 @@ void mgui_element_create( element_t* element, control_t* parent, bool has_text )
 		element->text->colour.a = element->colour.a;
 }
 
-void mgui_destroy_element( element_t* element )
+void mgui_destroy_element( MGuiElement* element )
 {
 	node_t *node, *tmp;
-	element_t* tmpelem;
+	MGuiElement* tmpelem;
 
 	if ( element->parent )
 		mgui_remove_child( element );
@@ -115,10 +115,10 @@ void mgui_destroy_element( element_t* element )
 	mem_free( element );
 }
 
-void mgui_element_render( element_t* element )
+void mgui_element_render( MGuiElement* element )
 {
 	node_t* node;
-	element_t* child;
+	MGuiElement* child;
 
 	assert( element != NULL );
 
@@ -135,10 +135,10 @@ void mgui_element_render( element_t* element )
 	}
 }
 
-void mgui_element_process( element_t* element, uint32 ticks )
+void mgui_element_process( MGuiElement* element, uint32 ticks )
 {
 	node_t* node;
-	element_t* child;
+	MGuiElement* child;
 
 	assert( element != NULL );
 
@@ -155,11 +155,11 @@ void mgui_element_process( element_t* element, uint32 ticks )
 	}
 }
 
-void mgui_update_abs_pos( element_t* element )
+void mgui_update_abs_pos( MGuiElement* element )
 {
 	rectangle_t* r;
 	node_t* node;
-	element_t* child;
+	MGuiElement* child;
 	
 	if ( element->parent )
 	{
@@ -191,11 +191,11 @@ void mgui_update_abs_pos( element_t* element )
 	}
 }
 
-void mgui_update_abs_size( element_t* element )
+void mgui_update_abs_size( MGuiElement* element )
 {
 	rectangle_t* r;
 	node_t* node;
-	element_t* child;
+	MGuiElement* child;
 
 	if ( element->parent )
 	{
@@ -223,10 +223,10 @@ void mgui_update_abs_size( element_t* element )
 	}
 }
 
-void mgui_update_rel_pos( element_t* element )
+void mgui_update_rel_pos( MGuiElement* element )
 {
 	node_t* node;
-	element_t* child;
+	MGuiElement* child;
 
 	if ( element->parent )
 	{
@@ -256,10 +256,10 @@ void mgui_update_rel_pos( element_t* element )
 	}
 }
 
-void mgui_update_rel_size( element_t* element )
+void mgui_update_rel_size( MGuiElement* element )
 {
 	node_t* node;
-	element_t* child;
+	MGuiElement* child;
 
 	if ( element->parent )
 	{
@@ -288,7 +288,7 @@ void mgui_update_rel_size( element_t* element )
 	}
 }
 
-void mgui_get_pos( element_t* element, float* x, float* y )
+void mgui_get_pos( MGuiElement* element, float* x, float* y )
 {
 	assert( element != NULL );
 
@@ -296,7 +296,7 @@ void mgui_get_pos( element_t* element, float* x, float* y )
 	*y = element->pos.y;
 }
 
-void mgui_get_size( element_t* element, float* w, float* h )
+void mgui_get_size( MGuiElement* element, float* w, float* h )
 {
 	assert( element != NULL );
 
@@ -304,7 +304,7 @@ void mgui_get_size( element_t* element, float* w, float* h )
 	*h = element->size.y;
 }
 
-void mgui_set_pos( element_t* element, float x, float y )
+void mgui_set_pos( MGuiElement* element, float x, float y )
 {
 	assert( element != NULL );
 
@@ -314,7 +314,7 @@ void mgui_set_pos( element_t* element, float x, float y )
 	mgui_update_abs_pos( element );
 }
 
-void mgui_set_size( element_t* element, float w, float h )
+void mgui_set_size( MGuiElement* element, float w, float h )
 {
 	assert( element != NULL );
 
@@ -324,7 +324,7 @@ void mgui_set_size( element_t* element, float w, float h )
 	mgui_update_abs_size( element );
 }
 
-void mgui_get_pos_v( element_t* element, vector2_t* pos )
+void mgui_get_pos_v( MGuiElement* element, vector2_t* pos )
 {
 	assert( element != NULL );
 	assert( pos != NULL );
@@ -332,7 +332,7 @@ void mgui_get_pos_v( element_t* element, vector2_t* pos )
 	*pos = element->pos;
 }
 
-void mgui_get_size_v( element_t* element, vector2_t* size )
+void mgui_get_size_v( MGuiElement* element, vector2_t* size )
 {
 	assert( element != NULL );
 	assert( size != NULL );
@@ -340,7 +340,7 @@ void mgui_get_size_v( element_t* element, vector2_t* size )
 	*size = element->size;
 }
 
-void mgui_set_pos_v( element_t* element, const vector2_t* pos )
+void mgui_set_pos_v( MGuiElement* element, const vector2_t* pos )
 {
 	assert( element != NULL );
 	assert( pos != NULL );
@@ -350,7 +350,7 @@ void mgui_set_pos_v( element_t* element, const vector2_t* pos )
 	mgui_update_abs_pos( element );
 }
 
-void mgui_set_size_v( element_t* element, const vector2_t* size )
+void mgui_set_size_v( MGuiElement* element, const vector2_t* size )
 {
 	assert( element != NULL );
 	assert( size != NULL );
@@ -360,7 +360,7 @@ void mgui_set_size_v( element_t* element, const vector2_t* size )
 	mgui_update_abs_size( element );
 }
 
-void mgui_get_abs_pos( element_t* element, uint16* x, uint16* y )
+void mgui_get_abs_pos( MGuiElement* element, uint16* x, uint16* y )
 {
 	assert( element != NULL );
 
@@ -376,7 +376,7 @@ void mgui_get_abs_pos( element_t* element, uint16* x, uint16* y )
 	}
 }
 
-void mgui_get_abs_size( element_t* element, uint16* w, uint16* h )
+void mgui_get_abs_size( MGuiElement* element, uint16* w, uint16* h )
 {
 	assert( element != NULL );
 
@@ -384,7 +384,7 @@ void mgui_get_abs_size( element_t* element, uint16* w, uint16* h )
 	*h = element->bounds.h;
 }
 
-void mgui_set_abs_pos( element_t* element, uint16 x, uint16 y )
+void mgui_set_abs_pos( MGuiElement* element, uint16 x, uint16 y )
 {
 	assert( element != NULL );
 
@@ -402,7 +402,7 @@ void mgui_set_abs_pos( element_t* element, uint16 x, uint16 y )
 	mgui_update_rel_pos( element );
 }
 
-void mgui_set_abs_size( element_t* element, uint16 w, uint16 h )
+void mgui_set_abs_size( MGuiElement* element, uint16 w, uint16 h )
 {
 	assert( element != NULL );
 
@@ -412,7 +412,7 @@ void mgui_set_abs_size( element_t* element, uint16 w, uint16 h )
 	mgui_update_rel_size( element );
 }
 
-void mgui_get_abs_pos_v( element_t* element, vectorscreen_t* pos )
+void mgui_get_abs_pos_v( MGuiElement* element, vectorscreen_t* pos )
 {
 	assert( element != NULL );
 	assert( pos != NULL );
@@ -420,7 +420,7 @@ void mgui_get_abs_pos_v( element_t* element, vectorscreen_t* pos )
 	mgui_get_abs_pos( element, &pos->x, &pos->y );
 }
 
-void mgui_get_abs_size_v( element_t* element, vectorscreen_t* size )
+void mgui_get_abs_size_v( MGuiElement* element, vectorscreen_t* size )
 {
 	assert( element != NULL );
 	assert( size != NULL );
@@ -428,7 +428,7 @@ void mgui_get_abs_size_v( element_t* element, vectorscreen_t* size )
 	mgui_get_abs_size( element, &size->x, &size->y );
 }
 
-void mgui_set_abs_pos_v( element_t* element, const vectorscreen_t* pos )
+void mgui_set_abs_pos_v( MGuiElement* element, const vectorscreen_t* pos )
 {
 	assert( element != NULL );
 	assert( pos != NULL );
@@ -436,7 +436,7 @@ void mgui_set_abs_pos_v( element_t* element, const vectorscreen_t* pos )
 	mgui_set_abs_pos( element, pos->x, pos->y );
 }
 
-void mgui_set_abs_size_v( element_t* element, const vectorscreen_t* size )
+void mgui_set_abs_size_v( MGuiElement* element, const vectorscreen_t* size )
 {
 	assert( element != NULL );
 	assert( size != NULL );
@@ -444,16 +444,16 @@ void mgui_set_abs_size_v( element_t* element, const vectorscreen_t* size )
 	mgui_set_abs_size( element, size->x, size->y );
 }
 
-uint32 mgui_get_colour( element_t* element )
+uint32 mgui_get_colour( MGuiElement* element )
 {
 	assert( element != NULL );
 	return element->colour.hex;
 }
 
-void mgui_set_colour( element_t* element, uint32 colour )
+void mgui_set_colour( MGuiElement* element, uint32 colour )
 {
 	node_t* node;
-	element_t* child;
+	MGuiElement* child;
 
 	assert( element != NULL );
 
@@ -473,7 +473,7 @@ void mgui_set_colour( element_t* element, uint32 colour )
 	}
 }
 
-uint32 mgui_get_text_colour( element_t* element )
+uint32 mgui_get_text_colour( MGuiElement* element )
 {
 	assert( element != NULL );
 
@@ -482,7 +482,7 @@ uint32 mgui_get_text_colour( element_t* element )
 	return element->text->colour.hex;
 }
 
-void mgui_set_text_colour( element_t* element, uint32 colour )
+void mgui_set_text_colour( MGuiElement* element, uint32 colour )
 {
 	assert( element != NULL );
 
@@ -492,16 +492,16 @@ void mgui_set_text_colour( element_t* element, uint32 colour )
 	element->text->colour.a = element->colour.a;
 }
 
-uint8 mgui_get_alpha( element_t* element )
+uint8 mgui_get_alpha( MGuiElement* element )
 {
 	assert( element != NULL );
 	return element->colour.a;
 }
 
-void mgui_set_alpha( element_t* element, uint8 alpha )
+void mgui_set_alpha( MGuiElement* element, uint8 alpha )
 {
 	node_t* node;
-	element_t* child;
+	MGuiElement* child;
 
 	assert( element != NULL );
 
@@ -521,21 +521,21 @@ void mgui_set_alpha( element_t* element, uint8 alpha )
 	}
 }
 
-const char_t* mgui_get_text( element_t* element )
+const char_t* mgui_get_text( MGuiElement* element )
 {
 	if ( !element->text ) return NULL;
 
 	return element->text->buffer;
 }
 
-uint32 mgui_get_text_len( element_t* element )
+uint32 mgui_get_text_len( MGuiElement* element )
 {
 	if ( !element->text ) return 0;
 
 	return element->text->len;
 }
 
-void mgui_set_text( element_t* element, const char_t* fmt, ... )
+void mgui_set_text( MGuiElement* element, const char_t* fmt, ... )
 {
 	va_list	marker;
 
@@ -550,7 +550,7 @@ void mgui_set_text( element_t* element, const char_t* fmt, ... )
 	element->on_text_update( element );
 }
 
-void mgui_set_text_s( element_t* element, const char_t* text )
+void mgui_set_text_s( MGuiElement* element, const char_t* text )
 {
 	assert( element != NULL );
 
@@ -560,7 +560,7 @@ void mgui_set_text_s( element_t* element, const char_t* text )
 	element->on_text_update( element );
 }
 
-uint32 mgui_get_alignment( element_t* element )
+uint32 mgui_get_alignment( MGuiElement* element )
 {
 	assert( element != NULL );
 	
@@ -569,7 +569,7 @@ uint32 mgui_get_alignment( element_t* element )
 	return element->text->alignment;
 }
 
-void mgui_set_alignment( element_t* element, uint32 alignment )
+void mgui_set_alignment( MGuiElement* element, uint32 alignment )
 {
 	assert( element != NULL );
 	
@@ -579,7 +579,7 @@ void mgui_set_alignment( element_t* element, uint32 alignment )
 	mgui_text_update_position( element->text );
 }
 
-void mgui_get_text_padding( element_t* element, uint8* top, uint8* bottom, uint8* left, uint8* right )
+void mgui_get_text_padding( MGuiElement* element, uint8* top, uint8* bottom, uint8* left, uint8* right )
 {
 	assert( element != NULL );
 	assert( element->text != NULL );
@@ -590,7 +590,7 @@ void mgui_get_text_padding( element_t* element, uint8* top, uint8* bottom, uint8
 	*right = element->text->pad.right;
 }
 
-void mgui_set_text_padding( element_t* element, uint8 top, uint8 bottom, uint8 left, uint8 right )
+void mgui_set_text_padding( MGuiElement* element, uint8 top, uint8 bottom, uint8 left, uint8 right )
 {
 	assert( element != NULL );
 	
@@ -604,7 +604,7 @@ void mgui_set_text_padding( element_t* element, uint8 top, uint8 bottom, uint8 l
 	element->on_bounds_update( element, false, true );
 }
 
-const char_t* mgui_get_font_name( element_t* element )
+const char_t* mgui_get_font_name( MGuiElement* element )
 {
 	assert( element != NULL );
 
@@ -612,7 +612,7 @@ const char_t* mgui_get_font_name( element_t* element )
 	return element->font->name;
 }
 
-uint8 mgui_get_font_size( element_t* element )
+uint8 mgui_get_font_size( MGuiElement* element )
 {
 	assert( element != NULL );
 
@@ -620,7 +620,7 @@ uint8 mgui_get_font_size( element_t* element )
 	return element->font->size;
 }
 
-uint8 mgui_get_font_flags( element_t* element )
+uint8 mgui_get_font_flags( MGuiElement* element )
 {
 	assert( element != NULL );
 
@@ -628,7 +628,7 @@ uint8 mgui_get_font_flags( element_t* element )
 	return element->font->flags;
 }
 
-void mgui_set_font_name( element_t* element, const char_t* font )
+void mgui_set_font_name( MGuiElement* element, const char_t* font )
 {
 	assert( element != NULL );
 	assert( font != NULL );
@@ -640,7 +640,7 @@ void mgui_set_font_name( element_t* element, const char_t* font )
 		mgui_text_update_dimensions( element->text );
 }
 
-void mgui_set_font_size( element_t* element, uint8 size )
+void mgui_set_font_size( MGuiElement* element, uint8 size )
 {
 	assert( element != NULL );
 	assert( element->font != NULL );
@@ -651,7 +651,7 @@ void mgui_set_font_size( element_t* element, uint8 size )
 		mgui_text_update_dimensions( element->text );
 }
 
-void mgui_set_font_flags( element_t* element, uint8 flags )
+void mgui_set_font_flags( MGuiElement* element, uint8 flags )
 {
 	assert( element != NULL );
 	assert( element->font != NULL );
@@ -662,7 +662,7 @@ void mgui_set_font_flags( element_t* element, uint8 flags )
 		mgui_text_update_dimensions( element->text );
 }
 
-void mgui_set_font( element_t* element, const char_t* font, uint8 size, uint8 flags, uint8 charset )
+void mgui_set_font( MGuiElement* element, const char_t* font, uint8 size, uint8 flags, uint8 charset )
 {
 	assert( element != NULL );
 	assert( font != NULL );
@@ -684,13 +684,13 @@ void mgui_set_font( element_t* element, const char_t* font, uint8 size, uint8 fl
 	}
 }
 
-uint32 mgui_get_flags( element_t* element )
+uint32 mgui_get_flags( MGuiElement* element )
 {
 	assert( element != NULL );
 	return element->flags;
 }
 
-void mgui_set_flags( element_t* element, const uint32 flags )
+void mgui_set_flags( MGuiElement* element, const uint32 flags )
 {
 	assert( element != NULL );
 
@@ -699,19 +699,19 @@ void mgui_set_flags( element_t* element, const uint32 flags )
 	element->flags |= (flags & ~0xFFFF0000);
 }
 
-void mgui_add_flags( element_t* element, const uint32 flags )
+void mgui_add_flags( MGuiElement* element, const uint32 flags )
 {
 	assert( element != NULL );
 	element->flags |= (flags & ~0xFFFF0000);
 }
 
-void mgui_remove_flags( element_t* element, const uint32 flags )
+void mgui_remove_flags( MGuiElement* element, const uint32 flags )
 {
 	assert( element != NULL );
 	element->flags &= ~(flags & ~0xFFFF0000);
 }
 
-void mgui_set_event_handler( element_t* element, mgui_event_handler_t handler, void* data )
+void mgui_set_event_handler( MGuiElement* element, mgui_event_handler_t handler, void* data )
 {
 	assert( element != NULL );
 

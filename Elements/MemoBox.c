@@ -16,15 +16,15 @@
 #include "Stringy/Stringy.h"
 #include <assert.h>
 
-static void __mgui_destroy_memobox( element_t* memobox );
-static void __mgui_memobox_render( element_t* memobox );
-static void __mgui_memobox_on_bounds_update( element_t* memobox, bool pos, bool size );
-static void __mgui_memobox_on_mouse_click( element_t* element, MOUSEBTN button, uint16 x, uint16 y );
-static void __mgui_memobox_on_mouse_release( element_t* element, MOUSEBTN button, uint16 x, uint16 y );
-static void __mgui_memobox_on_mouse_drag( element_t* element, uint16 x, uint16 y );
-static void __mgui_memobox_on_key_press( element_t* element, uint key, bool down );
+static void __mgui_destroy_memobox( MGuiElement* memobox );
+static void __mgui_memobox_render( MGuiElement* memobox );
+static void __mgui_memobox_on_bounds_update( MGuiElement* memobox, bool pos, bool size );
+static void __mgui_memobox_on_mouse_click( MGuiElement* element, MOUSEBTN button, uint16 x, uint16 y );
+static void __mgui_memobox_on_mouse_release( MGuiElement* element, MOUSEBTN button, uint16 x, uint16 y );
+static void __mgui_memobox_on_mouse_drag( MGuiElement* element, uint16 x, uint16 y );
+static void __mgui_memobox_on_key_press( MGuiElement* element, uint key, bool down );
 
-memobox_t* mgui_create_memobox( control_t* parent )
+MGuiMemobox* mgui_create_memobox( MGuiControl* parent )
 {
 	struct memobox_s* memobox;
 
@@ -53,7 +53,7 @@ memobox_t* mgui_create_memobox( control_t* parent )
 	return cast_elem(memobox);
 }
 
-static void __mgui_destroy_memobox( element_t* memobox )
+static void __mgui_destroy_memobox( MGuiElement* memobox )
 {
 	struct memobox_s* memo;
 	memo = (struct memobox_s*)memobox;
@@ -64,7 +64,7 @@ static void __mgui_destroy_memobox( element_t* memobox )
 	list_destroy( memo->lines );
 }
 
-static void __mgui_memobox_render( element_t* memobox )
+static void __mgui_memobox_render( MGuiElement* memobox )
 {
 	struct memobox_s* memo;
 	memo = (struct memobox_s*)memobox;
@@ -73,7 +73,7 @@ static void __mgui_memobox_render( element_t* memobox )
 	skin->draw_memobox_lines( &memo->bounds, memo->flags, memo->lines, memo->first_line, memo->visible_lines );
 }
 
-static void __mgui_memobox_on_mouse_click( element_t* element, MOUSEBTN button, uint16 x, uint16 y )
+static void __mgui_memobox_on_mouse_click( MGuiElement* element, MOUSEBTN button, uint16 x, uint16 y )
 {
 	UNREFERENCED_PARAM(element);
 	UNREFERENCED_PARAM(button);
@@ -81,7 +81,7 @@ static void __mgui_memobox_on_mouse_click( element_t* element, MOUSEBTN button, 
 	UNREFERENCED_PARAM(y);
 }
 
-static void __mgui_memobox_on_mouse_release( element_t* element, MOUSEBTN button, uint16 x, uint16 y )
+static void __mgui_memobox_on_mouse_release( MGuiElement* element, MOUSEBTN button, uint16 x, uint16 y )
 {
 	UNREFERENCED_PARAM(element);
 	UNREFERENCED_PARAM(button);
@@ -89,14 +89,14 @@ static void __mgui_memobox_on_mouse_release( element_t* element, MOUSEBTN button
 	UNREFERENCED_PARAM(y);
 }
 
-static void __mgui_memobox_on_mouse_drag( element_t* element, uint16 x, uint16 y )
+static void __mgui_memobox_on_mouse_drag( MGuiElement* element, uint16 x, uint16 y )
 {
 	UNREFERENCED_PARAM(element);
 	UNREFERENCED_PARAM(x);
 	UNREFERENCED_PARAM(y);
 }
 
-static void __mgui_memobox_on_key_press( element_t* element, uint key, bool down )
+static void __mgui_memobox_on_key_press( MGuiElement* element, uint key, bool down )
 {
 	// TODO: pgup/down
 	UNREFERENCED_PARAM(element);
@@ -110,7 +110,7 @@ static void __mgui_memobox_update_display_positions_topbottom( struct memobox_s*
 	uint16 diff;
 	int32 x, y;
 	node_t* node;
-	struct memoline_s* line;
+	struct _MGuiMemoLine* line;
 
 	// Yeah, don't ask how this works... it just does.
 	line_height = memobox->font->size + memobox->text->pad.bottom;	// Height of one text line with spacing
@@ -128,7 +128,7 @@ static void __mgui_memobox_update_display_positions_topbottom( struct memobox_s*
 
 	list_foreach_r( memobox->lines, node )
 	{
-		line = (struct memoline_s*)node;
+		line = (struct _MGuiMemoLine*)node;
 
 		if ( y > memobox->bounds.y + memobox->bounds.h - memobox->text->pad.bottom )
 		{
@@ -162,7 +162,7 @@ static void __mgui_memobox_update_display_positions_bottomtop( struct memobox_s*
 	uint16 diff;
 	int32 x, y;
 	node_t* node;
-	struct memoline_s* line;
+	struct _MGuiMemoLine* line;
 
 	line_height = memobox->font->size + memobox->text->pad.bottom;
 	height = (uint16)memobox->lines->size * line_height;
@@ -176,7 +176,7 @@ static void __mgui_memobox_update_display_positions_bottomtop( struct memobox_s*
 
 	list_foreach_r( memobox->lines, node )
 	{
-		line = (struct memoline_s*)node;
+		line = (struct _MGuiMemoLine*)node;
 
 		if ( y > memobox->bounds.y + memobox->bounds.h )
 		{
@@ -211,9 +211,9 @@ static void __mgui_memobox_update_display_positions( struct memobox_s* memobox )
 
 }
 
-static void __mgui_memobox_wrap_line( struct memobox_s* memobox, struct memoraw_s* raw )
+static void __mgui_memobox_wrap_line( struct memobox_s* memobox, struct _MGuiMemoRaw* raw )
 {
-	struct memoline_s* line;
+	struct _MGuiMemoLine* line;
 	uint32 linelength, spacepos;
 	uint32 width, w, h;
 	char_t *str, *tmp, *lastspace;
@@ -280,11 +280,11 @@ static void __mgui_memobox_wrap_line( struct memobox_s* memobox, struct memoraw_
 	list_push( memobox->lines, cast_node(line) );
 }
 
-static void __mgui_memobox_process_new_line( struct memobox_s* memobox, struct memoraw_s* raw )
+static void __mgui_memobox_process_new_line( struct memobox_s* memobox, struct _MGuiMemoRaw* raw )
 {
 	node_t* node;
-	struct memoraw_s* oldraw;
-	struct memoline_s* oldline;
+	struct _MGuiMemoRaw* oldraw;
+	struct _MGuiMemoLine* oldline;
 
 	list_push( memobox->raw_lines, cast_node(raw) );
 
@@ -292,7 +292,7 @@ static void __mgui_memobox_process_new_line( struct memobox_s* memobox, struct m
 	{
 		// If the line count exceeds the history size pop some lines
 		node = list_pop_front( memobox->raw_lines );
-		oldraw = (struct memoraw_s*)node;
+		oldraw = (struct _MGuiMemoRaw*)node;
 
 		mem_free( oldraw->text );
 		mem_free( oldraw );
@@ -304,7 +304,7 @@ static void __mgui_memobox_process_new_line( struct memobox_s* memobox, struct m
 	{
 		// Pop some old display lines
 		node = list_pop_front( memobox->lines );
-		oldline = (struct memoline_s*)node;
+		oldline = (struct _MGuiMemoLine*)node;
 
 		mem_free( oldline->text );
 		mem_free( oldline );
@@ -315,10 +315,10 @@ static void __mgui_memobox_process_new_line( struct memobox_s* memobox, struct m
 	mgui_force_redraw();
 }
 
-static void __mgui_memobox_on_bounds_update( element_t* memobox, bool pos, bool size )
+static void __mgui_memobox_on_bounds_update( MGuiElement* memobox, bool pos, bool size )
 {
 	node_t *node, *tmp;
-	struct memoline_s* line;
+	struct _MGuiMemoLine* line;
 	struct memobox_s* memo;
 
 	memo = (struct memobox_s*)memobox;
@@ -333,7 +333,7 @@ static void __mgui_memobox_on_bounds_update( element_t* memobox, bool pos, bool 
 		// We have to change the size, so need to delete old lines first.
 		list_foreach_safe( memo->lines, node, tmp )
 		{
-			line = (struct memoline_s*)node;
+			line = (struct _MGuiMemoLine*)node;
 			list_remove( memo->lines, node );
 
 			if ( line->text ) mem_free( line->text );
@@ -343,13 +343,13 @@ static void __mgui_memobox_on_bounds_update( element_t* memobox, bool pos, bool 
 		// Then re-add the lines, wrapping properly
 		list_foreach( memo->raw_lines, node )
 		{
-			__mgui_memobox_process_new_line( memo, (struct memoraw_s*)node );
+			__mgui_memobox_process_new_line( memo, (struct _MGuiMemoRaw*)node );
 		}
 	}
 }
 
 
-void mgui_memobox_add_line( memobox_t* memobox, const char* fmt, ... )
+void mgui_memobox_add_line( MGuiMemobox* memobox, const char* fmt, ... )
 {
 	size_t	len;
 	char_t	tmp[512];
@@ -364,7 +364,7 @@ void mgui_memobox_add_line( memobox_t* memobox, const char* fmt, ... )
 	mgui_memobox_add_line_col_s( memobox, &tmp[0], memobox->text->colour.hex );
 }
 
-void mgui_memobox_add_line_col( memobox_t* memobox, const char* fmt, uint32 colour, ... )
+void mgui_memobox_add_line_col( MGuiMemobox* memobox, const char* fmt, uint32 colour, ... )
 {
 	size_t	len;
 	char_t	tmp[512];
@@ -379,7 +379,7 @@ void mgui_memobox_add_line_col( memobox_t* memobox, const char* fmt, uint32 colo
 	mgui_memobox_add_line_col_s( memobox, &tmp[0], colour );
 }
 
-void mgui_memobox_add_line_s( memobox_t* memobox, const char* text )
+void mgui_memobox_add_line_s( MGuiMemobox* memobox, const char* text )
 {
 	assert( memobox != NULL );
 	assert( memobox->text != NULL );
@@ -387,10 +387,10 @@ void mgui_memobox_add_line_s( memobox_t* memobox, const char* text )
 	mgui_memobox_add_line_col_s( memobox, text, memobox->text->colour.hex );
 }
 
-void mgui_memobox_add_line_col_s( memobox_t* memobox, const char* text, uint32 colour )
+void mgui_memobox_add_line_col_s( MGuiMemobox* memobox, const char* text, uint32 colour )
 {
 	struct memobox_s* memo;
-	struct memoraw_s* line;
+	struct _MGuiMemoRaw* line;
 	size_t len;
 
 	assert( memobox != NULL );
@@ -407,11 +407,11 @@ void mgui_memobox_add_line_col_s( memobox_t* memobox, const char* text, uint32 c
 	__mgui_memobox_process_new_line( memo, line );
 }
 
-void mgui_memobox_clear( memobox_t* memobox )
+void mgui_memobox_clear( MGuiMemobox* memobox )
 {
 	node_t *node, *tmp;
-	struct memoline_s* line;
-	struct memoraw_s* raw;
+	struct _MGuiMemoLine* line;
+	struct _MGuiMemoRaw* raw;
 	struct memobox_s* memo;
 
 	memo = (struct memobox_s*)memobox;
@@ -420,7 +420,7 @@ void mgui_memobox_clear( memobox_t* memobox )
 
 	list_foreach_safe( memo->raw_lines, node, tmp )
 	{
-		raw = (struct memoraw_s*)node;
+		raw = (struct _MGuiMemoRaw*)node;
 		list_remove( memo->raw_lines, node );
 
 		if ( raw->text ) mem_free( raw->text );
@@ -429,7 +429,7 @@ void mgui_memobox_clear( memobox_t* memobox )
 
 	list_foreach_safe( memo->lines, node, tmp )
 	{
-		line = (struct memoline_s*)node;
+		line = (struct _MGuiMemoLine*)node;
 		list_remove( memo->lines, node );
 
 		if ( line->text ) mem_free( line->text );
@@ -439,12 +439,12 @@ void mgui_memobox_clear( memobox_t* memobox )
 	mgui_force_redraw();
 }
 
-float mgui_memobox_get_display_pos( memobox_t* memobox )
+float mgui_memobox_get_display_pos( MGuiMemobox* memobox )
 {
 	return ((struct memobox_s*)memobox)->position;
 }
 
-void mgui_memobox_set_display_pos( memobox_t* memobox, float pos )
+void mgui_memobox_set_display_pos( MGuiMemobox* memobox, float pos )
 {
 	struct memobox_s* memo;
 	memo = (struct memobox_s*)memobox;
@@ -454,12 +454,12 @@ void mgui_memobox_set_display_pos( memobox_t* memobox, float pos )
 	__mgui_memobox_update_display_positions( memo );
 }
 
-bool mgui_memobox_get_top_to_bottom( memobox_t* memobox )
+bool mgui_memobox_get_top_to_bottom( MGuiMemobox* memobox )
 {
 	return BIT_ON( memobox->flags, FLAG_TOPBOTTOM );
 }
 
-void mgui_memobox_set_top_to_bottom( memobox_t* memobox, bool enable )
+void mgui_memobox_set_top_to_bottom( MGuiMemobox* memobox, bool enable )
 {
 	if ( enable )
 	{
@@ -479,17 +479,17 @@ void mgui_memobox_set_top_to_bottom( memobox_t* memobox, bool enable )
 	}
 }
 
-uint32 mgui_memobox_get_lines( memobox_t* memobox )
+uint32 mgui_memobox_get_lines( MGuiMemobox* memobox )
 {
 	return ((struct memobox_s*)memobox)->lines->size;
 }
 
-uint32 mgui_memobox_get_history( memobox_t* memobox )
+uint32 mgui_memobox_get_history( MGuiMemobox* memobox )
 {
 	return ((struct memobox_s*)memobox)->max_history;
 }
 
-void mgui_memobox_set_history( memobox_t* memobox, uint32 lines )
+void mgui_memobox_set_history( MGuiMemobox* memobox, uint32 lines )
 {
 	((struct memobox_s*)memobox)->max_history = lines;
 }

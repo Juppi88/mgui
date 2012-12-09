@@ -16,14 +16,14 @@
 #include <D3dx8math.h>
 #include <DxErr.h>
 
-static mgui_renderer_t	renderer;
+static MGuiRenderer	renderer;
 /*static*/ HWND				wnd;
 
 LPDIRECT3D8				D3D = NULL;
 IDirect3DDevice8*		D3DDevice = NULL;
 D3DPRESENT_PARAMETERS	D3DParams;
 
-mgui_renderer_t* mgui_dx8_initialize( void* syswindow )
+MGuiRenderer* mgui_dx8_initialize( void* syswindow )
 {
 	RECT rect;
 	HRESULT res;

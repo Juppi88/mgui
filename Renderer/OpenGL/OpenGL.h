@@ -38,7 +38,7 @@ typedef struct oglfont_s
 	uint32		last_char;
 	uint32		data_len;
 	float**		coords;
-} oglfont_t;
+} MGuiGLFont;
 
 // Functions to create and destroy device context
 void*	mgui_opengl_create_context		( void* syswindow );
@@ -48,8 +48,8 @@ void	mgui_opengl_destroy_context		( void* context );
 __BEGIN_DECLS
 
 // Public functions
-MYLLY_API mgui_renderer_t*	mgui_opengl_initialize			( void* syswindow );
-MYLLY_API void				mgui_opengl_shutdown			( void );
+MYLLY_API MGuiRenderer*	mgui_opengl_initialize			( void* syswindow );
+MYLLY_API void			mgui_opengl_shutdown			( void );
 
 __END_DECLS
 

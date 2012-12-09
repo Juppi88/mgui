@@ -16,19 +16,19 @@
 #include "Platform/Platform.h"
 #include <assert.h>
 
-font_t* mgui_font_create( const char_t* name, uint8 size, uint8 flags, uint8 charset )
+MGuiFont* mgui_font_create( const char_t* name, uint8 size, uint8 flags, uint8 charset )
 {
 	return mgui_font_create_range( name, size, flags, charset, 0, 0 );
 }
 
-font_t* mgui_font_create_range( const char_t* name, uint8 size, uint8 flags, uint8 charset, char_t firstc, char_t lastc )
+MGuiFont* mgui_font_create_range( const char_t* name, uint8 size, uint8 flags, uint8 charset, char_t firstc, char_t lastc )
 {
-	font_t* font;
+	MGuiFont* font;
 	size_t len;
 
 	len = mstrsize( name );
 
-	font = (font_t*)mem_alloc( sizeof(*font) );
+	font = (MGuiFont*)mem_alloc( sizeof(*font) );
 	font->name = mem_alloc( len );
 	font->size = size;
 	font->flags = flags;
@@ -40,12 +40,12 @@ font_t* mgui_font_create_range( const char_t* name, uint8 size, uint8 flags, uin
 	return font;
 }
 
-font_t* mgui_font_create_default( void )
+MGuiFont* mgui_font_create_default( void )
 {
 	return mgui_font_create_range( DEFAULT_FONT, 10, FFLAG_NONE, CHARSET_ANSI, 0, 0 );
 }
 
-void mgui_font_destroy( font_t* font )
+void mgui_font_destroy( MGuiFont* font )
 {
 	assert( font != NULL );
 
@@ -58,7 +58,7 @@ void mgui_font_destroy( font_t* font )
 	mem_free( font );
 }
 
-void mgui_font_set_font( font_t* font, const char_t* name )
+void mgui_font_set_font( MGuiFont* font, const char_t* name )
 {
 	size_t len;
 
@@ -77,7 +77,7 @@ void mgui_font_set_font( font_t* font, const char_t* name )
 	font->data = render->load_font( name, font->size, font->flags, font->charset, 0, 0 );
 }
 
-void mgui_font_set_size( font_t* font, uint8 size )
+void mgui_font_set_size( MGuiFont* font, uint8 size )
 {
 	assert( font != NULL );
 
@@ -89,7 +89,7 @@ void mgui_font_set_size( font_t* font, uint8 size )
 	font->data = render->load_font( font->name, font->size, font->flags, font->charset, 0, 0 );
 }
 
-void mgui_font_set_flags( font_t* font, uint8 flags )
+void mgui_font_set_flags( MGuiFont* font, uint8 flags )
 {
 	assert( font != NULL );
 
@@ -101,7 +101,7 @@ void mgui_font_set_flags( font_t* font, uint8 flags )
 	font->data = render->load_font( font->name, font->size, font->flags, font->charset, 0, 0 );
 }
 
-void mgui_font_set_charset( font_t* font, uint8 charset )
+void mgui_font_set_charset( MGuiFont* font, uint8 charset )
 {
 	assert( font != NULL );
 

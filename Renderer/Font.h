@@ -34,22 +34,22 @@
 #else
 #endif /* _WIN32 */
 
-typedef struct
+typedef struct _MGuiFont
 {
 	void*		data;		// Renderer font data
 	char_t*		name;		// The name of the font
 	uint8		size;		// Size (height)
 	uint8		flags;		// Font flags, defined in MGUI.h
 	uint8		charset;	// Character set
-} font_t;
+} MGuiFont;
 
-font_t*		mgui_font_create			( const char_t* name, uint8 size, uint8 flags, uint8 charset );
-font_t*		mgui_font_create_range		( const char_t* name, uint8 size, uint8 flags, uint8 charset, char_t firstc, char_t lastc );
-font_t*		mgui_font_create_default	( void );
-void		mgui_font_destroy			( font_t* font );
-void		mgui_font_set_font			( font_t* font, const char_t* name );
-void		mgui_font_set_size			( font_t* font, uint8 size );
-void		mgui_font_set_flags			( font_t* font, uint8 flags );
-void		mgui_font_set_charset		( font_t* font, uint8 charset );
+MGuiFont*	mgui_font_create			( const char_t* name, uint8 size, uint8 flags, uint8 charset );
+MGuiFont*	mgui_font_create_range		( const char_t* name, uint8 size, uint8 flags, uint8 charset, char_t firstc, char_t lastc );
+MGuiFont*	mgui_font_create_default	( void );
+void		mgui_font_destroy			( MGuiFont* font );
+void		mgui_font_set_font			( MGuiFont* font, const char_t* name );
+void		mgui_font_set_size			( MGuiFont* font, uint8 size );
+void		mgui_font_set_flags			( MGuiFont* font, uint8 flags );
+void		mgui_font_set_charset		( MGuiFont* font, uint8 charset );
 
 #endif /* __MYLLY_GUI_FONT_H */

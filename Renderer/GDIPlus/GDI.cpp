@@ -13,11 +13,11 @@
 #include "Drawing.h"
 #include <gdiplus.h>
 
-static mgui_renderer_t	renderer;
+static MGuiRenderer	renderer;
 static ULONG_PTR		token		= NULL;
 HWND					hwnd		= NULL;
 
-mgui_renderer_t* mgui_gdiplus_initialize( void* syswindow )
+MGuiRenderer* mgui_gdiplus_initialize( void* syswindow )
 {
 	Gdiplus::GdiplusStartupInput si;
 

@@ -17,10 +17,10 @@
 #include <stdio.h>
 #include <assert.h>
 
-text_t* mgui_text_create( void )
+MGuiText* mgui_text_create( void )
 {
-	text_t* text;
-	text = (text_t*)mem_alloc_clean( sizeof(*text) );
+	MGuiText* text;
+	text = (MGuiText*)mem_alloc_clean( sizeof(*text) );
 
 	text->alignment = ALIGN_CENTER;
 	text->colour.hex = COL_TEXT;
@@ -28,7 +28,7 @@ text_t* mgui_text_create( void )
 	return text;
 }
 
-void mgui_text_destroy( text_t* text )
+void mgui_text_destroy( MGuiText* text )
 {
 	assert( text != NULL );
 
@@ -38,7 +38,7 @@ void mgui_text_destroy( text_t* text )
 	mem_free( text );
 }
 
-void mgui_text_set_buffer( text_t* text, const char_t* fmt, ... )
+void mgui_text_set_buffer( MGuiText* text, const char_t* fmt, ... )
 {
 	size_t	len;
 	char_t	tmp[512];
@@ -62,7 +62,7 @@ void mgui_text_set_buffer( text_t* text, const char_t* fmt, ... )
 	mgui_text_update_dimensions( text );
 }
 
-void mgui_text_set_buffer_s( text_t* text, const char_t* str )
+void mgui_text_set_buffer_s( MGuiText* text, const char_t* str )
 {
 	size_t len;
 
@@ -81,7 +81,7 @@ void mgui_text_set_buffer_s( text_t* text, const char_t* str )
 	mgui_text_update_dimensions( text );
 }
 
-void mgui_text_set_buffer_va( text_t* text, const char_t* fmt, va_list list )
+void mgui_text_set_buffer_va( MGuiText* text, const char_t* fmt, va_list list )
 {
 	size_t	len;
 	char_t	tmp[512];
@@ -101,7 +101,7 @@ void mgui_text_set_buffer_va( text_t* text, const char_t* fmt, va_list list )
 	mgui_text_update_dimensions( text );
 }
 
-void mgui_text_update_dimensions( text_t* text )
+void mgui_text_update_dimensions( MGuiText* text )
 {
 	uint32 w, h;
 
@@ -116,7 +116,7 @@ void mgui_text_update_dimensions( text_t* text )
 	mgui_text_update_position( text );
 }
 
-void mgui_text_update_position( text_t* text )
+void mgui_text_update_position( MGuiText* text )
 {
 	uint16 x, y, w, h;
 
@@ -184,7 +184,7 @@ void mgui_text_update_position( text_t* text )
 	}
 }
 
-uint32 mgui_text_get_closest_char( text_t* text, uint16 x, uint16 y )
+uint32 mgui_text_get_closest_char( MGuiText* text, uint16 x, uint16 y )
 {
 	uint32 dist, ch, i, tmp;
 	uint16 cx, cy;
@@ -212,7 +212,7 @@ uint32 mgui_text_get_closest_char( text_t* text, uint16 x, uint16 y )
 	return ch;
 }
 
-void mgui_text_get_char_pos( text_t* text, uint32 idx, uint16* x, uint16* y )
+void mgui_text_get_char_pos( MGuiText* text, uint32 idx, uint16* x, uint16* y )
 {
 	char_t tmp[512];
 	uint32 w, h;

@@ -18,7 +18,7 @@
 
 struct button_s
 {
-	element_t;							// Inherit all generic element properties
+	MGuiElement;	// Inherit all generic element properties
 };
 
 #endif /* __MGUI_BUTTON_H */

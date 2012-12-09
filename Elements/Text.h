@@ -17,7 +17,7 @@
 #include "Font.h"
 #include <stdarg.h>
 
-typedef struct  
+typedef struct _MGuiText
 {
 	char_t*					buffer;		// Text buffer for the actual text
 	size_t					len;		// The length of the buffer (in characters)
@@ -26,7 +26,7 @@ typedef struct
 	vectorscreen_t			size;		// Size of the text (width, height)
 	rectangle_t*			bounds;		// Containing boundaries
 	uint32					alignment;	// Alignment flags
-	font_t*					font;		// Font used for rendering
+	MGuiFont*				font;		// Font used for rendering
 	colour_t				colour;		// Rendering colour
 
 	struct 
@@ -36,20 +36,20 @@ typedef struct
 		uint8				left;
 		uint8				right;
 	} pad;								// Text padding 
-} text_t;
+} MGuiText;
 
 // Helper functions
-text_t*		mgui_text_create			( void );
-void		mgui_text_destroy			( text_t* text );
+MGuiText*	mgui_text_create			( void );
+void		mgui_text_destroy			( MGuiText* text );
 
-void		mgui_text_set_buffer		( text_t* text, const char_t* fmt, ... );
-void		mgui_text_set_buffer_s		( text_t* text, const char_t* str );
-void		mgui_text_set_buffer_va		( text_t* text, const char_t* fmt, va_list list );
+void		mgui_text_set_buffer		( MGuiText* text, const char_t* fmt, ... );
+void		mgui_text_set_buffer_s		( MGuiText* text, const char_t* str );
+void		mgui_text_set_buffer_va		( MGuiText* text, const char_t* fmt, va_list list );
 
-void		mgui_text_update_dimensions	( text_t* text );
-void		mgui_text_update_position	( text_t* text );
+void		mgui_text_update_dimensions	( MGuiText* text );
+void		mgui_text_update_position	( MGuiText* text );
 
-uint32		mgui_text_get_closest_char	( text_t* text, uint16 x, uint16 y );
-void		mgui_text_get_char_pos		( text_t* text, uint32 idx, uint16* x, uint16* y );
+uint32		mgui_text_get_closest_char	( MGuiText* text, uint16 x, uint16 y );
+void		mgui_text_get_char_pos		( MGuiText* text, uint32 idx, uint16* x, uint16* y );
 
 #endif /* __MGUI_TEXT_H */

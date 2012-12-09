@@ -20,18 +20,18 @@
 #include "Math/MathDefs.h"
 #include "Types/List.h"
 
-struct control_s
+struct _MGuiControl
 {
 	node_t;							// Next and previous controls (linked list node)
 	uint32				flags;		// Element flags
 	rectangle_t			bounds;		// Absolute rectangle for this control (in pixels)
-	control_t*			parent;		// Parent control
+	MGuiControl*		parent;		// Parent control
 	list_t*				children;	// List of children elements
 };
 
-void		mgui_do_cleanup			( void );
-void		mgui_render_controls	( void );
-void		mgui_process_controls	( uint32 ticks );
-element_t*	mgui_get_element_at		( control_t* parent, uint16 x, uint16 y );
+void			mgui_do_cleanup			( void );
+void			mgui_render_controls	( void );
+void			mgui_process_controls	( uint32 ticks );
+MGuiElement*	mgui_get_element_at		( MGuiControl* parent, uint16 x, uint16 y );
 
 #endif /* __MYLLY_GUI_CONTROL_H */

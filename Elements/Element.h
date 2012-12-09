@@ -60,48 +60,48 @@ enum MGUI_TYPE
 
 // Internal element types
 MGUI_ELEMENT_DECL( titlebar_t );
-MGUI_ELEMENT_DECL( windowbutton_t );
+MGUI_ELEMENT_DECL( windowMGuiButton );
 
-struct element_s
+struct _MGuiElement
 {
-	control_t;								// Inherit control data
+	MGuiControl;								// Inherit control data
 	enum MGUI_TYPE			type;			// The type of this GUI element
 	vector2_t				pos;			// Relative position (within parent element)
 	vector2_t				size;			// Relative size (within parent element)
 	colour_t				colour;			// Element colour
-	text_t*					text;			// Text on this element (label, title etc)
-	font_t*					font;			// Default font used for all the text on this element
+	MGuiText*					text;			// Text on this element (label, title etc)
+	MGuiFont*					font;			// Default font used for all the text on this element
 	mgui_event_handler_t	event_handler;	// User event handler callback
 	void*					event_data;		// User-specified data to be passed via event_handler
 
 	// Internal callbacks
 	struct
 	{
-		void	( *render )				( element_t* element );					// Render callback
-		void	( *destroy )			( element_t* element );					// Destructor callback
-		void	( *process )			( element_t* element, uint32 ticks );	// Element processing
+		void	( *render )				( MGuiElement* element );					// Render callback
+		void	( *destroy )			( MGuiElement* element );					// Destructor callback
+		void	( *process )			( MGuiElement* element, uint32 ticks );	// Element processing
 
-		void	( *on_bounds_update )	( element_t* element, bool pos, bool size );
-		void	( *on_colour_update )	( element_t* element );
-		void	( *on_text_update )		( element_t* element );
-		void	( *on_mouse_enter )		( element_t* element );
-		void	( *on_mouse_leave )		( element_t* element );
-		void	( *on_mouse_click )		( element_t* element, MOUSEBTN button, uint16 x, uint16 y );
-		void	( *on_mouse_release )	( element_t* element, MOUSEBTN button, uint16 x, uint16 y );
-		void	( *on_mouse_drag )		( element_t* element, uint16 x, uint16 y );
-		void	( *on_mouse_wheel )		( element_t* element, float diff );
-		void	( *on_character )		( element_t* element, char_t c );
-		void	( *on_key_press )		( element_t* element, uint key, bool down );
+		void	( *on_bounds_update )	( MGuiElement* element, bool pos, bool size );
+		void	( *on_colour_update )	( MGuiElement* element );
+		void	( *on_text_update )		( MGuiElement* element );
+		void	( *on_mouse_enter )		( MGuiElement* element );
+		void	( *on_mouse_leave )		( MGuiElement* element );
+		void	( *on_mouse_click )		( MGuiElement* element, MOUSEBTN button, uint16 x, uint16 y );
+		void	( *on_mouse_release )	( MGuiElement* element, MOUSEBTN button, uint16 x, uint16 y );
+		void	( *on_mouse_drag )		( MGuiElement* element, uint16 x, uint16 y );
+		void	( *on_mouse_wheel )		( MGuiElement* element, float diff );
+		void	( *on_character )		( MGuiElement* element, char_t c );
+		void	( *on_key_press )		( MGuiElement* element, uint key, bool down );
 	};
 };
 
-void		mgui_element_create		( element_t* element, control_t* parent, bool has_text );
-void		mgui_element_render		( element_t* element );
-void		mgui_element_process	( element_t* element, uint32 ticks );
+void		mgui_element_create		( MGuiElement* element, MGuiControl* parent, bool has_text );
+void		mgui_element_render		( MGuiElement* element );
+void		mgui_element_process	( MGuiElement* element, uint32 ticks );
 
-void		mgui_update_abs_pos		( element_t* element );
-void		mgui_update_abs_size	( element_t* element );
-void		mgui_update_rel_pos		( element_t* element );
-void		mgui_update_rel_size	( element_t* element );
+void		mgui_update_abs_pos		( MGuiElement* element );
+void		mgui_update_abs_size	( MGuiElement* element );
+void		mgui_update_rel_pos		( MGuiElement* element );
+void		mgui_update_rel_size	( MGuiElement* element );
 
 #endif /* __MGUI_ELEMENT_H */

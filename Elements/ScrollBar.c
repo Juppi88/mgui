@@ -15,13 +15,13 @@
 #include "Platform/Platform.h"
 #include <assert.h>
 
-static void __mgui_destroy_scrollbar( element_t* scrollbar );
-static void __mgui_scrollbar_render( element_t* scrollbar );
-static void __mgui_scrollbar_on_bounds_update( element_t* scrollbar, bool pos, bool size );
+static void __mgui_destroy_scrollbar( MGuiElement* scrollbar );
+static void __mgui_scrollbar_render( MGuiElement* scrollbar );
+static void __mgui_scrollbar_on_bounds_update( MGuiElement* scrollbar, bool pos, bool size );
 
-scrollbar_t* mgui_create_scrollbar( control_t* parent )
+MGuiScrollbar* mgui_create_scrollbar( MGuiControl* parent )
 {
-	struct scrollbar_s* scrollbar;
+	struct _MGuiScrollBar* scrollbar;
 
 	scrollbar = mem_alloc_clean( sizeof(*scrollbar) );
 	mgui_element_create( cast_elem(scrollbar), parent, false );
@@ -42,15 +42,15 @@ scrollbar_t* mgui_create_scrollbar( control_t* parent )
 	return cast_elem(scrollbar);
 }
 
-static void __mgui_destroy_scrollbar( element_t* scrollbar )
+static void __mgui_destroy_scrollbar( MGuiElement* scrollbar )
 {
 	UNREFERENCED_PARAM(scrollbar);
 }
 
-static void __mgui_scrollbar_render( element_t* scrollbar )
+static void __mgui_scrollbar_render( MGuiElement* scrollbar )
 {
-	struct scrollbar_s* bar;
-	bar = (struct scrollbar_s*)scrollbar;
+	struct _MGuiScrollBar* bar;
+	bar = (struct _MGuiScrollBar*)scrollbar;
 
 	skin->draw_scrollbar( &bar->bounds, &bar->track_col, 0 );
 	skin->draw_scrollbar_button( &bar->button1, &bar->colour, 0, &bar->track_col, ARROW_UP );
@@ -60,15 +60,15 @@ static void __mgui_scrollbar_render( element_t* scrollbar )
 		skin->draw_scrollbar_bar( &bar->bar, &bar->colour, 0 );
 }
 
-void __mgui_scrollbar_on_bounds_update( element_t* scrollbar, bool pos, bool size )
+void __mgui_scrollbar_on_bounds_update( MGuiElement* scrollbar, bool pos, bool size )
 {
-	struct scrollbar_s* bar;
+	struct _MGuiScrollBar* bar;
 	uint16 tracksize;
 
 	UNREFERENCED_PARAM(pos);
 	UNREFERENCED_PARAM(size);
 
-	bar = (struct scrollbar_s*)scrollbar;
+	bar = (struct _MGuiScrollBar*)scrollbar;
 
 	bar->button1.x = bar->bounds.x;
 	bar->button1.y = bar->bounds.y;
@@ -90,18 +90,18 @@ void __mgui_scrollbar_on_bounds_update( element_t* scrollbar, bool pos, bool siz
 	mgui_force_redraw();
 }
 
-uint32 mgui_scrollbar_get_track_colour( scrollbar_t* scrollbar )
+uint32 mgui_scrollbar_get_track_colour( MGuiScrollbar* scrollbar )
 {
-	struct scrollbar_s* bar;
-	bar = (struct scrollbar_s*)scrollbar;
+	struct _MGuiScrollBar* bar;
+	bar = (struct _MGuiScrollBar*)scrollbar;
 
 	return bar->track_col.hex;
 }
 
-void mgui_scrollbar_set_track_colour( scrollbar_t* scrollbar, uint32 colour )
+void mgui_scrollbar_set_track_colour( MGuiScrollbar* scrollbar, uint32 colour )
 {
-	struct scrollbar_s* bar;
-	bar = (struct scrollbar_s*)scrollbar;
+	struct _MGuiScrollBar* bar;
+	bar = (struct _MGuiScrollBar*)scrollbar;
 
 	bar->track_col.hex = colour;
 	bar->track_col.a = bar->colour.a;

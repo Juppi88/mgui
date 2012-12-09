@@ -20,13 +20,13 @@ typedef struct gdifont_s
 	uint32		size;
 	uint32		flags;
 	void*		font;
-} gdifont_t;
+} MGuiGDIFont;
 
 __BEGIN_DECLS
 
 // Public functions
-MYLLY_API mgui_renderer_t*	mgui_gdiplus_initialize			( void* syswindow );
-MYLLY_API void				mgui_gdiplus_shutdown			( void );
+MYLLY_API MGuiRenderer*	mgui_gdiplus_initialize			( void* syswindow );
+MYLLY_API void			mgui_gdiplus_shutdown			( void );
 
 __END_DECLS
 

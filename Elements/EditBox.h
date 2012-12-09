@@ -15,9 +15,9 @@
 
 #include "Element.h"
 
-struct editbox_s
+struct _MGuiEditbox
 {
-	element_t;							// Inherit all generic element properties
+	MGuiElement;							// Inherit all generic element properties
 
 	char_t*			buffer;				// The displayed/masked text buffer
 	uint32			cursor_pos;			// Current cursor position

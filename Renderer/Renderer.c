@@ -30,7 +30,7 @@
 #include "Renderer/GDIPlus/GDI.h"
 #endif
 
-mgui_renderer_t*	render;
+MGuiRenderer*	render;
 
 void mgui_render_initialize( MGUI_RENDERER type, void* window )
 {

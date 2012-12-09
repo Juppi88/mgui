@@ -16,12 +16,12 @@
 #include "Platform/Platform.h"
 #include <assert.h>
 
-static void __mgui_titlebar_on_mouse_click( element_t* element, MOUSEBTN button, uint16 x, uint16 y );
-static void __mgui_titlebar_on_mouse_drag( element_t* element, uint16 x, uint16 y );
+static void __mgui_titlebar_on_mouse_click( MGuiElement* element, MOUSEBTN button, uint16 x, uint16 y );
+static void __mgui_titlebar_on_mouse_drag( MGuiElement* element, uint16 x, uint16 y );
 
-struct titlebar_s* mgui_create_titlebar( struct window_s* parent )
+MGuiTitlebar* mgui_create_titlebar( MGuiWindow* parent )
 {
-	struct titlebar_s* titlebar;
+	MGuiTitlebar* titlebar;
 
 	titlebar = mem_alloc_clean( sizeof(*titlebar) );
 	mgui_element_create( cast_elem(titlebar), NULL, false );
@@ -47,30 +47,30 @@ struct titlebar_s* mgui_create_titlebar( struct window_s* parent )
 	return titlebar;
 }
 
-void mgui_destroy_titlebar( struct titlebar_s* titlebar )
+void mgui_destroy_titlebar( MGuiTitlebar* titlebar )
 {
 	mgui_input_cleanup_references( cast_elem(titlebar) );
 	mem_free( titlebar );
 }
 
-static void __mgui_titlebar_on_mouse_click( element_t* element, MOUSEBTN button, uint16 x, uint16 y )
+static void __mgui_titlebar_on_mouse_click( MGuiElement* element, MOUSEBTN button, uint16 x, uint16 y )
 {
-	struct titlebar_s* titlebar;
-	titlebar = (struct titlebar_s*)element;
+	MGuiTitlebar* titlebar;
+	titlebar = (MGuiTitlebar*)element;
 
-	UNREFERENCED_PARAM(button);
+	UNREFERENCED_PARAM( button );
 
 	assert( titlebar->window != NULL );
 
-	titlebar->window->on_mouse_click( cast_elem(titlebar->window), button, x - titlebar->bounds.x, y - titlebar->bounds.y );
+	titlebar->window->on_mouse_click( titlebar->window, button, x - titlebar->bounds.x, y - titlebar->bounds.y );
 }
 
-static void __mgui_titlebar_on_mouse_drag( element_t* element, uint16 x, uint16 y )
+static void __mgui_titlebar_on_mouse_drag( MGuiElement* element, uint16 x, uint16 y )
 {
-	struct titlebar_s* titlebar;
-	titlebar = (struct titlebar_s*)element;
+	MGuiTitlebar* titlebar;
+	titlebar = (MGuiTitlebar*)element;
 
 	assert( titlebar->window != NULL );
 
-	titlebar->window->on_mouse_drag( cast_elem(titlebar->window), x, y );
+	titlebar->window->on_mouse_drag( titlebar->window, x, y );
 }

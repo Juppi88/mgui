@@ -75,7 +75,7 @@ void mgui_opengl_swap_buffers( void )
 	SwapBuffers( dc );
 }
 
-static bool __measure_font( HDC tmpdc, oglfont_t* font, bool print )
+static bool __measure_font( HDC tmpdc, MGuiGLFont* font, bool print )
 {
 	SIZE size;
 	uint32 x, y;
@@ -129,7 +129,7 @@ void* mgui_opengl_load_font( const char* name, uint32 size, uint32 flags, uint32
 	HBITMAP bitmap;
 	HGDIOBJ bmold;
 	BITMAP bm;
-	oglfont_t* font;
+	MGuiGLFont* font;
 	HDC tmpdc;
 	uint32 i, *pixels;
 	float ratio;
@@ -239,7 +239,7 @@ void* mgui_opengl_load_font( const char* name, uint32 size, uint32 flags, uint32
 
 void mgui_opengl_destroy_font( void* font )
 {
-	oglfont_t* fnt = font;
+	MGuiGLFont* fnt = font;
 
 	assert( font != NULL );
 

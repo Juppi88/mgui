@@ -18,19 +18,19 @@
 #include <assert.h>
 #include <malloc.h>
 
-static void __mgui_destroy_editbox( element_t* editbox );
-static void __mgui_editbox_render( element_t* element );
-static void __mgui_editbox_process( element_t* element, uint32 ticks );
-static void __mgui_editbox_on_text_update( element_t* element );
-static void __mgui_editbox_on_mouse_click( element_t* element, MOUSEBTN button, uint16 x, uint16 y );
-static void __mgui_editbox_on_mouse_release( element_t* element, MOUSEBTN button, uint16 x, uint16 y );
-static void __mgui_editbox_on_mouse_drag( element_t* element, uint16 x, uint16 y );
-static void __mgui_editbox_on_character( element_t* element, char_t c );
-static void __mgui_editbox_on_key_press( element_t* element, uint key, bool down );
+static void __mgui_destroy_editbox( MGuiElement* editbox );
+static void __mgui_editbox_render( MGuiElement* element );
+static void __mgui_editbox_process( MGuiElement* element, uint32 ticks );
+static void __mgui_editbox_on_text_update( MGuiElement* element );
+static void __mgui_editbox_on_mouse_click( MGuiElement* element, MOUSEBTN button, uint16 x, uint16 y );
+static void __mgui_editbox_on_mouse_release( MGuiElement* element, MOUSEBTN button, uint16 x, uint16 y );
+static void __mgui_editbox_on_mouse_drag( MGuiElement* element, uint16 x, uint16 y );
+static void __mgui_editbox_on_character( MGuiElement* element, char_t c );
+static void __mgui_editbox_on_key_press( MGuiElement* element, uint key, bool down );
 
-editbox_t* mgui_create_editbox( control_t* parent )
+MGuiEditbox* mgui_create_editbox( MGuiControl* parent )
 {
-	struct editbox_s* editbox;
+	struct _MGuiEditbox* editbox;
 
 	editbox = mem_alloc_clean( sizeof(*editbox) );
 	mgui_element_create( cast_elem(editbox), parent, true );
@@ -68,21 +68,21 @@ editbox_t* mgui_create_editbox( control_t* parent )
 	return cast_elem(editbox);
 }
 
-static void __mgui_destroy_editbox( element_t* editbox )
+static void __mgui_destroy_editbox( MGuiElement* editbox )
 {
 	UNREFERENCED_PARAM(editbox);
 }
 
-static void __mgui_editbox_render( element_t* element )
+static void __mgui_editbox_render( MGuiElement* element )
 {
-	struct editbox_s* editbox;
+	struct _MGuiEditbox* editbox;
 	colour_t col;
 	char* tmp;
 
-	editbox = (struct editbox_s*)element;
+	editbox = (struct _MGuiEditbox*)element;
 
 	// This is a really ugly hack to make mgui_get_text return the correct buffer:
-	// We replace the text_t buffer with our own (with masked input etc cool)
+	// We replace the MGuiText buffer with our own (with masked input etc cool)
 	// while we render, and put the original buffer back afterwards
 	tmp = editbox->text->buffer;
 	editbox->text->buffer = editbox->buffer;
@@ -113,10 +113,10 @@ static void __mgui_editbox_render( element_t* element )
 	editbox->text->buffer = tmp;
 }
 
-static void __mgui_editbox_process( element_t* element, uint32 ticks )
+static void __mgui_editbox_process( MGuiElement* element, uint32 ticks )
 {
-	struct editbox_s* editbox;
-	editbox = (struct editbox_s*)element;
+	struct _MGuiEditbox* editbox;
+	editbox = (struct _MGuiEditbox*)element;
 
 	if ( BIT_OFF( editbox->flags, FLAG_FOCUS ) ) return;
 
@@ -129,7 +129,7 @@ static void __mgui_editbox_process( element_t* element, uint32 ticks )
 	}
 }
 
-static void __mgui_editbox_refresh_cursor_bounds( struct editbox_s* editbox )
+static void __mgui_editbox_refresh_cursor_bounds( struct _MGuiEditbox* editbox )
 {
 	uint16 x1, y1, x2, y2, w1, w2;
 	char_t* tmp;
@@ -163,11 +163,11 @@ static void __mgui_editbox_refresh_cursor_bounds( struct editbox_s* editbox )
 	mgui_force_redraw();
 }
 
-static void __mgui_editbox_on_text_update( element_t* element )
+static void __mgui_editbox_on_text_update( MGuiElement* element )
 {
 	char* str;
-	struct editbox_s* editbox;
-	editbox = (struct editbox_s*)element;
+	struct _MGuiEditbox* editbox;
+	editbox = (struct _MGuiEditbox*)element;
 
 	// TODO: make this less shitty...
 	if ( editbox->buffer )
@@ -188,16 +188,16 @@ static void __mgui_editbox_on_text_update( element_t* element )
 	__mgui_editbox_refresh_cursor_bounds( editbox );
 }
 
-static void __mgui_editbox_on_mouse_click( element_t* element, MOUSEBTN button, uint16 x, uint16 y )
+static void __mgui_editbox_on_mouse_click( MGuiElement* element, MOUSEBTN button, uint16 x, uint16 y )
 {
 	uint32 ch;
 	uint16 cx, cy;
 	char* tmp;
-	struct editbox_s* editbox;
+	struct _MGuiEditbox* editbox;
 
 	UNREFERENCED_PARAM(button);
 
-	editbox = (struct editbox_s*)element;
+	editbox = (struct _MGuiEditbox*)element;
 
 	cx = math_max( 0, x - editbox->text->pos.x );
 	cy = math_max( 0, y - editbox->text->pos.y );
@@ -217,16 +217,16 @@ static void __mgui_editbox_on_mouse_click( element_t* element, MOUSEBTN button, 
 	__mgui_editbox_refresh_cursor_bounds( editbox );
 }
 
-static void __mgui_editbox_on_mouse_release( element_t* element, MOUSEBTN button, uint16 x, uint16 y )
+static void __mgui_editbox_on_mouse_release( MGuiElement* element, MOUSEBTN button, uint16 x, uint16 y )
 {
 	uint32 ch;
 	uint16 cx, cy;
 	char* tmp;
-	struct editbox_s* editbox;
+	struct _MGuiEditbox* editbox;
 
 	UNREFERENCED_PARAM(button);
 
-	editbox = (struct editbox_s*)element;
+	editbox = (struct _MGuiEditbox*)element;
 
 	cx = math_max( 0, (int16)x - editbox->text->pos.x );
 	cy = math_max( 0, (int16)y - editbox->text->pos.y );
@@ -242,14 +242,14 @@ static void __mgui_editbox_on_mouse_release( element_t* element, MOUSEBTN button
 	__mgui_editbox_refresh_cursor_bounds( editbox );
 }
 
-static void __mgui_editbox_on_mouse_drag( element_t* element, uint16 x, uint16 y )
+static void __mgui_editbox_on_mouse_drag( MGuiElement* element, uint16 x, uint16 y )
 {
 	uint32 ch;
 	uint16 cx, cy;
 	char* tmp;
-	struct editbox_s* editbox;
+	struct _MGuiEditbox* editbox;
 
-	editbox = (struct editbox_s*)element;
+	editbox = (struct _MGuiEditbox*)element;
 
 	cx = math_max( 0, (int16)x - editbox->text->pos.x );
 	cy = math_max( 0, (int16)y - editbox->text->pos.y );
@@ -265,7 +265,7 @@ static void __mgui_editbox_on_mouse_drag( element_t* element, uint16 x, uint16 y
 	__mgui_editbox_refresh_cursor_bounds( editbox );
 }
 
-static void __mgui_editbox_erase_text( struct editbox_s* editbox, uint32 begin, uint32 end )
+static void __mgui_editbox_erase_text( struct _MGuiEditbox* editbox, uint32 begin, uint32 end )
 {
 	char_t* str;
 	char_t* str2;
@@ -316,7 +316,7 @@ static void __mgui_editbox_erase_text( struct editbox_s* editbox, uint32 begin, 
 	__mgui_editbox_refresh_cursor_bounds( editbox );
 }
 
-static void __mgui_editbox_insert_text( struct editbox_s* editbox, const char_t* text, size_t len )
+static void __mgui_editbox_insert_text( struct _MGuiEditbox* editbox, const char_t* text, size_t len )
 {
 	uint32 begin, end;
 	size_t size;
@@ -380,7 +380,7 @@ static void __mgui_editbox_insert_text( struct editbox_s* editbox, const char_t*
 	__mgui_editbox_refresh_cursor_bounds( editbox );
 }
 
-static void __mgui_editbox_on_character( element_t* element, char_t c )
+static void __mgui_editbox_on_character( MGuiElement* element, char_t c )
 {
 	char_t tmp[2];
 
@@ -389,10 +389,10 @@ static void __mgui_editbox_on_character( element_t* element, char_t c )
 	tmp[0] = c;
 	tmp[1] = '\0';
 
-	__mgui_editbox_insert_text( (struct editbox_s*)element, tmp, 1 );
+	__mgui_editbox_insert_text( (struct _MGuiEditbox*)element, tmp, 1 );
 }
 
-static void __mgui_editbox_select_all( struct editbox_s* editbox )
+static void __mgui_editbox_select_all( struct _MGuiEditbox* editbox )
 {
 	editbox->cursor_pos = editbox->text->len;
 	editbox->cursor_end = 0;
@@ -400,7 +400,7 @@ static void __mgui_editbox_select_all( struct editbox_s* editbox )
 	__mgui_editbox_refresh_cursor_bounds( editbox );
 }
 
-static void __mgui_editbox_cut_selection( struct editbox_s* editbox )
+static void __mgui_editbox_cut_selection( struct _MGuiEditbox* editbox )
 {
 	char_t buf[512];
 	uint32 begin, end;
@@ -416,7 +416,7 @@ static void __mgui_editbox_cut_selection( struct editbox_s* editbox )
 	__mgui_editbox_erase_text( editbox, begin, end );
 }
 
-static void __mgui_editbox_copy_selection( struct editbox_s* editbox )
+static void __mgui_editbox_copy_selection( struct _MGuiEditbox* editbox )
 {
 	char_t buf[512];
 
@@ -426,7 +426,7 @@ static void __mgui_editbox_copy_selection( struct editbox_s* editbox )
 	copy_to_clipboard( buf );
 }
 
-static void __mgui_editbox_paste_selection( struct editbox_s* editbox )
+static void __mgui_editbox_paste_selection( struct _MGuiEditbox* editbox )
 {
 	const char_t* pasted;
 	pasted = paste_from_clipboard();
@@ -436,7 +436,7 @@ static void __mgui_editbox_paste_selection( struct editbox_s* editbox )
 	__mgui_editbox_insert_text( editbox, pasted, mstrlen(pasted) );
 }
 
-static void __mgui_editbox_press_backspace( struct editbox_s* editbox )
+static void __mgui_editbox_press_backspace( struct _MGuiEditbox* editbox )
 {
 	uint32 begin, end;
 
@@ -453,7 +453,7 @@ static void __mgui_editbox_press_backspace( struct editbox_s* editbox )
 	}
 }
 
-static void __mgui_editbox_press_delete( struct editbox_s* editbox )
+static void __mgui_editbox_press_delete( struct _MGuiEditbox* editbox )
 {
 	uint32 begin, end;
 
@@ -470,9 +470,9 @@ static void __mgui_editbox_press_delete( struct editbox_s* editbox )
 	}
 }
 
-static void __mgui_editbox_press_return( struct editbox_s* editbox )
+static void __mgui_editbox_press_return( struct _MGuiEditbox* editbox )
 {
-	guievent_t event;
+	MGuiEvent event;
 
 	if ( editbox->event_handler )
 	{
@@ -485,7 +485,7 @@ static void __mgui_editbox_press_return( struct editbox_s* editbox )
 	}
 }
 
-static void __mgui_editbox_move_left( struct editbox_s* editbox )
+static void __mgui_editbox_move_left( struct _MGuiEditbox* editbox )
 {
 	editbox->cursor_pos = math_max( 0, (int32)editbox->cursor_pos - 1 );
 
@@ -500,7 +500,7 @@ static void __mgui_editbox_move_left( struct editbox_s* editbox )
 	mgui_force_redraw();
 }
 
-static void __mgui_editbox_move_right( struct editbox_s* editbox )
+static void __mgui_editbox_move_right( struct _MGuiEditbox* editbox )
 {
 	editbox->cursor_pos = math_min( editbox->text->len, editbox->cursor_pos + 1 );
 
@@ -515,7 +515,7 @@ static void __mgui_editbox_move_right( struct editbox_s* editbox )
 	mgui_force_redraw();
 }
 
-static void __mgui_editbox_press_home( struct editbox_s* editbox )
+static void __mgui_editbox_press_home( struct _MGuiEditbox* editbox )
 {
 	editbox->cursor_pos = 0;
 
@@ -530,7 +530,7 @@ static void __mgui_editbox_press_home( struct editbox_s* editbox )
 	mgui_force_redraw();
 }
 
-static void __mgui_editbox_press_end( struct editbox_s* editbox )
+static void __mgui_editbox_press_end( struct _MGuiEditbox* editbox )
 {
 	editbox->cursor_pos = editbox->text->len;
 
@@ -545,10 +545,10 @@ static void __mgui_editbox_press_end( struct editbox_s* editbox )
 	mgui_force_redraw();
 }
 
-static void __mgui_editbox_on_key_press( element_t* element, uint key, bool down )
+static void __mgui_editbox_on_key_press( MGuiElement* element, uint key, bool down )
 {
-	struct editbox_s* editbox;
-	editbox = (struct editbox_s*)element;
+	struct _MGuiEditbox* editbox;
+	editbox = (struct _MGuiEditbox*)element;
 
 	if ( !down ) return;
 
@@ -604,12 +604,12 @@ static void __mgui_editbox_on_key_press( element_t* element, uint key, bool down
 	}
 }
 
-void mgui_editbox_get_selection( editbox_t* editbox, char_t* buf, size_t buflen )
+void mgui_editbox_get_selection( MGuiEditbox* editbox, char_t* buf, size_t buflen )
 {
 	size_t len;
 	uint32 pos;
-	struct editbox_s* edit;
-	edit = (struct editbox_s*)editbox;
+	struct _MGuiEditbox* edit;
+	edit = (struct _MGuiEditbox*)editbox;
 
 	assert( editbox != NULL );
 
@@ -618,7 +618,7 @@ void mgui_editbox_get_selection( editbox_t* editbox, char_t* buf, size_t buflen 
 		*buf = _TEXT('\0');
 	}
 
-	edit = (struct editbox_s*)editbox;
+	edit = (struct _MGuiEditbox*)editbox;
 
 	len = math_abs( (int32)edit->cursor_end - (int32)edit->cursor_pos ) + 1;
 	if ( len == 0 ) return;
@@ -631,10 +631,10 @@ void mgui_editbox_get_selection( editbox_t* editbox, char_t* buf, size_t buflen 
 	mstrcpy( buf, &editbox->text->buffer[pos], len );
 }
 
-void mgui_editbox_select_text( editbox_t* editbox, uint32 begin, uint32 end )
+void mgui_editbox_select_text( MGuiEditbox* editbox, uint32 begin, uint32 end )
 {
-	struct editbox_s* edit;
-	edit = (struct editbox_s*)editbox;
+	struct _MGuiEditbox* edit;
+	edit = (struct _MGuiEditbox*)editbox;
 
 	assert( editbox != NULL );
 
@@ -654,10 +654,10 @@ void mgui_editbox_select_text( editbox_t* editbox, uint32 begin, uint32 end )
 	__mgui_editbox_refresh_cursor_bounds( edit );
 }
 
-uint32 mgui_editbox_get_cursor_pos( editbox_t* editbox )
+uint32 mgui_editbox_get_cursor_pos( MGuiEditbox* editbox )
 {
-	struct editbox_s* edit;
-	edit = (struct editbox_s*)editbox;
+	struct _MGuiEditbox* edit;
+	edit = (struct _MGuiEditbox*)editbox;
 
 	assert( editbox != NULL );
 
@@ -666,10 +666,10 @@ uint32 mgui_editbox_get_cursor_pos( editbox_t* editbox )
 	return edit->cursor_pos;
 }
 
-void mgui_editbox_set_cursor_pos( editbox_t* editbox, uint32 pos )
+void mgui_editbox_set_cursor_pos( MGuiEditbox* editbox, uint32 pos )
 {
-	struct editbox_s* edit;
-	edit = (struct editbox_s*)editbox;
+	struct _MGuiEditbox* edit;
+	edit = (struct _MGuiEditbox*)editbox;
 
 	assert( editbox != NULL );
 

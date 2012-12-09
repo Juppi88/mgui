@@ -14,12 +14,12 @@
 #include "Platform/Platform.h"
 #include <assert.h>
 
-static void __mgui_destroy_label( element_t* label );
-static void __mgui_label_render( element_t* label );
+static void __mgui_destroy_label( MGuiElement* label );
+static void __mgui_label_render( MGuiElement* label );
 
-label_t* mgui_create_label( control_t* parent )
+MGuiLabel* mgui_create_label( MGuiControl* parent )
 {
-	struct label_s* label;
+	struct _MGuiLabel* label;
 
 	label = mem_alloc_clean( sizeof(*label) );
 	mgui_element_create( cast_elem(label), parent, true );
@@ -37,17 +37,17 @@ label_t* mgui_create_label( control_t* parent )
 	return cast_elem(label);
 }
 
-static void __mgui_destroy_label( element_t* label )
+static void __mgui_destroy_label( MGuiElement* label )
 {
 	UNREFERENCED_PARAM(label);
 }
 
-static void __mgui_label_render( element_t* label )
+static void __mgui_label_render( MGuiElement* label )
 {
 	skin->draw_label( &label->bounds, &label->colour, label->flags, label->text );
 }
 
-void mgui_label_make_text_fit( label_t* label )
+void mgui_label_make_text_fit( MGuiLabel* label )
 {
 	uint16 w, h;
 	

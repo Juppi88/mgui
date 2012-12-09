@@ -20,15 +20,15 @@
 
 static list_t* controls = NULL;
 
-control_t* mgui_create_control( void )
+MGuiControl* mgui_create_control( void )
 {
-	control_t* control;
+	MGuiControl* control;
 	extern vectorscreen_t screen_size;
 
 	if ( !controls )
 		controls = list_create();
 
-	control = (control_t*)mem_alloc( sizeof(*control) );
+	control = (MGuiControl*)mem_alloc( sizeof(*control) );
 	control->children = list_create();
 	control->parent = NULL;
 	control->flags = FLAG_VISIBLE;
@@ -42,11 +42,11 @@ control_t* mgui_create_control( void )
 	return control;
 }
 
-void mgui_destroy_control( control_t* control )
+void mgui_destroy_control( MGuiControl* control )
 {
 	node_t* node;
 	node_t* tmp;
-	element_t* element;
+	MGuiElement* element;
 
 	assert( control != NULL );
 	assert( controls != NULL );
@@ -64,7 +64,7 @@ void mgui_destroy_control( control_t* control )
 	mem_free( control );
 }
 
-void mgui_add_child( control_t* parent, element_t* child )
+void mgui_add_child( MGuiControl* parent, MGuiElement* child )
 {
 	assert( parent != NULL );
 	assert( child != NULL );
@@ -75,7 +75,7 @@ void mgui_add_child( control_t* parent, element_t* child )
 	child->parent = parent;
 }
 
-void mgui_remove_child( element_t* child )
+void mgui_remove_child( MGuiElement* child )
 {
 	assert( child != NULL );
 
@@ -86,7 +86,7 @@ void mgui_remove_child( element_t* child )
 	child->parent = NULL;
 }
 
-void mgui_move_forward( element_t* child )
+void mgui_move_forward( MGuiElement* child )
 {
 	assert( child != NULL );
 
@@ -96,7 +96,7 @@ void mgui_move_forward( element_t* child )
 	list_move_forward( child->parent->children, cast_node(child) );
 }
 
-void mgui_move_backward( element_t* child )
+void mgui_move_backward( MGuiElement* child )
 {
 	assert( child != NULL );
 
@@ -106,7 +106,7 @@ void mgui_move_backward( element_t* child )
 	list_move_backward( child->parent->children, cast_node(child) );
 }
 
-void mgui_send_to_top( element_t* child )
+void mgui_send_to_top( MGuiElement* child )
 {
 	assert( child != NULL );
 
@@ -116,7 +116,7 @@ void mgui_send_to_top( element_t* child )
 	list_send_to_front( child->parent->children, cast_node(child) );
 }
 
-void mgui_send_to_bottom( element_t* child )
+void mgui_send_to_bottom( MGuiElement* child )
 {
 	assert( child != NULL );
 
@@ -126,7 +126,7 @@ void mgui_send_to_bottom( element_t* child )
 	list_send_to_back( child->parent->children, cast_node(child) );
 }
 
-bool mgui_is_child_of( control_t* parent, element_t* child )
+bool mgui_is_child_of( MGuiControl* parent, MGuiElement* child )
 {
 	assert( parent != NULL );
 	assert( child != NULL );
@@ -139,8 +139,8 @@ void mgui_do_cleanup( void )
 	node_t* cnode;
 	node_t* enode;
 	node_t *tmp1, *tmp2;
-	control_t* control;
-	element_t* element;
+	MGuiControl* control;
+	MGuiElement* element;
 
 	assert( controls != NULL );
 
@@ -167,8 +167,8 @@ void mgui_render_controls( void )
 {
 	node_t*	cnode;
 	node_t*	enode;
-	control_t* control;
-	element_t* element;
+	MGuiControl* control;
+	MGuiElement* element;
 
 	assert( controls != NULL );
 
@@ -190,8 +190,8 @@ void mgui_process_controls( uint32 ticks )
 {
 	node_t*	cnode;
 	node_t*	enode;
-	control_t* control;
-	element_t* element;
+	MGuiControl* control;
+	MGuiElement* element;
 
 	assert( controls != NULL );
 
@@ -208,10 +208,10 @@ void mgui_process_controls( uint32 ticks )
 	}
 }
 
-static __inline element_t* __mgui_get_element_at_test_self( element_t* element, uint16 x, uint16 y )
+static __inline MGuiElement* __mgui_get_element_at_test_self( MGuiElement* element, uint16 x, uint16 y )
 {
-	struct window_s* window;
-	element_t* ret = NULL;
+	struct _MGuiWindow* window;
+	MGuiElement* ret = NULL;
 
 	if ( BIT_ON( element->flags, FLAG_INACTIVE ) ) return NULL;
 
@@ -219,7 +219,7 @@ static __inline element_t* __mgui_get_element_at_test_self( element_t* element, 
 	{
 	case GUI_WINDOW:
 		{
-			window = (struct window_s*)element;
+			window = (struct _MGuiWindow*)element;
 
 			if ( !rect_is_point_in( &window->window_bounds, x, y ) )
 				return NULL;
@@ -249,11 +249,11 @@ endcheck:
 	return ret;
 }
 
-element_t* mgui_get_element_at( control_t* parent, uint16 x, uint16 y )
+MGuiElement* mgui_get_element_at( MGuiControl* parent, uint16 x, uint16 y )
 {
 	node_t* node;
-	element_t* element;
-	element_t* ret = NULL;
+	MGuiElement* element;
+	MGuiElement* ret = NULL;
 
 	assert( controls != NULL );
 

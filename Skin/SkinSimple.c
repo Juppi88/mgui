@@ -49,7 +49,7 @@ static void __draw_shadow( const rectangle_t* r, uint offset )
 	render->draw_rect( r->x + offset, r->y + r->h, r->w, offset );
 }
 
-static void __draw_button( const rectangle_t* r, const colour_t* col, uint32 flags, const text_t* text )
+static void __draw_button( const rectangle_t* r, const colour_t* col, uint32 flags, const MGuiText* text )
 {
 	colour_t c;
 	c = *col;
@@ -107,7 +107,7 @@ static void __draw_button( const rectangle_t* r, const colour_t* col, uint32 fla
 	}
 }
 
-static void __draw_editbox( const rectangle_t* r, const colour_t* col, uint32 flags, const text_t* text )
+static void __draw_editbox( const rectangle_t* r, const colour_t* col, uint32 flags, const MGuiText* text )
 {
 	colour_t c;
 
@@ -146,7 +146,7 @@ static void __draw_editbox( const rectangle_t* r, const colour_t* col, uint32 fl
 	}
 }
 
-static void __draw_label( const rectangle_t* r, const colour_t* col, uint32 flags, const text_t* text )
+static void __draw_label( const rectangle_t* r, const colour_t* col, uint32 flags, const MGuiText* text )
 {
 	colour_t c;
 
@@ -207,7 +207,7 @@ static void __draw_memobox( const rectangle_t* r, const colour_t* col, uint32 fl
 
 static void __draw_memobox_lines( const rectangle_t* r, uint32 flags, list_t* lines, node_t* first, uint32 count )
 {
-	struct memoline_s* line;
+	struct _MGuiMemoLine* line;
 	node_t* node;
 	uint32 i;
 
@@ -223,7 +223,7 @@ static void __draw_memobox_lines( const rectangle_t* r, uint32 flags, list_t* li
 		  node != lines->end && i < count;
 		  node = node->prev, i++ )
 	{
-		line = (struct memoline_s*)node;
+		line = (struct _MGuiMemoLine*)node;
 
 		render->set_draw_colour( &line->colour );
 		render->draw_text( line->font->data, line->text, line->pos.x, line->pos.y, line->font->flags );
@@ -293,7 +293,7 @@ static void __draw_window( const rectangle_t* r, const colour_t* col, uint32 fla
 	render->draw_rect( r->x, r->y, r->w, r->h );
 }
 
-static void __draw_window_titlebar( const rectangle_t* r, const colour_t* col, const text_t* text )
+static void __draw_MGuiWindowitlebar( const rectangle_t* r, const colour_t* col, const MGuiText* text )
 {
 	uint h, h2;
 	colour_t c;
@@ -337,7 +337,7 @@ skin_t* mgui_setup_skin_simple( void )
 	skin->draw_scrollbar_bar	= __draw_scrollbar_bar;
 	skin->draw_scrollbar_button	= __draw_scrollbar_button;
 	skin->draw_window			= __draw_window;
-	skin->draw_window_titlebar	= __draw_window_titlebar;
+	skin->draw_MGuiWindowitlebar	= __draw_MGuiWindowitlebar;
 
 	return skin;
 }

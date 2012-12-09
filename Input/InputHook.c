@@ -15,11 +15,11 @@
 #include "Control.h"
 #include "Renderer.h"
 
-static element_t*	hovered			= NULL; // Element being hovered currently
-static element_t*	pressed			= NULL; // Element being pressed down currently
-static element_t*	dragged			= NULL;	// Element that is being dragged
-static element_t*	mousefocus		= NULL; // The element that has the mouse focus
-static element_t*	kbfocus			= NULL;	// The element that has the keyboard focus
+static MGuiElement*	hovered			= NULL; // Element being hovered currently
+static MGuiElement*	pressed			= NULL; // Element being pressed down currently
+static MGuiElement*	dragged			= NULL;	// Element that is being dragged
+static MGuiElement*	mousefocus		= NULL; // The element that has the mouse focus
+static MGuiElement*	kbfocus			= NULL;	// The element that has the keyboard focus
 
 static bool __handle_char( input_event_t* event )
 {
@@ -48,8 +48,8 @@ static bool __handle_key_down( input_event_t* event )
 static bool __handle_mouse_move( input_event_t* event )
 {
 	uint16 x, y;
-	element_t* element;
-	guievent_t guievent;
+	MGuiElement* element;
+	MGuiEvent guievent;
 
 	x = event->mouse.x;
 	y = event->mouse.y;
@@ -111,8 +111,8 @@ static bool __handle_mouse_wheel( input_event_t* event )
 static bool __handle_lmb_up( input_event_t* event )
 {
 	uint16 x, y;
-	element_t* element;
-	guievent_t guievent;
+	MGuiElement* element;
+	MGuiEvent guievent;
 
 	x = event->mouse.x;
 	y = event->mouse.y;
@@ -148,8 +148,8 @@ static bool __handle_lmb_up( input_event_t* event )
 static bool __handle_lmb_down( input_event_t* event )
 {
 	uint16 x, y;
-	element_t* element;
-	guievent_t guievent;
+	MGuiElement* element;
+	MGuiEvent guievent;
 
 	x = event->mouse.x;
 	y = event->mouse.y;
@@ -241,7 +241,7 @@ void mgui_input_shutdown_hooks( void )
 	input_remove_hook( INPUT_LBUTTON_DOWN, __handle_lmb_down );
 }
 
-void mgui_input_cleanup_references( element_t* element )
+void mgui_input_cleanup_references( MGuiElement* element )
 {
 	if ( element == hovered ) hovered = NULL;
 	if ( element == pressed ) hovered = NULL;
@@ -250,12 +250,12 @@ void mgui_input_cleanup_references( element_t* element )
 	if ( element == kbfocus ) kbfocus = NULL;
 }
 
-element_t* mgui_get_focus( void )
+MGuiElement* mgui_get_focus( void )
 {
 	return kbfocus;
 }
 
-void mgui_set_focus( element_t* element )
+void mgui_set_focus( MGuiElement* element )
 {
 	if ( kbfocus )
 	{
