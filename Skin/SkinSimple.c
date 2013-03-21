@@ -5,24 +5,48 @@
  * LICENCE:		See Licence.txt
  * PURPOSE:		An implementation of a basic, textureless skin.
  *
- *				(c) Tuomo Jauhiainen 2012
+ *				(c) Tuomo Jauhiainen 2012-13
  *
  **********************************************************************/
 
-#include "Skin.h"
+#include "SkinSimple.h"
 #include "Element.h"
 #include "MemoBox.h"
 #include "Renderer.h"
-#include "Platform/Platform.h"
-#include <assert.h>
+#include "Platform/Alloc.h"
 
-static void __draw_panel( const rectangle_t* r, const colour_t* col )
+MGuiSkin* mgui_setup_skin_simple( void )
+{
+	MGuiSkin* skin;
+
+	skin = mem_alloc_clean( sizeof(*skin) );
+
+	skin->texture				= NULL;
+
+	skin->draw_panel			= skin_simple_draw_panel;
+	skin->draw_border			= skin_simple_draw_border;
+	skin->draw_shadow			= skin_simple_draw_shadow;
+	skin->draw_button			= skin_simple_draw_button;
+	skin->draw_editbox			= skin_simple_draw_editbox;
+	skin->draw_label			= skin_simple_draw_label;
+	skin->draw_memobox			= skin_simple_draw_memobox;
+	skin->draw_memobox_lines	= skin_simple_draw_memobox_lines;
+	skin->draw_scrollbar		= skin_simple_draw_scrollbar;
+	skin->draw_scrollbar_bar	= skin_simple_draw_scrollbar_bar;
+	skin->draw_scrollbar_button	= skin_simple_draw_scrollbar_button;
+	skin->draw_window			= skin_simple_draw_window;
+	skin->draw_window_titlebar	= skin_simple_draw_window_titlebar;
+
+	return skin;
+}
+
+static void skin_simple_draw_panel( const rectangle_t* r, const colour_t* col )
 {
 	render->set_draw_colour( col );
 	render->draw_rect( r->x, r->y, r->w, r->h );
 }
 
-static void __draw_border( const rectangle_t* r, const colour_t* col, uint8 borders, uint8 thickness )
+static void skin_simple_draw_border( const rectangle_t* r, const colour_t* col, uint32 borders, uint32 thickness )
 {
 	render->set_draw_colour( col );
 
@@ -39,7 +63,7 @@ static void __draw_border( const rectangle_t* r, const colour_t* col, uint8 bord
 		render->draw_rect( r->x, r->y + r->h-thickness, r->w, thickness );
 }
 
-static void __draw_shadow( const rectangle_t* r, uint offset )
+static void skin_simple_draw_shadow( const rectangle_t* r, uint offset )
 {
 	static const colour_t c = { 0x0A0A0A32 };
 
@@ -49,7 +73,7 @@ static void __draw_shadow( const rectangle_t* r, uint offset )
 	render->draw_rect( r->x + offset, r->y + r->h, r->w, offset );
 }
 
-static void __draw_button( const rectangle_t* r, const colour_t* col, uint32 flags, const MGuiText* text )
+static void skin_simple_draw_button( const rectangle_t* r, const colour_t* col, uint32 flags, const MGuiText* text )
 {
 	colour_t c;
 	c = *col;
@@ -107,13 +131,13 @@ static void __draw_button( const rectangle_t* r, const colour_t* col, uint32 fla
 	}
 }
 
-static void __draw_editbox( const rectangle_t* r, const colour_t* col, uint32 flags, const MGuiText* text )
+static void skin_simple_draw_editbox( const rectangle_t* r, const colour_t* col, uint32 flags, const MGuiText* text )
 {
 	colour_t c;
 
 	if ( BIT_ON( flags, FLAG_BACKGROUND ) )
 	{
-		__draw_panel( r, col );
+		skin_simple_draw_panel( r, col );
 	}
 
 	if ( BIT_ON( flags, FLAG_BORDER ) )
@@ -121,12 +145,12 @@ static void __draw_editbox( const rectangle_t* r, const colour_t* col, uint32 fl
 		colour_add_scalar( &c, col, 60 );
 		c.a = col->a;
 
-		__draw_border( r, &c, BORDER_BOTTOM|BORDER_RIGHT, 1 );
+		skin_simple_draw_border( r, &c, BORDER_BOTTOM|BORDER_RIGHT, 1 );
 
 		colour_subtract_scalar( &c, &c, 60 );
 		c.a = col->a;
 
-		__draw_border( r, &c, BORDER_TOP|BORDER_LEFT, 1 );
+		skin_simple_draw_border( r, &c, BORDER_TOP|BORDER_LEFT, 1 );
 	}
 
 	if ( text )
@@ -146,13 +170,13 @@ static void __draw_editbox( const rectangle_t* r, const colour_t* col, uint32 fl
 	}
 }
 
-static void __draw_label( const rectangle_t* r, const colour_t* col, uint32 flags, const MGuiText* text )
+static void skin_simple_draw_label( const rectangle_t* r, const colour_t* col, uint32 flags, const MGuiText* text )
 {
 	colour_t c;
 
 	if ( BIT_ON( flags, FLAG_BACKGROUND ) )
 	{
-		__draw_panel( r, col );
+		skin_simple_draw_panel( r, col );
 	}
 
 	if ( BIT_ON( flags, FLAG_BORDER ) )
@@ -162,7 +186,7 @@ static void __draw_label( const rectangle_t* r, const colour_t* col, uint32 flag
 		c.b = col->b / 2;
 		c.a = col->a;
 
-		__draw_border( r, &c, BORDER_ALL, 1 );
+		skin_simple_draw_border( r, &c, BORDER_ALL, 1 );
 	}
 
 	if ( text )
@@ -182,13 +206,13 @@ static void __draw_label( const rectangle_t* r, const colour_t* col, uint32 flag
 	}
 }
 
-static void __draw_memobox( const rectangle_t* r, const colour_t* col, uint32 flags )
+static void skin_simple_draw_memobox( const rectangle_t* r, const colour_t* col, uint32 flags )
 {
 	colour_t c;
 
 	if ( BIT_ON( flags, FLAG_BACKGROUND ) )
 	{
-		__draw_panel( r, col );
+		skin_simple_draw_panel( r, col );
 	}
 
 	if ( BIT_ON( flags, FLAG_BORDER ) )
@@ -196,18 +220,18 @@ static void __draw_memobox( const rectangle_t* r, const colour_t* col, uint32 fl
 		colour_add_scalar( &c, col, 60 );
 		c.a = col->a;
 
-		__draw_border( r, &c, BORDER_BOTTOM|BORDER_RIGHT, 1 );
+		skin_simple_draw_border( r, &c, BORDER_BOTTOM|BORDER_RIGHT, 1 );
 
 		colour_subtract_scalar( &c, &c, 60 );
 		c.a = col->a;
 
-		__draw_border( r, &c, BORDER_TOP|BORDER_LEFT, 1 );
+		skin_simple_draw_border( r, &c, BORDER_TOP|BORDER_LEFT, 1 );
 	}
 }
 
-static void __draw_memobox_lines( const rectangle_t* r, uint32 flags, list_t* lines, node_t* first, uint32 count )
+static void skin_simple_draw_memobox_lines( const rectangle_t* r, uint32 flags, list_t* lines, node_t* first, uint32 count )
 {
-	struct _MGuiMemoLine* line;
+	struct MGuiMemoLine* line;
 	node_t* node;
 	uint32 i;
 
@@ -223,7 +247,7 @@ static void __draw_memobox_lines( const rectangle_t* r, uint32 flags, list_t* li
 		  node != lines->end && i < count;
 		  node = node->prev, i++ )
 	{
-		line = (struct _MGuiMemoLine*)node;
+		line = (struct MGuiMemoLine*)node;
 
 		render->set_draw_colour( &line->colour );
 		render->draw_text( line->font->data, line->text, line->pos.x, line->pos.y, line->font->flags );
@@ -235,24 +259,24 @@ static void __draw_memobox_lines( const rectangle_t* r, uint32 flags, list_t* li
 	}
 }
 
-static void __draw_scrollbar( const rectangle_t* r, colour_t* col, uint32 flags )
+static void skin_simple_draw_scrollbar( const rectangle_t* r, const colour_t* col, uint32 flags )
 {
 	UNREFERENCED_PARAM( flags );
 
-	__draw_panel( r, col );
+	skin_simple_draw_panel( r, col );
 }
 
-static void __draw_scrollbar_bar( const rectangle_t* r, colour_t* col, uint32 flags )
+static void skin_simple_draw_scrollbar_bar( const rectangle_t* r, const colour_t* col, uint32 flags )
 {
-	__draw_button( r, col, flags|FLAG_BORDER, NULL );
+	skin_simple_draw_button( r, col, flags|FLAG_BORDER, NULL );
 }
 
-static void __draw_scrollbar_button( const rectangle_t* r, colour_t* col, uint32 flags, colour_t* arrowcol, uint32 direction )
+static void skin_simple_draw_scrollbar_button( const rectangle_t* r, const colour_t* col, uint32 flags, const colour_t* arrowcol, uint32 direction )
 {
 	uint32 x1, x2, y1, y2, xm, ym;
 	colour_t c;
 
-	__draw_button( r, col, flags|FLAG_BORDER, NULL );
+	skin_simple_draw_button( r, col, flags|FLAG_BORDER, NULL );
 
 	colour_subtract_scalar( &c, arrowcol, 10 );
 
@@ -285,7 +309,7 @@ static void __draw_scrollbar_button( const rectangle_t* r, colour_t* col, uint32
 	}
 }
 
-static void __draw_window( const rectangle_t* r, const colour_t* col, uint32 flags )
+static void skin_simple_draw_window( const rectangle_t* r, const colour_t* col, uint32 flags )
 {
 	UNREFERENCED_PARAM(flags);
 
@@ -293,7 +317,7 @@ static void __draw_window( const rectangle_t* r, const colour_t* col, uint32 fla
 	render->draw_rect( r->x, r->y, r->w, r->h );
 }
 
-static void __draw_MGuiWindowitlebar( const rectangle_t* r, const colour_t* col, const MGuiText* text )
+static void skin_simple_draw_window_titlebar( const rectangle_t* r, const colour_t* col, const MGuiText* text )
 {
 	uint h, h2;
 	colour_t c;
@@ -317,27 +341,4 @@ static void __draw_MGuiWindowitlebar( const rectangle_t* r, const colour_t* col,
 		render->draw_text( text->font->data, text->buffer, text->pos.x, text->pos.y, text->font->flags );
 		render->end_clip();
 	}
-}
-
-skin_t* mgui_setup_skin_simple( void )
-{
-	skin_t* skin;
-
-	skin = mem_alloc_clean( sizeof(*skin) );
-
-	skin->draw_panel			= __draw_panel;
-	skin->draw_border			= __draw_border;
-	skin->draw_shadow			= __draw_shadow;
-	skin->draw_button			= __draw_button;
-	skin->draw_editbox			= __draw_editbox;
-	skin->draw_label			= __draw_label;
-	skin->draw_memobox			= __draw_memobox;
-	skin->draw_memobox_lines	= __draw_memobox_lines;
-	skin->draw_scrollbar		= __draw_scrollbar;
-	skin->draw_scrollbar_bar	= __draw_scrollbar_bar;
-	skin->draw_scrollbar_button	= __draw_scrollbar_button;
-	skin->draw_window			= __draw_window;
-	skin->draw_MGuiWindowitlebar	= __draw_MGuiWindowitlebar;
-
-	return skin;
 }

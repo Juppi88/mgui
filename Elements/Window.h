@@ -5,7 +5,7 @@
  * LICENCE:		See Licence.txt
  * PURPOSE:		GUI window related functions.
  *
- *				(c) Tuomo Jauhiainen 2012
+ *				(c) Tuomo Jauhiainen 2012-13
  *
  **********************************************************************/
 
@@ -15,10 +15,10 @@
 
 #include "Element.h"
 
-typedef struct _MGuiTitlebar MGuiTitlebar;
-typedef struct _MGuiWindowButton MGuiWindowButton;
+typedef struct MGuiTitlebar MGuiTitlebar;
+typedef struct MGuiWindowButton MGuiWindowButton;
 
-struct _MGuiWindow
+struct MGuiWindow
 {
 	MGuiElement;						// Inherit all generic element properties
 
@@ -27,5 +27,23 @@ struct _MGuiWindow
 	MGuiTitlebar*		titlebar;		// Window titlebar
 	MGuiWindowButton*	closebtn;		// Close button
 };
+
+MGuiWindow*		mgui_create_window				( MGuiControl* parent );
+
+bool			mgui_window_get_closebtn		( MGuiWindow* window );
+void			mgui_window_set_closebtn		( MGuiWindow* window, bool enabled );
+bool			mgui_window_get_titlebar		( MGuiWindow* window );
+void			mgui_window_set_titlebar		( MGuiWindow* window, bool enabled );
+void			mgui_window_get_title_col		( MGuiWindow* window, colour_t* col );
+void			mgui_window_set_title_col		( MGuiWindow* window, const colour_t* col );
+void			mgui_window_get_drag_offset		( MGuiWindow* window, vectorscreen_t* pos );
+
+// Window callback handlers
+static void		mgui_destroy_window				( MGuiElement* window );
+static void		mgui_window_render				( MGuiElement* window );
+static void		mgui_window_set_bounds			( MGuiElement* window, bool pos, bool size );
+static void		mgui_window_set_colour			( MGuiElement* window );
+static void		mgui_window_on_mouse_click		( MGuiElement* element, MOUSEBTN button, uint16 x, uint16 y );
+static void		mgui_window_on_mouse_drag		( MGuiElement* element, uint16 x, uint16 y );
 
 #endif /* __MGUI_WINDOW_H */

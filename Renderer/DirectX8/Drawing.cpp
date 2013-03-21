@@ -11,7 +11,8 @@
 
 #include "Drawing.h"
 #include "Math/Colour.h"
-#include "Platform/Platform.h"
+#include "Platform/Alloc.h"
+#include "Platform/Window.h"
 #include <d3d8.h>
 #include <D3dx8core.h>
 #include <D3dx8math.h>
@@ -85,6 +86,9 @@ static __inline void __add_vertex( uint x, uint y )
 
 static __inline void __add_vertex_tex( uint x, uint y, float u, float v )
 {
+	UNREFERENCED_PARAM( u );
+	UNREFERENCED_PARAM( v );
+
 	vertex->x = -0.5f + (float)x;
 	vertex->y = -0.5f + (float)y;
 	vertex->x = -0.5f + (float)x;
@@ -164,6 +168,11 @@ void mgui_dx8_start_clip( uint x, uint y, uint w, uint h )
 
 	D3DDevice->SetRenderState( D3DRS_SCISSORTESTENABLE, TRUE );
 	D3DDevice->SetScissorRect( &r );*/
+
+	UNREFERENCED_PARAM( x );
+	UNREFERENCED_PARAM( y );
+	UNREFERENCED_PARAM( w );
+	UNREFERENCED_PARAM( h );
 }
 
 void mgui_dx8_end_clip( void )
@@ -204,17 +213,23 @@ void mgui_dx8_draw_triangle( uint x1, uint y1, uint x2, uint y2, uint x3, uint y
 
 void* mgui_dx8_load_texture( const char* path )
 {
+	UNREFERENCED_PARAM( path );
+
 	return NULL;
 }
 
 void mgui_dx8_destroy_texture( void* texture )
 {
-
+	UNREFERENCED_PARAM( texture );
 }
 
 void mgui_dx8_draw_textured_rect( void* texture, uint x, uint y, uint w, uint h )
 {
-
+	UNREFERENCED_PARAM( texture );
+	UNREFERENCED_PARAM( x );
+	UNREFERENCED_PARAM( y );
+	UNREFERENCED_PARAM( w );
+	UNREFERENCED_PARAM( h );
 }
 
 static bool __measure_font( HDC tmpdc, MGuiDX8Font* font, bool print )
@@ -222,7 +237,7 @@ static bool __measure_font( HDC tmpdc, MGuiDX8Font* font, bool print )
 	SIZE size;
 	uint32 x, y;
 	uint32 c, idx;
-	char_t tmp[2] = _TEXT("x");
+	char_t tmp[2] = _MTEXT(" ");
 
 	GetTextExtentPoint32( tmpdc, tmp, 1, &size );
 

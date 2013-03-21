@@ -5,25 +5,26 @@
  * LICENCE:		See Licence.txt
  * PURPOSE:		A basic GUI library written in C.
  *
- *				(c) Tuomo Jauhiainen 2012
+ *				(c) Tuomo Jauhiainen 2012-13
  *
  **********************************************************************/
 
 #include "MGUI.h"
 #include "Control.h"
 #include "Renderer.h"
-#include "Skin.h"
-#include "Platform/Platform.h"
+#include "SkinSimple.h"
+#include "Platform/Alloc.h"
+#include "Platform/Timer.h"
+#include "Platform/Window.h"
 #include "InputHook.h"
 
-static enum MGUI_RENDERER	renderer_type	= GUIREND_NULL;	// The type of the renderer
-static void*				system_window	= NULL;			// Pointer to the system window
-vectorscreen_t				screen_size;					// System window size
-rectangle_t					screen_rect;					// System window size as a rectangle
-skin_t*						defskin			= NULL;			// Pointer to the default (basic) skin
-skin_t*						skin			= NULL;			// Current skin
-bool						redraw			= true;			// Force a scene redraw
-
+static MGUI_RENDERER	renderer_type	= GUIREND_NULL;	// The type of the renderer
+static void*			system_window	= NULL;			// Pointer to the system window
+vectorscreen_t			draw_size;						// System window size
+rectangle_t				draw_rect;						// System window size as a rectangle
+MGuiSkin*				defskin			= NULL;			// Pointer to the default (basic) skin
+MGuiSkin*				skin			= NULL;			// Current skin
+bool					redraw			= true;			// Force a scene redraw
 
 void mgui_initialize( MGUI_RENDERER renderer, void* window )
 {
@@ -33,11 +34,11 @@ void mgui_initialize( MGUI_RENDERER renderer, void* window )
 	system_window = window;
 	renderer_type = renderer;
 
-	get_window_size( window, &screen_size.x, &screen_size.y );
-	screen_rect.x = 0;
-	screen_rect.y = 0;
-	screen_rect.w = screen_size.x;
-	screen_rect.h = screen_size.y;
+	get_window_size( window, &draw_size.x, &draw_size.y );
+	draw_rect.x = 0;
+	draw_rect.y = 0;
+	draw_rect.w = draw_size.x;
+	draw_rect.h = draw_size.y;
 
 	defskin = mgui_setup_skin_simple();
 	skin = defskin;
@@ -95,7 +96,7 @@ void mgui_set_skin( const char_t* skinimg )
 {
 	if ( !skinimg )
 	{
-		// If the user didn't provide a skin image, use the default basic skin.
+		// If the user didn't provide a skin texture, use the default basic skin.
 		skin = defskin;
 		return;
 	}

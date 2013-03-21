@@ -5,7 +5,7 @@
  * LICENCE:		See Licence.txt
  * PURPOSE:		A renderer font storage.
  *
- *				(c) Tuomo Jauhiainen 2012
+ *				(c) Tuomo Jauhiainen 2012-13
  *
  **********************************************************************/
 
@@ -34,7 +34,7 @@
 #else
 #endif /* _WIN32 */
 
-typedef struct _MGuiFont
+typedef struct MGuiFont
 {
 	void*		data;		// Renderer font data
 	char_t*		name;		// The name of the font

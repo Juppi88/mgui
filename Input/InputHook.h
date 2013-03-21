@@ -5,7 +5,7 @@
  * LICENCE:		See Licence.txt
  * PURPOSE:		GUI input handler.
  *
- *				(c) Tuomo Jauhiainen 2012
+ *				(c) Tuomo Jauhiainen 2012-13
  *
  **********************************************************************/
 

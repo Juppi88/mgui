@@ -5,21 +5,17 @@
  * LICENCE:		See Licence.txt
  * PURPOSE:		GUI label related functions.
  *
- *				(c) Tuomo Jauhiainen 2012
+ *				(c) Tuomo Jauhiainen 2012-13
  * 
  **********************************************************************/
 
 #include "Label.h"
 #include "Skin.h"
-#include "Platform/Platform.h"
-#include <assert.h>
-
-static void __mgui_destroy_label( MGuiElement* label );
-static void __mgui_label_render( MGuiElement* label );
+#include "Platform/Alloc.h"
 
 MGuiLabel* mgui_create_label( MGuiControl* parent )
 {
-	struct _MGuiLabel* label;
+	struct MGuiLabel* label;
 
 	label = mem_alloc_clean( sizeof(*label) );
 	mgui_element_create( cast_elem(label), parent, true );
@@ -31,18 +27,18 @@ MGuiLabel* mgui_create_label( MGuiControl* parent )
 	label->text->font = label->font;
 
 	// Label callbacks
-	label->destroy = __mgui_destroy_label;
-	label->render = __mgui_label_render;
+	label->destroy = mgui_destroy_label;
+	label->render = mgui_label_render;
 
 	return cast_elem(label);
 }
 
-static void __mgui_destroy_label( MGuiElement* label )
+static void mgui_destroy_label( MGuiElement* label )
 {
-	UNREFERENCED_PARAM(label);
+	UNREFERENCED_PARAM( label );
 }
 
-static void __mgui_label_render( MGuiElement* label )
+static void mgui_label_render( MGuiElement* label )
 {
 	skin->draw_label( &label->bounds, &label->colour, label->flags, label->text );
 }
@@ -51,8 +47,8 @@ void mgui_label_make_text_fit( MGuiLabel* label )
 {
 	uint16 w, h;
 	
-	assert( label != NULL );
-	assert( label->text != NULL );
+	if ( label == NULL ) return;
+	if ( label->text == NULL ) return;
 
 	w = label->bounds.w;
 	h = label->bounds.h;
@@ -66,5 +62,5 @@ void mgui_label_make_text_fit( MGuiLabel* label )
 	label->bounds.w = math_max( w, label->bounds.w );
 	label->bounds.h = math_max( h, label->bounds.h );
 
-	label->on_bounds_update( label, false, true );
+	label->set_bounds( label, false, true );
 }

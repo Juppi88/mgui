@@ -7,13 +7,13 @@
  *				using basic coloured rectangles, or a pre-defined skin
  *				texture.
  *
- *				(c) Tuomo Jauhiainen 2012
+ *				(c) Tuomo Jauhiainen 2012-13
  *
  **********************************************************************/
 
 #pragma once
-#ifndef __MYLLY_GUI_SKIN
-#define __MYLLY_GUI_SKIN
+#ifndef __MYLLY_GUI_SKIN_H
+#define __MYLLY_GUI_SKIN_H
 
 #include "MGUI.h"
 #include "Text.h"
@@ -28,9 +28,9 @@
 #define COL_TITLETEXT		0xE0E0E0FF
 
 #ifdef _WIN32
-	#define DEFAULT_FONT _TEXT("Tahoma")
+	#define DEFAULT_FONT _MTEXT("Tahoma")
 #else
-	#define DEFAULT_FONT _TEXT("DejaVu Sans Mono")
+	#define DEFAULT_FONT _MTEXT("DejaVu Sans Mono")
 #endif
 
 // Element borders
@@ -47,30 +47,28 @@
 #define ARROW_RIGHT		0x4
 
 // Skin interface 
-typedef struct skin_s
+typedef struct MGuiSkin
 {
-	void			( *draw_panel )					( const rectangle_t* r, const colour_t* col );
-	void			( *draw_border )				( const rectangle_t* r, const colour_t* col, uint8 borders, uint8 thickness );
-	void			( *draw_shadow )				( const rectangle_t* r, uint offset );
+	void*	texture;
 
-	void			( *draw_button )				( const rectangle_t* r, const colour_t* col, uint32 flags, const MGuiText* text );
-	void			( *draw_editbox )				( const rectangle_t* r, colour_t* col, uint32 flags, const MGuiText* text );
-	void			( *draw_label )					( const rectangle_t* r, colour_t* col, uint32 flags, const MGuiText* text );
-	void			( *draw_memobox )				( const rectangle_t* r, colour_t* col, uint32 flags );
-	void			( *draw_memobox_lines )			( const rectangle_t* r, uint32 flags, list_t* lines, node_t* first, uint32 count );
-	void			( *draw_scrollbar )				( const rectangle_t* r, colour_t* col, uint32 flags );
-	void			( *draw_scrollbar_bar )			( const rectangle_t* r, colour_t* col, uint32 flags );
-	void			( *draw_scrollbar_button )		( const rectangle_t* r, colour_t* col, uint32 flags, colour_t* arrowcol, uint32 direction );
-	void			( *draw_window )				( const rectangle_t* r, const colour_t* col, uint32 flags );
-	void			( *draw_MGuiWindowitlebar )		( const rectangle_t* r, const colour_t* col, const MGuiText* text );
-}
-skin_t;
+	void	( *draw_panel )				( const rectangle_t* r, const colour_t* col );
+	void	( *draw_border )			( const rectangle_t* r, const colour_t* col, uint32 borders, uint32 thickness );
+	void	( *draw_shadow )			( const rectangle_t* r, uint offset );
 
-// Functions to initialize a skin
-skin_t* mgui_setup_skin_simple( void );
-skin_t* mgui_setup_skin_textured( const char_t* texture );
+	void	( *draw_button )			( const rectangle_t* r, const colour_t* col, uint32 flags, const MGuiText* text );
+	void	( *draw_editbox )			( const rectangle_t* r, const colour_t* col, uint32 flags, const MGuiText* text );
+	void	( *draw_label )				( const rectangle_t* r, const colour_t* col, uint32 flags, const MGuiText* text );
+	void	( *draw_memobox )			( const rectangle_t* r, const colour_t* col, uint32 flags );
+	void	( *draw_memobox_lines )		( const rectangle_t* r, uint32 flags, list_t* lines, node_t* first, uint32 count );
+	void	( *draw_scrollbar )			( const rectangle_t* r, const colour_t* col, uint32 flags );
+	void	( *draw_scrollbar_bar )		( const rectangle_t* r, const colour_t* col, uint32 flags );
+	void	( *draw_scrollbar_button )	( const rectangle_t* r, const colour_t* col, uint32 flags, const colour_t* arrowcol, uint32 direction );
+	void	( *draw_window )			( const rectangle_t* r, const colour_t* col, uint32 flags );
+	void	( *draw_window_titlebar )	( const rectangle_t* r, const colour_t* col, const MGuiText* text );
+} MGuiSkin;
+
 
 // Pointer to the currently used skin
-extern skin_t* skin;
+extern MGuiSkin* skin;
 
-#endif /* __MYLLY_GUI_SKIN */
+#endif /* __MYLLY_GUI_SKIN_H */

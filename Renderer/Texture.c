@@ -1,4 +1,12 @@
-typedef struct mgui_texture_s
-{
-	int tmp;
-} mgui_texture_t;
+/**********************************************************************
+ *
+ * PROJECT:		Mylly GUI
+ * FILE:		Texture.h
+ * LICENCE:		See Licence.txt
+ * PURPOSE:		2D texture loading.
+ *
+ *				(c) Tuomo Jauhiainen 2012-13
+ *
+ **********************************************************************/
+
+#include "Texture.h"

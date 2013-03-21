@@ -13,7 +13,8 @@
 #ifdef _WIN32
 
 #include "OpenGL.h"
-#include "Platform/Platform.h"
+#include "Platform/Alloc.h"
+#include "Platform/Window.h"
 #include <malloc.h>
 #include <assert.h>
 #include <math.h>
@@ -80,7 +81,7 @@ static bool __measure_font( HDC tmpdc, MGuiGLFont* font, bool print )
 	SIZE size;
 	uint32 x, y;
 	uint32 c, idx;
-	char_t tmp[2] = _TEXT("x");
+	char_t tmp[2] = _MTEXT(" ");
 
 	GetTextExtentPoint32( tmpdc, tmp, 1, &size );
 

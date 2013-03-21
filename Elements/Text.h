@@ -5,7 +5,7 @@
  * LICENCE:		See Licence.txt
  * PURPOSE:		A struct for text buffer and its properties.
  *
- *				(c) Tuomo Jauhiainen 2012
+ *				(c) Tuomo Jauhiainen 2012-13
  *
  **********************************************************************/
 
@@ -29,8 +29,7 @@ typedef struct _MGuiText
 	MGuiFont*				font;		// Font used for rendering
 	colour_t				colour;		// Rendering colour
 
-	struct 
-	{
+	struct {
 		uint8				top;
 		uint8				bottom;
 		uint8				left;

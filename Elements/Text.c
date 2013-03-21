@@ -5,7 +5,7 @@
  * LICENCE:		See Licence.txt
  * PURPOSE:		A struct for text buffer and its properties.
  *
- *				(c) Tuomo Jauhiainen 2012
+ *				(c) Tuomo Jauhiainen 2012-13
  *
  **********************************************************************/
 
@@ -13,7 +13,7 @@
 #include "Renderer.h"
 #include "Skin.h"
 #include "Stringy/Stringy.h"
-#include "Platform/Platform.h"
+#include "Platform/Alloc.h"
 #include <stdio.h>
 #include <assert.h>
 
@@ -190,7 +190,7 @@ uint32 mgui_text_get_closest_char( MGuiText* text, uint16 x, uint16 y )
 	uint16 cx, cy;
 
 	// We only calculate the dist along the x axis for now
-	UNREFERENCED_PARAM(y);
+	UNREFERENCED_PARAM( y );
 
 	dist = 0xFFFF;
 	ch = 0;

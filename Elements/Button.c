@@ -5,7 +5,7 @@
  * LICENCE:		See Licence.txt
  * PURPOSE:		GUI button related functions.
  *
- *				(c) Tuomo Jauhiainen 2012
+ *				(c) Tuomo Jauhiainen 2012-13
  *
  **********************************************************************/
 
@@ -13,18 +13,11 @@
 #include "Skin.h"
 #include "Renderer.h"
 #include "Input/Input.h"
-#include "Platform/Platform.h"
-
-static void __mgui_destroy_button( MGuiElement* button );
-static void __mgui_button_render( MGuiElement* button );
-static void __mgui_button_on_bounds_update( MGuiElement* button, bool pos, bool size );
-static void __mgui_button_on_mouse_enter( MGuiElement* button );
-static void __mgui_button_on_mouse_leave( MGuiElement* button );
-static void __mgui_button_on_key_press( MGuiElement* element, uint key, bool down );
+#include "Platform/Alloc.h"
 
 MGuiButton* mgui_create_button( MGuiControl* parent )
 {
-	struct button_s* button;
+	struct MGuiButton* button;
 
 	button = mem_alloc_clean( sizeof(*button) );
 	mgui_element_create( cast_elem(button), parent, true );
@@ -38,37 +31,37 @@ MGuiButton* mgui_create_button( MGuiControl* parent )
 	button->text->font = button->font;
 
 	// Button callbacks
-	button->destroy = __mgui_destroy_button;
-	button->render = __mgui_button_render;
-	button->on_mouse_enter = __mgui_button_on_mouse_enter;
-	button->on_mouse_leave = __mgui_button_on_mouse_leave;
-	button->on_key_press = __mgui_button_on_key_press;
+	button->destroy			= mgui_destroy_button;
+	button->render			= mgui_button_render;
+	button->on_mouse_enter	= mgui_button_on_mouse_enter;
+	button->on_mouse_leave	= mgui_button_on_mouse_leave;
+	button->on_key_press	= mgui_button_on_key_press;
 
 	return cast_elem(button);
 }
 
-static void __mgui_destroy_button( MGuiElement* button )
+static void mgui_destroy_button( MGuiElement* button )
 {
-	UNREFERENCED_PARAM(button);
 	// Nothing to do here.
+	UNREFERENCED_PARAM(button);
 }
 
-static void __mgui_button_render( MGuiElement* button )
+static void mgui_button_render( MGuiElement* button )
 {
 	skin->draw_button( &button->bounds, &button->colour, button->flags, button->text );
 }
 
-static void __mgui_button_on_mouse_enter( MGuiElement* button )
+static void mgui_button_on_mouse_enter( MGuiElement* button )
 {
 	UNREFERENCED_PARAM( button );
 }
 
-static void __mgui_button_on_mouse_leave( MGuiElement* button )
+static void mgui_button_on_mouse_leave( MGuiElement* button )
 {
 	UNREFERENCED_PARAM( button );
 }
 
-static void __mgui_button_on_key_press( MGuiElement* element, uint key, bool down )
+static void mgui_button_on_key_press( MGuiElement* element, uint key, bool down )
 {
 	MGuiEvent guievent;
 	

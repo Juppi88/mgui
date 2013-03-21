@@ -5,7 +5,7 @@
  * LICENCE:		See Licence.txt
  * PURPOSE:		A base for all real-world GUI elements.
  *
- *				(c) Tuomo Jauhiainen 2012
+ *				(c) Tuomo Jauhiainen 2012-13
  *
  **********************************************************************/
 
@@ -36,7 +36,7 @@ enum MGUI_INTERNAL_FLAGS
 	FLAG_ELEMENT	= 0x40000000,	/* This is an element (not a control) */
 };
 
-enum MGUI_TYPE
+typedef enum MGUI_TYPE
 {
 	GUI_NONE,
 	GUI_BUTTON,
@@ -56,52 +56,105 @@ enum MGUI_TYPE
 	GUI_TITLEBAR,
 	GUI_WINDOW,
 	GUI_WINDOWBUTTON,
-};
+} MGUI_TYPE;
 
-// Internal element types
-MGUI_ELEMENT_DECL( titlebar_t );
-MGUI_ELEMENT_DECL( windowMGuiButton );
-
-struct _MGuiElement
+struct MGuiElement
 {
-	MGuiControl;								// Inherit control data
+	MGuiControl;							// Inherit control data
 	enum MGUI_TYPE			type;			// The type of this GUI element
 	vector2_t				pos;			// Relative position (within parent element)
 	vector2_t				size;			// Relative size (within parent element)
 	colour_t				colour;			// Element colour
-	MGuiText*					text;			// Text on this element (label, title etc)
-	MGuiFont*					font;			// Default font used for all the text on this element
+	MGuiText*				text;			// Text on this element (label, title etc)
+	MGuiFont*				font;			// Default font used for all the text on this element
 	mgui_event_handler_t	event_handler;	// User event handler callback
 	void*					event_data;		// User-specified data to be passed via event_handler
 
-	// Internal callbacks
-	struct
-	{
-		void	( *render )				( MGuiElement* element );					// Render callback
-		void	( *destroy )			( MGuiElement* element );					// Destructor callback
-		void	( *process )			( MGuiElement* element, uint32 ticks );	// Element processing
+	// ---------- Internal callbacks ---------- 
+	void		( *render )				( MGuiElement* element );
+	void		( *destroy )			( MGuiElement* element );
+	void		( *process )			( MGuiElement* element, uint32 ticks );
 
-		void	( *on_bounds_update )	( MGuiElement* element, bool pos, bool size );
-		void	( *on_colour_update )	( MGuiElement* element );
-		void	( *on_text_update )		( MGuiElement* element );
-		void	( *on_mouse_enter )		( MGuiElement* element );
-		void	( *on_mouse_leave )		( MGuiElement* element );
-		void	( *on_mouse_click )		( MGuiElement* element, MOUSEBTN button, uint16 x, uint16 y );
-		void	( *on_mouse_release )	( MGuiElement* element, MOUSEBTN button, uint16 x, uint16 y );
-		void	( *on_mouse_drag )		( MGuiElement* element, uint16 x, uint16 y );
-		void	( *on_mouse_wheel )		( MGuiElement* element, float diff );
-		void	( *on_character )		( MGuiElement* element, char_t c );
-		void	( *on_key_press )		( MGuiElement* element, uint key, bool down );
-	};
+	void		( *set_bounds )			( MGuiElement* element, bool pos, bool size );
+	void		( *set_colour )			( MGuiElement* element );
+	void		( *set_text )			( MGuiElement* element );
+
+	void		( *on_mouse_enter )		( MGuiElement* element );
+	void		( *on_mouse_leave )		( MGuiElement* element );
+	void		( *on_mouse_click )		( MGuiElement* element, MOUSEBTN button, uint16 x, uint16 y );
+	void		( *on_mouse_release )	( MGuiElement* element, MOUSEBTN button, uint16 x, uint16 y );
+	void		( *on_mouse_drag )		( MGuiElement* element, uint16 x, uint16 y );
+	void		( *on_mouse_wheel )		( MGuiElement* element, float diff );
+	void		( *on_character )		( MGuiElement* element, char_t c );
+	void		( *on_key_press )		( MGuiElement* element, uint key, bool down );
 };
 
-void		mgui_element_create		( MGuiElement* element, MGuiControl* parent, bool has_text );
-void		mgui_element_render		( MGuiElement* element );
-void		mgui_element_process	( MGuiElement* element, uint32 ticks );
+// Generic element functions
+void			mgui_element_create			( MGuiElement* element, MGuiControl* parent, bool has_text );
+void			mgui_element_destroy		( MGuiElement* element );
+void			mgui_element_render			( MGuiElement* element );
+void			mgui_element_process		( MGuiElement* element, uint32 ticks );
 
-void		mgui_update_abs_pos		( MGuiElement* element );
-void		mgui_update_abs_size	( MGuiElement* element );
-void		mgui_update_rel_pos		( MGuiElement* element );
-void		mgui_update_rel_size	( MGuiElement* element );
+void			mgui_element_update_abs_pos	( MGuiElement* element );
+void			mgui_element_update_abs_size( MGuiElement* element );
+void			mgui_element_update_rel_pos	( MGuiElement* element );
+void			mgui_element_update_rel_size( MGuiElement* element );
+void			mgui_element_update_child_pos( MGuiElement* element );
+
+void			mgui_get_pos				( MGuiElement* element, vector2_t* pos );
+void			mgui_get_size				( MGuiElement* element, vector2_t* size );
+void			mgui_set_pos				( MGuiElement* element, const vector2_t* pos );
+void			mgui_set_size				( MGuiElement* element, const vector2_t* size );
+void			mgui_get_abs_pos			( MGuiElement* element, vectorscreen_t* pos );
+void			mgui_get_abs_size			( MGuiElement* element, vectorscreen_t* size );
+void			mgui_set_abs_pos			( MGuiElement* element, const vectorscreen_t* pos );
+void			mgui_set_abs_size			( MGuiElement* element, const vectorscreen_t* size );
+
+void			mgui_get_colour				( MGuiElement* element, colour_t* col );
+void			mgui_set_colour				( MGuiElement* element, const colour_t* col );
+uint8			mgui_get_alpha				( MGuiElement* element );
+void			mgui_set_alpha				( MGuiElement* element, uint8 alpha );
+void			mgui_get_text_colour		( MGuiElement* element, colour_t* col );
+void			mgui_set_text_colour		( MGuiElement* element, const colour_t* col );
+
+const char_t*	mgui_get_text				( MGuiElement* element );
+uint32			mgui_get_text_len			( MGuiElement* element );
+void			mgui_set_text				( MGuiElement* element, const char_t* fmt, ... );
+void			mgui_set_text_s				( MGuiElement* element, const char_t* text );
+uint32			mgui_get_alignment			( MGuiElement* element );
+void			mgui_set_alignment			( MGuiElement* element, uint32 alignment );
+void			mgui_get_text_padding		( MGuiElement* element, uint8* top, uint8* bottom, uint8* left, uint8* right );
+void			mgui_set_text_padding		( MGuiElement* element, uint8 top, uint8 bottom, uint8 left, uint8 right );
+
+const char_t*	mgui_get_font_name			( MGuiElement* element );
+uint8			mgui_get_font_size			( MGuiElement* element );
+uint8			mgui_get_font_flags			( MGuiElement* element );
+void			mgui_set_font_name			( MGuiElement* element, const char_t* font );
+void			mgui_set_font_size			( MGuiElement* element, uint8 size );
+void			mgui_set_font_flags			( MGuiElement* element, uint8 flags );
+void			mgui_set_font				( MGuiElement* element, const char_t* font, uint8 size, uint8 flags, uint8 charset );
+
+uint32			mgui_get_flags				( MGuiElement* element );
+void			mgui_set_flags				( MGuiElement* element, const uint32 flags );
+void			mgui_add_flags				( MGuiElement* element, const uint32 flags );
+void			mgui_remove_flags			( MGuiElement* element, const uint32 flags );
+
+void			mgui_set_event_handler		( MGuiElement* element, mgui_event_handler_t handler, void* data );
+
+// Default callback handlers
+static void		mgui_render_cb				( MGuiElement* element );
+static void		mgui_destroy_cb				( MGuiElement* element );
+static void		mgui_process_cb				( MGuiElement* element, uint32 ticks );
+static void		mgui_set_bounds_cb			( MGuiElement* element, bool pos, bool size );
+static void		mgui_set_colour_cb			( MGuiElement* element );
+static void		mgui_set_text_cb			( MGuiElement* element );
+static void		mgui_on_mouse_enter_cb		( MGuiElement* element );
+static void		mgui_on_mouse_leave_cb		( MGuiElement* element );
+static void		mgui_on_mouse_click_cb		( MGuiElement* element, MOUSEBTN button, uint16 x, uint16 y );
+static void		mgui_on_mouse_release_cb	( MGuiElement* element, MOUSEBTN button, uint16 x, uint16 y );
+static void		mgui_on_mouse_drag_cb		( MGuiElement* element, uint16 x, uint16 y );
+static void		mgui_on_mouse_wheel_cb		( MGuiElement* element, float wheel );
+static void		mgui_on_character_cb		( MGuiElement* element, char_t key );
+static void		mgui_on_key_press_cb		( MGuiElement* element, uint key, bool down );
 
 #endif /* __MGUI_ELEMENT_H */

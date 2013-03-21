@@ -5,7 +5,7 @@
  * LICENCE:		See Licence.txt
  * PURPOSE:		GUI renderer initialization.
  *
- *				(c) Tuomo Jauhiainen 2012
+ *				(c) Tuomo Jauhiainen 2012-13
  *
  **********************************************************************/
 
@@ -30,7 +30,7 @@
 #include "Renderer/GDIPlus/GDI.h"
 #endif
 
-MGuiRenderer*	render;
+MGuiRenderer* render;
 
 void mgui_render_initialize( MGUI_RENDERER type, void* window )
 {

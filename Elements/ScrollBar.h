@@ -5,7 +5,7 @@
  * LICENCE:		See Licence.txt
  * PURPOSE:		GUI scrollbar related functions.
  *
- *				(c) Tuomo Jauhiainen 2012
+ *				(c) Tuomo Jauhiainen 2012-13
  * 
  **********************************************************************/
 
@@ -24,7 +24,7 @@
 #define SBFLAG_BARPRESSED	0x0020		// Bar is pressed/dragged
 #define SBFLAG_HORIZONTAL	0x0040		// Scrollbar is horizontal
 
-struct _MGuiScrollBar
+struct MGuiScrollBar
 {
 	MGuiElement;					// Inherit all generic element properties
 
@@ -38,5 +38,21 @@ struct _MGuiScrollBar
 	colour_t		track_col;		// Scrollbar track colour
 	uint32			sbflags;		// Scrollbar flags
 };
+
+MGuiScrollbar*	mgui_create_scrollbar			( MGuiControl* parent );
+
+float			mgui_scrollbar_get_bar_pos		( MGuiScrollbar* scrollbar );
+void			mgui_scrollbar_set_bar_pos		( MGuiScrollbar* scrollbar, float pos );
+float			mgui_scrollbar_get_bar_size		( MGuiScrollbar* scrollbar );
+void			mgui_scrollbar_set_bar_size		( MGuiScrollbar* scrollbar, float size );
+float			mgui_scrollbar_get_nudge		( MGuiScrollbar* scrollbar );
+void			mgui_scrollbar_set_nudge		( MGuiScrollbar* scrollbar, float amount );
+void			mgui_scrollbar_get_track_colour	( MGuiScrollbar* scrollbar, colour_t* col );
+void			mgui_scrollbar_set_track_colour	( MGuiScrollbar* scrollbar, const colour_t* col );
+
+// Scrollbar callback handlers
+static void		mgui_destroy_scrollbar			( MGuiElement* scrollbar );
+static void		mgui_scrollbar_render			( MGuiElement* scrollbar );
+static void		mgui_scrollbar_set_bounds		( MGuiElement* scrollbar, bool pos, bool size );
 
 #endif /* __MGUI_SCROLLBAR_H */

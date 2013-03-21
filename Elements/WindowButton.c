@@ -5,7 +5,7 @@
  * LICENCE:		See Licence.txt
  * PURPOSE:		GUI window button (close) related functions.
  *
- *				(c) Tuomo Jauhiainen 2012
+ *				(c) Tuomo Jauhiainen 2012-13
  *
  **********************************************************************/
 
@@ -15,16 +15,9 @@
 #include "Skin.h"
 #include "InputHook.h"
 #include "Input/Input.h"
-#include "Platform/Platform.h"
+#include "Platform/Alloc.h"
 
 static MGuiFont* font = NULL;
-
-static void __mgui_windowbutton_on_bounds_update( MGuiElement* button, bool pos, bool size );
-static void __mgui_windowbutton_on_colour_update( MGuiElement* button );
-static void __mgui_windowbutton_on_mouse_enter( MGuiElement* button );
-static void __mgui_windowbutton_on_mouse_leave( MGuiElement* button );
-static void __mgui_windowbutton_on_mouse_click( MGuiElement* element, MOUSEBTN button, uint16 x, uint16 y );
-static void __mgui_windowbutton_on_mouse_release( MGuiElement* element, MOUSEBTN button, uint16 x, uint16 y );
 
 MGuiWindowButton* mgui_create_windowbutton( MGuiWindow* parent )
 {
@@ -41,15 +34,15 @@ MGuiWindowButton* mgui_create_windowbutton( MGuiWindow* parent )
 
 	button->font = font;
 	button->text->font = font;
-	mgui_set_text_s( cast_elem(button), _TEXT("X") );
+	mgui_set_text_s( cast_elem(button), _MTEXT("X") );
 
 	// Button callbacks
-	button->on_bounds_update = __mgui_windowbutton_on_bounds_update;
-	button->on_colour_update = __mgui_windowbutton_on_colour_update;
-	button->on_mouse_enter = __mgui_windowbutton_on_mouse_enter;
-	button->on_mouse_leave = __mgui_windowbutton_on_mouse_leave;
-	button->on_mouse_click = __mgui_windowbutton_on_mouse_click;
-	button->on_mouse_release = __mgui_windowbutton_on_mouse_release;
+	button->set_bounds		= mgui_windowbutton_set_bounds;
+	button->set_colour		= mgui_windowbutton_set_colour;
+	button->on_mouse_enter	= mgui_windowbutton_on_mouse_enter;
+	button->on_mouse_leave	= mgui_windowbutton_on_mouse_leave;
+	button->on_mouse_click	= mgui_windowbutton_on_mouse_click;
+	button->on_mouse_release = mgui_windowbutton_on_mouse_release;
 
 	return button;
 }
@@ -60,16 +53,16 @@ void mgui_destroy_windowbutton( MGuiWindowButton* button )
 	mem_free( button );
 }
 
-static void __mgui_windowbutton_on_bounds_update( MGuiElement* button, bool pos, bool size )
+static void mgui_windowbutton_set_bounds( MGuiElement* button, bool pos, bool size )
 {
 	MGuiWindowButton* btn;
-	struct _MGuiWindow* window;
+	struct MGuiWindow* window;
 
 	UNREFERENCED_PARAM( pos );
 	UNREFERENCED_PARAM( size );
 
 	btn = (MGuiWindowButton*)button;
-	window = (struct _MGuiWindow*)btn->window;
+	window = (struct MGuiWindow*)btn->window;
 
 	if ( window && window->titlebar )
 	{
@@ -83,14 +76,14 @@ static void __mgui_windowbutton_on_bounds_update( MGuiElement* button, bool pos,
 	}
 }
 
-static void __mgui_windowbutton_on_colour_update( MGuiElement* button )
+static void mgui_windowbutton_set_colour( MGuiElement* button )
 {
 	MGuiWindowButton* btn;
-	struct _MGuiWindow* wnd;
+	struct MGuiWindow* wnd;
 	uint8 alpha;
 
 	btn = (MGuiWindowButton*)button;
-	wnd = (struct _MGuiWindow*)btn->window;
+	wnd = (struct MGuiWindow*)btn->window;
 
 	if ( !wnd ) return;
 
@@ -99,11 +92,11 @@ static void __mgui_windowbutton_on_colour_update( MGuiElement* button )
 
 	alpha = btn->colour.a;
 
-	colour_add_scalar( &btn->text->colour, &btn->colour, 75 );
+	colour_add_scalar( &btn->text->colour, &btn->colour, 60 );
 	btn->text->colour.a = alpha;
 }
 
-static void __mgui_windowbutton_on_mouse_click( MGuiElement* element, MOUSEBTN button, uint16 x, uint16 y )
+static void mgui_windowbutton_on_mouse_click( MGuiElement* element, MOUSEBTN button, uint16 x, uint16 y )
 {
 	MGuiWindowButton* btn;
 
@@ -114,7 +107,7 @@ static void __mgui_windowbutton_on_mouse_click( MGuiElement* element, MOUSEBTN b
 	btn = (MGuiWindowButton*)element;
 }
 
-static void __mgui_windowbutton_on_mouse_release( MGuiElement* element, MOUSEBTN button, uint16 x, uint16 y )
+static void mgui_windowbutton_on_mouse_release( MGuiElement* element, MOUSEBTN button, uint16 x, uint16 y )
 {
 	MGuiWindowButton* btn;
 	MGuiEvent guievent;
@@ -143,12 +136,12 @@ static void __mgui_windowbutton_on_mouse_release( MGuiElement* element, MOUSEBTN
 	}
 }
 
-static void __mgui_windowbutton_on_mouse_enter( MGuiElement* button )
+static void mgui_windowbutton_on_mouse_enter( MGuiElement* button )
 {
 	UNREFERENCED_PARAM( button );
 }
 
-static void __mgui_windowbutton_on_mouse_leave( MGuiElement* button )
+static void mgui_windowbutton_on_mouse_leave( MGuiElement* button )
 {
 	UNREFERENCED_PARAM( button );
 }

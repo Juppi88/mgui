@@ -5,7 +5,7 @@
 * LICENCE:		See Licence.txt
 * PURPOSE:		A renderer font storage.
 *
-*				(c) Tuomo Jauhiainen 2012
+*				(c) Tuomo Jauhiainen 2012-13
 *
 **********************************************************************/
 
@@ -13,7 +13,7 @@
 #include "Skin.h"
 #include "Renderer.h"
 #include "Stringy/Stringy.h"
-#include "Platform/Platform.h"
+#include "Platform/Alloc.h"
 #include <assert.h>
 
 MGuiFont* mgui_font_create( const char_t* name, uint8 size, uint8 flags, uint8 charset )

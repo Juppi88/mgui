@@ -5,7 +5,7 @@
  * LICENCE:		See Licence.txt
  * PURPOSE:		GUI window titlebar.
  *
- *				(c) Tuomo Jauhiainen 2012
+ *				(c) Tuomo Jauhiainen 2012-13
  *
  **********************************************************************/
 
@@ -13,11 +13,7 @@
 #include "InputHook.h"
 #include "Skin.h"
 #include "Font.h"
-#include "Platform/Platform.h"
-#include <assert.h>
-
-static void __mgui_titlebar_on_mouse_click( MGuiElement* element, MOUSEBTN button, uint16 x, uint16 y );
-static void __mgui_titlebar_on_mouse_drag( MGuiElement* element, uint16 x, uint16 y );
+#include "Platform/Alloc.h"
 
 MGuiTitlebar* mgui_create_titlebar( MGuiWindow* parent )
 {
@@ -41,8 +37,8 @@ MGuiTitlebar* mgui_create_titlebar( MGuiWindow* parent )
 	titlebar->colour.a = parent->colour.a;
 	titlebar->bounds.w = parent->bounds.w;
 
-	titlebar->on_mouse_click = __mgui_titlebar_on_mouse_click;
-	titlebar->on_mouse_drag = __mgui_titlebar_on_mouse_drag;
+	titlebar->on_mouse_click = mgui_titlebar_on_mouse_click;
+	titlebar->on_mouse_drag = mgui_titlebar_on_mouse_drag;
 
 	return titlebar;
 }
@@ -53,24 +49,24 @@ void mgui_destroy_titlebar( MGuiTitlebar* titlebar )
 	mem_free( titlebar );
 }
 
-static void __mgui_titlebar_on_mouse_click( MGuiElement* element, MOUSEBTN button, uint16 x, uint16 y )
+static void mgui_titlebar_on_mouse_click( MGuiElement* element, MOUSEBTN button, uint16 x, uint16 y )
 {
 	MGuiTitlebar* titlebar;
 	titlebar = (MGuiTitlebar*)element;
 
 	UNREFERENCED_PARAM( button );
 
-	assert( titlebar->window != NULL );
+	if ( titlebar->window == NULL ) return;
 
 	titlebar->window->on_mouse_click( titlebar->window, button, x - titlebar->bounds.x, y - titlebar->bounds.y );
 }
 
-static void __mgui_titlebar_on_mouse_drag( MGuiElement* element, uint16 x, uint16 y )
+static void mgui_titlebar_on_mouse_drag( MGuiElement* element, uint16 x, uint16 y )
 {
 	MGuiTitlebar* titlebar;
 	titlebar = (MGuiTitlebar*)element;
 
-	assert( titlebar->window != NULL );
+	if ( titlebar->window == NULL ) return;
 
 	titlebar->window->on_mouse_drag( titlebar->window, x, y );
 }

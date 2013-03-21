@@ -5,7 +5,7 @@
  * LICENCE:		See Licence.txt
  * PURPOSE:		An interface for the GUI renderer.
  *
- *				(c) Tuomo Jauhiainen 2012
+ *				(c) Tuomo Jauhiainen 2012-13
  *
  **********************************************************************/
 
@@ -15,7 +15,7 @@
 
 #include "MGUI.h"
 
-typedef struct _MGuiRenderer
+typedef struct MGuiRenderer
 {
 	MGUI_RENDERER	type;
 	void*			device_context;
@@ -42,20 +42,21 @@ typedef struct _MGuiRenderer
 } MGuiRenderer;
 
 
-void	mgui_render_initialize		( MGUI_RENDERER type, void* syswindow );
-void	mgui_render_shutdown		( void );
+void		mgui_render_initialize		( MGUI_RENDERER type, void* syswindow );
+void		mgui_render_shutdown		( void );
 
 // Pointer to the current renderer
-extern	MGuiRenderer*		render;
+extern	MGuiRenderer* render;
 
 // Redraw system
+// TODO: Move this the hell out of here
 #define MGUI_USE_REDRAW
 
 #ifdef MGUI_USE_REDRAW
-#define mgui_force_redraw mgui_redraw
-extern	bool				redraw;
+	#define mgui_force_redraw mgui_redraw
+	extern	bool redraw;
 #else
-#define mgui_force_redraw
+	#define mgui_force_redraw
 #endif
 
 
