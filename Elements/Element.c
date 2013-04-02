@@ -346,7 +346,7 @@ void mgui_set_size( MGuiElement* elem, const vector2_t* size )
 	mgui_element_update_abs_size( elem );
 }
 
-void mgui_get_abs_pos( MGuiElement* elem, point_t* pos )
+void mgui_get_abs_pos( MGuiElement* elem, vectorscreen_t* pos )
 {
 	if ( elem == NULL || pos == NULL ) return;
 
@@ -362,7 +362,7 @@ void mgui_get_abs_pos( MGuiElement* elem, point_t* pos )
 	}
 }
 
-void mgui_set_abs_pos( MGuiElement* elem, const point_t* pos )
+void mgui_set_abs_pos( MGuiElement* elem, const vectorscreen_t* pos )
 {
 	if ( elem == NULL || pos == NULL ) return;
 
@@ -380,7 +380,7 @@ void mgui_set_abs_pos( MGuiElement* elem, const point_t* pos )
 	mgui_element_update_rel_pos( elem );
 }
 
-void mgui_get_abs_size( MGuiElement* elem, point_t* size )
+void mgui_get_abs_size( MGuiElement* elem, vectorscreen_t* size )
 {
 	if ( elem == NULL || size == NULL ) return;
 
@@ -388,12 +388,100 @@ void mgui_get_abs_size( MGuiElement* elem, point_t* size )
 	size->y = elem->bounds.h;
 }
 
-void mgui_set_abs_size( MGuiElement* elem, const point_t* size )
+void mgui_set_abs_size( MGuiElement* elem, const vectorscreen_t* size )
 {
 	if ( elem == NULL || size == NULL ) return;
 
 	elem->bounds.w = size->x;
 	elem->bounds.h = size->y;
+
+	mgui_element_update_rel_size( elem );
+}
+
+void mgui_get_pos_f( MGuiElement* elem, float* x, float* y )
+{
+	if ( elem == NULL || x == NULL || y == NULL ) return;
+
+	*x = elem->pos.x;
+	*y = elem->pos.y;
+}
+
+void mgui_set_pos_f( MGuiElement* elem, float x, float y )
+{
+	if ( elem == NULL ) return;
+
+	elem->pos.x = x;
+	elem->pos.y = y;
+
+	mgui_element_update_abs_pos( elem );
+}
+
+void mgui_get_size_f( MGuiElement* elem, float* w, float* h )
+{
+	if ( elem == NULL || w == NULL || h == NULL ) return;
+
+	*w = elem->size.x;
+	*h = elem->size.y;
+}
+
+void mgui_set_size_f( MGuiElement* elem, float w, float h )
+{
+	if ( elem == NULL ) return;
+
+	elem->size.x = w;
+	elem->size.y = h;
+
+	mgui_element_update_abs_size( elem );
+}
+
+void mgui_get_abs_pos_i( MGuiElement* elem, uint16* x, uint16* y )
+{
+	if ( elem == NULL || x == NULL || y == NULL ) return;
+
+	if ( elem->parent )
+	{
+		*x = elem->bounds.x - elem->parent->bounds.x;
+		*y = elem->bounds.y - elem->parent->bounds.y;
+	}
+	else
+	{
+		*x = elem->bounds.x;
+		*y = elem->bounds.y;
+	}
+}
+
+void mgui_set_abs_pos_i( MGuiElement* elem, uint16 x, uint16 y )
+{
+	if ( elem == NULL ) return;
+
+	if ( elem->parent )
+	{
+		elem->bounds.x = elem->parent->bounds.x + x;
+		elem->bounds.y = elem->parent->bounds.y + y;
+	}
+	else
+	{
+		elem->bounds.x = x;
+		elem->bounds.y = y;
+	}
+
+	mgui_element_update_rel_pos( elem );
+}
+
+void mgui_get_abs_size_i( MGuiElement* elem, uint16* w, uint16* h )
+{
+	if ( elem == NULL || w == NULL || h == NULL ) return;
+
+	*w = elem->bounds.w;
+	*h = elem->bounds.h;
+}
+
+void mgui_set_abs_size_i( MGuiElement* elem, uint16 w, uint16 h )
+{
+	if ( elem == NULL ) return;
+
+	elem->bounds.w = w;
+	elem->bounds.h = h;
 
 	mgui_element_update_rel_size( elem );
 }
@@ -425,6 +513,36 @@ void mgui_set_text_colour( MGuiElement* elem, const colour_t* col )
 	if ( elem == NULL || col == NULL || elem->text == NULL ) return;
 
 	elem->text->colour = *col;
+	elem->text->colour.a = elem->colour.a;
+}
+
+uint32 mgui_get_colour_i( MGuiElement* elem )
+{
+	if ( elem == NULL ) return 0;
+
+	return elem->colour.hex;
+}
+
+void mgui_set_colour_i( MGuiElement* elem, uint32 hex )
+{
+	if ( elem == NULL ) return;
+
+	elem->colour.hex = hex;
+	mgui_set_alpha( elem, elem->colour.a );
+}
+
+uint32 mgui_get_text_colour_i( MGuiElement* elem )
+{
+	if ( elem == NULL || elem->text == NULL ) return 0;
+
+	return elem->text->colour.hex;
+}
+
+void mgui_set_text_colour_i( MGuiElement* elem, uint32 hex )
+{
+	if ( elem == NULL || elem->text == NULL ) return;
+
+	elem->text->colour.hex = hex;
 	elem->text->colour.a = elem->colour.a;
 }
 

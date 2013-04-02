@@ -36,6 +36,8 @@ bool			mgui_window_get_titlebar		( MGuiWindow* window );
 void			mgui_window_set_titlebar		( MGuiWindow* window, bool enabled );
 void			mgui_window_get_title_col		( MGuiWindow* window, colour_t* col );
 void			mgui_window_set_title_col		( MGuiWindow* window, const colour_t* col );
+uint32			mgui_window_get_title_col_i		( MGuiWindow* window );
+void			mgui_window_set_title_col_i		( MGuiWindow* window, uint32 hex );
 void			mgui_window_get_drag_offset		( MGuiWindow* window, vectorscreen_t* pos );
 
 // Window callback handlers

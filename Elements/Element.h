@@ -109,13 +109,25 @@ void			mgui_get_abs_pos			( MGuiElement* element, vectorscreen_t* pos );
 void			mgui_get_abs_size			( MGuiElement* element, vectorscreen_t* size );
 void			mgui_set_abs_pos			( MGuiElement* element, const vectorscreen_t* pos );
 void			mgui_set_abs_size			( MGuiElement* element, const vectorscreen_t* size );
+void			mgui_get_pos_f				( MGuiElement* element, float* x, float* y );
+void			mgui_get_size_f				( MGuiElement* element, float* w, float* h );
+void			mgui_set_pos_f				( MGuiElement* element, float x, float y );
+void			mgui_set_size_f				( MGuiElement* element, float w, float h );
+void			mgui_get_abs_pos_i			( MGuiElement* element, uint16* x, uint16* y );
+void			mgui_get_abs_size_i			( MGuiElement* element, uint16* w, uint16* h );
+void			mgui_set_abs_pos_i			( MGuiElement* element, uint16 x, uint16 y );
+void			mgui_set_abs_size_i			( MGuiElement* element, uint16 w, uint16 h );
 
 void			mgui_get_colour				( MGuiElement* element, colour_t* col );
 void			mgui_set_colour				( MGuiElement* element, const colour_t* col );
-uint8			mgui_get_alpha				( MGuiElement* element );
-void			mgui_set_alpha				( MGuiElement* element, uint8 alpha );
 void			mgui_get_text_colour		( MGuiElement* element, colour_t* col );
 void			mgui_set_text_colour		( MGuiElement* element, const colour_t* col );
+uint32			mgui_get_colour_i			( MGuiElement* element );
+void			mgui_set_colour_i			( MGuiElement* element, uint32 hex );
+uint32			mgui_get_text_colour_i		( MGuiElement* element );
+void			mgui_set_text_colour_i		( MGuiElement* element, uint32 hex );
+uint8			mgui_get_alpha				( MGuiElement* element );
+void			mgui_set_alpha				( MGuiElement* element, uint8 alpha );
 
 const char_t*	mgui_get_text				( MGuiElement* element );
 uint32			mgui_get_text_len			( MGuiElement* element );

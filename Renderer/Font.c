@@ -16,6 +16,8 @@
 #include "Platform/Alloc.h"
 #include <assert.h>
 
+extern MGuiRenderer* renderer;
+
 MGuiFont* mgui_font_create( const char_t* name, uint8 size, uint8 flags, uint8 charset )
 {
 	return mgui_font_create_range( name, size, flags, charset, 0, 0 );
@@ -35,7 +37,7 @@ MGuiFont* mgui_font_create_range( const char_t* name, uint8 size, uint8 flags, u
 	font->charset = charset;
 
 	mstrcpy( font->name, name, len );
-	font->data = render->load_font( name, size, flags, charset, firstc, lastc );
+	font->data = renderer->load_font( name, size, flags, charset, firstc, lastc );
 
 	return font;
 }
@@ -50,7 +52,7 @@ void mgui_font_destroy( MGuiFont* font )
 	assert( font != NULL );
 
 	if ( font->data )
-		render->destroy_font( font->data );
+		renderer->destroy_font( font->data );
 
 	if ( font->name )
 		mem_free( font->name );
@@ -72,9 +74,9 @@ void mgui_font_set_font( MGuiFont* font, const char_t* name )
 	mstrcpy( font->name, name, len );
 
 	if ( font->data )
-		render->destroy_font( font->data );
+		renderer->destroy_font( font->data );
 
-	font->data = render->load_font( name, font->size, font->flags, font->charset, 0, 0 );
+	font->data = renderer->load_font( name, font->size, font->flags, font->charset, 0, 0 );
 }
 
 void mgui_font_set_size( MGuiFont* font, uint8 size )
@@ -84,9 +86,9 @@ void mgui_font_set_size( MGuiFont* font, uint8 size )
 	font->size = size;
 
 	if ( font->data )
-		render->destroy_font( font->data );
+		renderer->destroy_font( font->data );
 
-	font->data = render->load_font( font->name, font->size, font->flags, font->charset, 0, 0 );
+	font->data = renderer->load_font( font->name, font->size, font->flags, font->charset, 0, 0 );
 }
 
 void mgui_font_set_flags( MGuiFont* font, uint8 flags )
@@ -96,9 +98,9 @@ void mgui_font_set_flags( MGuiFont* font, uint8 flags )
 	font->flags = flags;
 
 	if ( font->data )
-		render->destroy_font( font->data );
+		renderer->destroy_font( font->data );
 
-	font->data = render->load_font( font->name, font->size, font->flags, font->charset, 0, 0 );
+	font->data = renderer->load_font( font->name, font->size, font->flags, font->charset, 0, 0 );
 }
 
 void mgui_font_set_charset( MGuiFont* font, uint8 charset )
@@ -108,7 +110,7 @@ void mgui_font_set_charset( MGuiFont* font, uint8 charset )
 	font->charset = charset;
 
 	if ( font->data )
-		render->destroy_font( font->data );
+		renderer->destroy_font( font->data );
 
-	font->data = render->load_font( font->name, font->size, font->flags, font->charset, 0, 0 );
+	font->data = renderer->load_font( font->name, font->size, font->flags, font->charset, 0, 0 );
 }

@@ -13,12 +13,11 @@
 #ifndef __MYLLY_GUI_RENDERER_H
 #define __MYLLY_GUI_RENDERER_H
 
-#include "MGUI.h"
+#include "MGUI/MGUI.h"
 
-typedef struct MGuiRenderer
+struct MGuiRenderer
 {
-	MGUI_RENDERER	type;
-	void*			device_context;
+	void*		device_context;
 
 	void		( *begin )				( void );
 	void		( *end )				( void );
@@ -39,26 +38,18 @@ typedef struct MGuiRenderer
 	void		( *destroy_font )		( void* font );
 	void		( *draw_text )			( void* font, const char_t* text, uint x, uint y, uint flags );
 	void		( *measure_text )		( void* font, const char_t* text, uint* w, uint* h );
-} MGuiRenderer;
+};
 
-
-void		mgui_render_initialize		( MGUI_RENDERER type, void* syswindow );
-void		mgui_render_shutdown		( void );
-
-// Pointer to the current renderer
-extern	MGuiRenderer* render;
 
 // Redraw system
 // TODO: Move this the hell out of here
-#define MGUI_USE_REDRAW
+//#define MGUI_USE_REDRAW
 
 #ifdef MGUI_USE_REDRAW
 	#define mgui_force_redraw mgui_redraw
 	extern	bool redraw;
 #else
-	#define mgui_force_redraw
+	#define mgui_force_redraw()
 #endif
-
-
 
 #endif /* __MYLLY_GUI_RENDERER_H */

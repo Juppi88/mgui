@@ -46,9 +46,9 @@ struct MGuiMemobox
 MGuiMemobox*	mgui_create_memobox				( MGuiControl* parent );
 
 void			mgui_memobox_add_line			( MGuiMemobox* memobox, const char* fmt, ... );
-void			mgui_memobox_add_line_col		( MGuiMemobox* memobox, const char* fmt, uint32 col, ... );
+void			mgui_memobox_add_line_col		( MGuiMemobox* memobox, const char* fmt, const colour_t*, ... );
 void			mgui_memobox_add_line_s			( MGuiMemobox* memobox, const char* text );
-void			mgui_memobox_add_line_col_s		( MGuiMemobox* memobox, const char* text, uint32 col );
+void			mgui_memobox_add_line_col_s		( MGuiMemobox* memobox, const char* text, const colour_t* );
 void			mgui_memobox_clear				( MGuiMemobox* memobox );
 float			mgui_memobox_get_display_pos	( MGuiMemobox* memobox );
 void			mgui_memobox_set_display_pos	( MGuiMemobox* memobox, float pos );

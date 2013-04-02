@@ -14,28 +14,52 @@
 #define __MYLLY_GUI_DX8_DRAWING_H
 
 #include "DX8.h"
+#include <d3d8.h>
+#include <D3dx8core.h>
+#include <D3dx8math.h>
+#include <DxErr.h>
 
-void	mgui_dx8_drawing_initialize	( void );
-void	mgui_dx8_drawing_shutdown	( void );
+struct vertex_t;
 
-void	mgui_dx8_begin				( void );
-void	mgui_dx8_end				( void );
-void	mgui_dx8_resize				( uint w, uint h );
+class CMGuiDX8Drawing
+{
+public:
+	static void				Initialize				( void );
+	static void				Shutdown				( void );
 
-void	mgui_dx8_set_draw_colour	( const colour_t* col );
-void	mgui_dx8_start_clip			( uint x, uint y, uint w, uint h );
-void	mgui_dx8_end_clip			( void );
+	static void				Begin					( void );
+	static void				End						( void );
+	static void				Resize					( uint32 w, uint32 h );
 
-void	mgui_dx8_draw_rect			( uint x, uint y, uint w, uint h );
-void	mgui_dx8_draw_triangle		( uint x1, uint y1, uint x2, uint y2, uint x3, uint y3 );
+	static void				SetDrawColour			( const colour_t* col );
+	static void				StartClip				( uint32 x, uint32 y, uint32 w, uint32 h );
+	static void				EndClip					( void );
 
-void*	mgui_dx8_load_texture		( const char* path );
-void	mgui_dx8_destroy_texture	( void* texture );
-void	mgui_dx8_draw_textured_rect	( void* texture, uint x, uint y, uint w, uint h );
+	static void				DrawRect				( uint32 x, uint32 y, uint32 w, uint32 h );
+	static void				DrawTriangle			( uint32 x1, uint32 y1, uint32 x2, uint32 y2, uint32 x3, uint32 y3 );
 
-void*	mgui_dx8_load_font			( const char* name, uint size, uint flags, uint charset, uint firstc, uint lastc );
-void	mgui_dx8_destroy_font		( void* font );
-void	mgui_dx8_draw_text			( void* font, const char_t* text, uint x, uint y, uint flags );
-void	mgui_dx8_measure_text		( void* font, const char_t* text, uint* w, uint* h );
+	static void*			LoadTexture				( const char_t* path );
+	static void				DestroyTexture			( void* texture );
+	static void				DrawTexturedRect		( void* texture, uint32 x, uint32 y, uint32 w, uint32 h );
+
+	static void*			LoadFont				( const char_t* name, uint32 size, uint32 flags, uint32 charset, uint32 firstc, uint32 lastc );
+	static void				DestroyFont				( void* texture );
+	static void				DrawText				( void* font, const char_t* text, uint x, uint y, uint flags );
+	static void				MeasureText				( void* font, const char_t* text, uint32* w, uint32* h );
+
+private:
+	static inline void		AddVertex				( uint32 x, uint32 y );
+	static inline void		AddVertexTex			( uint32 x, uint32 y, float u, float v );
+	static void				Flush					( void );
+
+private:
+	static uint32					num_vertices;	// Number of vetrices stored into the temp buffer
+	static uint32					colour;			// Current drawing colour
+	static IDirect3DTexture8*		texture;		// Current texture
+	static IDirect3DVertexBuffer8*	vertex_buf;		// Pointer to vertex buffer
+	static vertex_t*				vertex;			// Pointer to current vertex
+	static DWORD					fvf;			// Storage for vertex shader
+	static RECT						clip;			// Temp storage for clipping
+};
 
 #endif /* __MYLLY_GUI_DX8_DRAWING_H */

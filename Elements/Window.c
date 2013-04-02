@@ -323,10 +323,39 @@ void mgui_window_set_title_col( MGuiWindow* window, const colour_t* col )
 	struct MGuiWindow* wnd;
 	wnd = (struct MGuiWindow*)window;
 
-	if ( wnd == NULL ) return;
+	if ( wnd == NULL || col == NULL ) return;
 	if ( wnd->titlebar == NULL ) return;
 
 	wnd->titlebar->colour = *col;
+	wnd->titlebar->colour.a = window->colour.a;
+
+	if ( wnd->closebtn )
+	{
+		wnd->closebtn->set_colour( cast_elem(wnd->closebtn) );
+	}
+}
+
+uint32 mgui_window_get_title_col_i( MGuiWindow* window )
+{
+	MGuiTitlebar* titlebar;
+
+	if ( window == NULL ) return 0;
+
+	titlebar = ((struct MGuiWindow*)window)->titlebar;
+	if ( titlebar == NULL ) return 0;
+
+	return titlebar->colour.hex;
+}
+
+void mgui_window_set_title_col_i( MGuiWindow* window, uint32 hex )
+{
+	struct MGuiWindow* wnd;
+	wnd = (struct MGuiWindow*)window;
+
+	if ( wnd == NULL ) return;
+	if ( wnd->titlebar == NULL ) return;
+
+	wnd->titlebar->colour.hex = hex;
 	wnd->titlebar->colour.a = window->colour.a;
 
 	if ( wnd->closebtn )

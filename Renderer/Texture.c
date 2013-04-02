@@ -10,3 +10,6 @@
  **********************************************************************/
 
 #include "Texture.h"
+#include "Renderer.h"
+
+extern MGuiRenderer* renderer;

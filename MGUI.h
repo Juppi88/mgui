@@ -21,6 +21,8 @@
 typedef struct MGuiControl	MGuiControl;
 typedef struct MGuiElement	MGuiElement;
 
+typedef struct MGuiRenderer	MGuiRenderer;
+
 #define MGUI_ELEMENT_DECL(x) typedef MGuiElement x
 
 // GUI elements
@@ -34,17 +36,6 @@ MGUI_ELEMENT_DECL( MGuiWindow );
 #define cast_elem(x) ((MGuiElement*)x)
 #define cast_ctrl(x) ((MGuiControl*)x)
 #define cast_node(x) ((node_t*)x)
-
-typedef enum MGUI_RENDERER
-{
-	GUIREND_NULL,
-	GUIREND_OPENGL,
-	GUIREND_GDIPLUS,
-	GUIREND_DX8,
-	GUIREND_DX9,
-	GUIREND_DX10,
-	GUIREND_DX11,
-} MGUI_RENDERER;
 
 enum MGUI_ALIGNMENT
 {
@@ -113,11 +104,12 @@ typedef void ( *mgui_event_handler_t )( MGuiEvent* event );
 __BEGIN_DECLS
 
 /* Library initialization and processing */
-MYLLY_API void				mgui_initialize					( MGUI_RENDERER renderer, void* window );
+MYLLY_API void				mgui_initialize					( void* wndhandle );
 MYLLY_API void				mgui_shutdown					( void );
 MYLLY_API void				mgui_process					( void );
 MYLLY_API void				mgui_redraw						( void );
-MYLLY_API void				mgui_set_renderer				( MGUI_RENDERER renderer );
+
+MYLLY_API void				mgui_set_renderer				( MGuiRenderer* renderer );
 MYLLY_API void				mgui_set_skin					( const char_t* skinimg );
 
 /* Misc functions */
@@ -155,13 +147,25 @@ MYLLY_API void				mgui_get_abs_pos				( MGuiElement* element, vectorscreen_t* po
 MYLLY_API void				mgui_get_abs_size				( MGuiElement* element, vectorscreen_t* size );
 MYLLY_API void				mgui_set_abs_pos				( MGuiElement* element, const vectorscreen_t* pos );
 MYLLY_API void				mgui_set_abs_size				( MGuiElement* element, const vectorscreen_t* size );
+MYLLY_API void				mgui_get_pos_f					( MGuiElement* element, float* x, float* y );
+MYLLY_API void				mgui_get_size_f					( MGuiElement* element, float* w, float* h );
+MYLLY_API void				mgui_set_pos_f					( MGuiElement* element, float x, float y );
+MYLLY_API void				mgui_set_size_f					( MGuiElement* element, float w, float h );
+MYLLY_API void				mgui_get_abs_pos_i				( MGuiElement* element, uint16* x, uint16* y );
+MYLLY_API void				mgui_get_abs_size_i				( MGuiElement* element, uint16* w, uint16* h );
+MYLLY_API void				mgui_set_abs_pos_i				( MGuiElement* element, uint16 x, uint16 y );
+MYLLY_API void				mgui_set_abs_size_i				( MGuiElement* element, uint16 w, uint16 h );
 
 MYLLY_API void				mgui_get_colour					( MGuiElement* element, colour_t* col );
 MYLLY_API void				mgui_set_colour					( MGuiElement* element, const colour_t* col );
-MYLLY_API uint8				mgui_get_alpha					( MGuiElement* element );
-MYLLY_API void				mgui_set_alpha					( MGuiElement* element, uint8 alpha );
 MYLLY_API void				mgui_get_text_colour			( MGuiElement* element, colour_t* col );
 MYLLY_API void				mgui_set_text_colour			( MGuiElement* element, const colour_t* col );
+MYLLY_API uint32			mgui_get_colour_i				( MGuiElement* element );
+MYLLY_API void				mgui_set_colour_i				( MGuiElement* element, uint32 hex );
+MYLLY_API uint32			mgui_get_text_colour_i			( MGuiElement* element );
+MYLLY_API void				mgui_set_text_colour_i			( MGuiElement* element, uint32 hex );
+MYLLY_API uint8				mgui_get_alpha					( MGuiElement* element );
+MYLLY_API void				mgui_set_alpha					( MGuiElement* element, uint8 alpha );
 
 MYLLY_API const char_t*		mgui_get_text					( MGuiElement* element );
 MYLLY_API uint32			mgui_get_text_len				( MGuiElement* element );
@@ -198,9 +202,9 @@ MYLLY_API void				mgui_label_make_text_fit		( MGuiLabel* label );
 
 /* Memobox functions */
 MYLLY_API void				mgui_memobox_add_line			( MGuiMemobox* memobox, const char* fmt, ... );
-MYLLY_API void				mgui_memobox_add_line_col		( MGuiMemobox* memobox, const char* fmt, uint32 col, ... );
+MYLLY_API void				mgui_memobox_add_line_col		( MGuiMemobox* memobox, const char* fmt, const colour_t* col, ... );
 MYLLY_API void				mgui_memobox_add_line_s			( MGuiMemobox* memobox, const char* text );
-MYLLY_API void				mgui_memobox_add_line_col_s		( MGuiMemobox* memobox, const char* text, uint32 col );
+MYLLY_API void				mgui_memobox_add_line_col_s		( MGuiMemobox* memobox, const char* text, const colour_t* col );
 MYLLY_API void				mgui_memobox_clear				( MGuiMemobox* memobox );
 MYLLY_API float				mgui_memobox_get_display_pos	( MGuiMemobox* memobox );
 MYLLY_API void				mgui_memobox_set_display_pos	( MGuiMemobox* memobox, float pos );
@@ -227,6 +231,8 @@ MYLLY_API bool				mgui_window_get_titlebar		( MGuiWindow* window );
 MYLLY_API void				mgui_window_set_titlebar		( MGuiWindow* window, bool enabled );
 MYLLY_API void				mgui_window_get_title_col		( MGuiWindow* window, colour_t* col );
 MYLLY_API void				mgui_window_set_title_col		( MGuiWindow* window, const colour_t* col );
+MYLLY_API uint32			mgui_window_get_title_col_i		( MGuiWindow* window );
+MYLLY_API void				mgui_window_set_title_col_i		( MGuiWindow* window, uint32 hex );
 MYLLY_API void				mgui_window_get_drag_offset		( MGuiWindow* window, vectorscreen_t* pos );
 
 __END_DECLS

@@ -17,6 +17,8 @@
 #include <stdio.h>
 #include <assert.h>
 
+extern MGuiRenderer* renderer;
+
 MGuiText* mgui_text_create( void )
 {
 	MGuiText* text;
@@ -107,7 +109,7 @@ void mgui_text_update_dimensions( MGuiText* text )
 
 	assert( text != NULL );
 
-	render->measure_text( text->font->data, text->buffer, &w, &h );
+	renderer->measure_text( text->font->data, text->buffer, &w, &h );
 	h -= 2;
 
 	text->size.x = (uint16)w;
@@ -227,7 +229,7 @@ void mgui_text_get_char_pos( MGuiText* text, uint32 idx, uint16* x, uint16* y )
 	}
 
 	mstrcpy( tmp, text->buffer, math_min( idx+1, lengthof(tmp) ) );
-	render->measure_text( text->font->data, tmp, &w, &h );
+	renderer->measure_text( text->font->data, tmp, &w, &h );
 
 	*x = (uint16)w;
 	*y = (uint16)h;

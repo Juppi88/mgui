@@ -15,6 +15,8 @@
 #include "Platform/Alloc.h"
 #include "Stringy/Stringy.h"
 
+extern MGuiRenderer* renderer;
+
 MGuiMemobox* mgui_create_memobox( MGuiControl* parent )
 {
 	struct MGuiMemobox* memobox;
@@ -265,14 +267,14 @@ static void mgui_memobox_wrap_line( struct MGuiMemobox* memobox, struct MGuiMemo
 			lastspace = str;
 		}
 
-		render->measure_text( memobox->font->data, tmpbuf, &w, &h );
+		renderer->measure_text( memobox->font->data, tmpbuf, &w, &h );
 
 		if ( w > width || *str == '\n' )
 		{
 			if ( *str != '\n' )
 				linelength = ( spacepos == 0 ) ? linelength : spacepos;
 
-			line = mem_alloc( sizeof(*line) );
+			line = mem_alloc_clean( sizeof(*line) );
 			line->colour = raw->colour;
 			line->font = memobox->text->font;
 			line->text = mstrdup( tmpbuf, linelength );
@@ -296,7 +298,7 @@ static void mgui_memobox_wrap_line( struct MGuiMemobox* memobox, struct MGuiMemo
 		str += sizeof(char_t);
 	}
 
-	line = mem_alloc( sizeof(*line) );
+	line = mem_alloc_clean( sizeof(*line) );
 	line->colour = raw->colour;
 	line->font = memobox->text->font;
 	line->text = mstrdup( tmpbuf, ++linelength );
@@ -351,10 +353,10 @@ void mgui_memobox_add_line( MGuiMemobox* memobox, const char* fmt, ... )
 	len = msnprintf( tmp, lengthof(tmp), fmt, marker );
 	va_end( marker );
 
-	mgui_memobox_add_line_col_s( memobox, &tmp[0], memobox->text->colour.hex );
+	mgui_memobox_add_line_col_s( memobox, &tmp[0], &memobox->text->colour );
 }
 
-void mgui_memobox_add_line_col( MGuiMemobox* memobox, const char* fmt, uint32 colour, ... )
+void mgui_memobox_add_line_col( MGuiMemobox* memobox, const char* fmt, const colour_t* col, ... )
 {
 	size_t	len;
 	char_t	tmp[512];
@@ -362,11 +364,11 @@ void mgui_memobox_add_line_col( MGuiMemobox* memobox, const char* fmt, uint32 co
 
 	if ( memobox == NULL ) return;
 
-	va_start( marker, colour );
+	va_start( marker, col );
 	len = msnprintf( tmp, lengthof(tmp), fmt, marker );
 	va_end( marker );
 
-	mgui_memobox_add_line_col_s( memobox, &tmp[0], colour );
+	mgui_memobox_add_line_col_s( memobox, &tmp[0], col );
 }
 
 void mgui_memobox_add_line_s( MGuiMemobox* memobox, const char* text )
@@ -374,10 +376,10 @@ void mgui_memobox_add_line_s( MGuiMemobox* memobox, const char* text )
 	if ( memobox == NULL ) return;
 	if ( memobox->text == NULL ) return;
 
-	mgui_memobox_add_line_col_s( memobox, text, memobox->text->colour.hex );
+	mgui_memobox_add_line_col_s( memobox, text, &memobox->text->colour );
 }
 
-void mgui_memobox_add_line_col_s( MGuiMemobox* memobox, const char* text, uint32 colour )
+void mgui_memobox_add_line_col_s( MGuiMemobox* memobox, const char* text, const colour_t* col )
 {
 	struct MGuiMemobox* memo;
 	struct MGuiMemoRaw* line;
@@ -387,12 +389,12 @@ void mgui_memobox_add_line_col_s( MGuiMemobox* memobox, const char* text, uint32
 	if ( memobox->text == NULL ) return;
 
 	memo = (struct MGuiMemobox*)memobox;
-	line = mem_alloc( sizeof(*line) );
+	line = mem_alloc_clean( sizeof(*line) );
 
 	len = mstrlen( text );
 
 	line->text = mstrdup( text, len );
-	line->colour.hex = colour;
+	line->colour = *col;
 
 	mgui_memobox_process_new_line( memo, line );
 }

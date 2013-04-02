@@ -16,61 +16,60 @@
 #include <D3dx8math.h>
 #include <DxErr.h>
 
-static MGuiRenderer	renderer;
-/*static*/ HWND				wnd;
-
-LPDIRECT3D8				D3D = NULL;
-IDirect3DDevice8*		D3DDevice = NULL;
-D3DPRESENT_PARAMETERS	D3DParams;
+static MGuiRenderer		renderer;
+static HWND				wnd			= NULL;
+LPDIRECT3D8				d3d			= NULL;
+IDirect3DDevice8*		d3dDevice	= NULL;
+D3DPRESENT_PARAMETERS	d3dParams;
 
 MGuiRenderer* mgui_dx8_initialize( void* syswindow )
 {
 	RECT rect;
 	HRESULT res;
 
-	D3D = Direct3DCreate8( D3D_SDK_VERSION );
+	d3d = Direct3DCreate8( D3D_SDK_VERSION );
 	wnd = (HWND)syswindow;
 
 	GetClientRect( wnd, &rect );
 
-	ZeroMemory( &D3DParams, sizeof(D3DParams) );
+	ZeroMemory( &d3dParams, sizeof(d3dParams) );
 
-	D3DParams.Windowed = TRUE;
-	D3DParams.SwapEffect = D3DSWAPEFFECT_DISCARD;
-	D3DParams.BackBufferWidth = rect.right;
-	D3DParams.BackBufferHeight = rect.bottom;
-	D3DParams.FullScreen_RefreshRateInHz = D3DPRESENT_RATE_DEFAULT;
-	D3DParams.BackBufferFormat = D3DFMT_X8R8G8B8;
+	d3dParams.Windowed = TRUE;
+	d3dParams.SwapEffect = D3DSWAPEFFECT_DISCARD;
+	d3dParams.BackBufferWidth = rect.right;
+	d3dParams.BackBufferHeight = rect.bottom;
+	d3dParams.FullScreen_RefreshRateInHz = D3DPRESENT_RATE_DEFAULT;
+	d3dParams.BackBufferFormat = D3DFMT_X8R8G8B8;
 
-	res = D3D->CreateDevice( D3DADAPTER_DEFAULT, D3DDEVTYPE_HAL, wnd, D3DCREATE_SOFTWARE_VERTEXPROCESSING, &D3DParams, &D3DDevice );
+	res = d3d->CreateDevice( D3DADAPTER_DEFAULT, D3DDEVTYPE_HAL, wnd, D3DCREATE_SOFTWARE_VERTEXPROCESSING, &d3dParams, &d3dDevice );
 
 	if ( FAILED(res) ) return NULL;
 
 	renderer.type = GUIREND_DX8;
 	renderer.device_context = NULL;
 
-	renderer.begin				= mgui_dx8_begin;
-	renderer.end				= mgui_dx8_end;
-	renderer.resize				= mgui_dx8_resize;
-	renderer.set_draw_colour	= mgui_dx8_set_draw_colour;
-	renderer.start_clip			= mgui_dx8_start_clip;
-	renderer.end_clip			= mgui_dx8_end_clip;
-	renderer.draw_rect			= mgui_dx8_draw_rect;
-	renderer.draw_triangle		= mgui_dx8_draw_triangle;
-	renderer.load_texture		= mgui_dx8_load_texture;
-	renderer.destroy_texture	= mgui_dx8_destroy_texture;
-	renderer.draw_textured_rect	= mgui_dx8_draw_textured_rect;
-	renderer.load_font			= mgui_dx8_load_font;
-	renderer.destroy_font		= mgui_dx8_destroy_font;
-	renderer.draw_text			= mgui_dx8_draw_text;
-	renderer.measure_text		= mgui_dx8_measure_text;
+	renderer.begin				= CMGuiDX8Drawing::Begin;
+	renderer.end				= CMGuiDX8Drawing::End;
+	renderer.resize				= CMGuiDX8Drawing::Resize;
+	renderer.set_draw_colour	= CMGuiDX8Drawing::SetDrawColour;
+	renderer.start_clip			= CMGuiDX8Drawing::StartClip;
+	renderer.end_clip			= CMGuiDX8Drawing::EndClip;
+	renderer.draw_rect			= CMGuiDX8Drawing::DrawRect;
+	renderer.draw_triangle		= CMGuiDX8Drawing::DrawTriangle;
+	renderer.load_texture		= CMGuiDX8Drawing::LoadTexture;
+	renderer.destroy_texture	= CMGuiDX8Drawing::DestroyTexture;
+	renderer.draw_textured_rect	= CMGuiDX8Drawing::DrawTexturedRect;
+	renderer.load_font			= CMGuiDX8Drawing::LoadFont;
+	renderer.destroy_font		= CMGuiDX8Drawing::DestroyFont;
+	renderer.draw_text			= CMGuiDX8Drawing::DrawText;
+	renderer.measure_text		= CMGuiDX8Drawing::MeasureText;
 
-	mgui_dx8_drawing_initialize();
+	CMGuiDX8Drawing::Initialize();
 
 	return &renderer;
 }
 
 void mgui_dx8_shutdown( void )
 {
-	mgui_dx8_drawing_shutdown();
+	CMGuiDX8Drawing::Shutdown();
 }

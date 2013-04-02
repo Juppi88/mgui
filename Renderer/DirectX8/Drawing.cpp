@@ -13,66 +13,266 @@
 #include "Math/Colour.h"
 #include "Platform/Alloc.h"
 #include "Platform/Window.h"
-#include <d3d8.h>
-#include <D3dx8core.h>
-#include <D3dx8math.h>
-#include <DxErr.h>
+#include "Stringy/Stringy.h"
 #include <assert.h>
 
 #define MAX_VERT				(1024)
 #define D3DFVF_PRIMITIVES		(D3DFVF_XYZRHW|D3DFVF_DIFFUSE)
 #define D3DFVF_VERTEXFORMAT2D	(D3DFVF_XYZRHW|D3DFVF_DIFFUSE|D3DFVF_TEX1)
 
-typedef struct
+struct vertex_t
 {
 	float	x, y, z, rhw;
 	uint32	col;
 	float	u, v;
-} vertex_t;
+};
 
-typedef struct
+extern IDirect3DDevice8* d3dDevice;
+
+uint32					CMGuiDX8Drawing::num_vertices	= 0;	// Number of vetrices stored into the temp buffer
+uint32					CMGuiDX8Drawing::colour			= 0;	// Current drawing colour
+IDirect3DTexture8*		CMGuiDX8Drawing::texture		= NULL;	// Current texture
+IDirect3DVertexBuffer8*	CMGuiDX8Drawing::vertex_buf		= NULL;	// Pointer to vertex buffer
+vertex_t*				CMGuiDX8Drawing::vertex			= NULL;	// Pointer to current vertex
+DWORD					CMGuiDX8Drawing::fvf			= 0;	// Storage for vertex shader
+RECT					CMGuiDX8Drawing::clip;					// Temp storage for clipping
+
+void CMGuiDX8Drawing::Initialize( void )
 {
-	uint32		width;
-	uint32		height;
-	uint32		spacing;
-	uint32		flags;
-	uint32		size;
-	uint32		first_char;
-	uint32		last_char;
-	uint32		data_len;
-	float**		coords;
-	IDirect3DTexture8 * texture;
-} MGuiDX8Font;
-
-extern IDirect3DDevice8*		D3DDevice;
-
-static uint32					num_vertices = 0;	// Number of vetrices stored into the temp buffer
-static uint32					colour		= 0;	// Current drawing colour
-static IDirect3DTexture8*		texture		= NULL;	// Current texture
-static IDirect3DVertexBuffer8*	vertex_buf	= NULL;	// Pointer to vertex buffer
-static vertex_t*				vertex		= NULL;	// Pointer to current vertex
-static DWORD					fvf			= 0;	// Storage for vertex shader
-//static DWORD					state		= 0;
-
-
-static void __flush( void )
-{
-	if ( num_vertices == 0 ) return;
-
-	//D3DDevice->SetFVF( D3DFVF_XYZRHW | D3DFVF_DIFFUSE | D3DFVF_TEX1 );
-	//D3DDevice->DrawPrimitiveUP( D3DPT_TRIANGLELIST, num_vertices / 3, &vertices[0], sizeof(vertex_t) );
-
-	vertex_buf->Unlock();
-
-	D3DDevice->SetStreamSource( 0, vertex_buf, sizeof(vertex_t) );
-	D3DDevice->DrawPrimitive( D3DPT_TRIANGLELIST, 0, num_vertices/3 );
-
-	vertex_buf->Lock( 0, 0, (BYTE**)&vertex, D3DLOCK_DISCARD );
-
-	num_vertices = 0;
+	d3dDevice->CreateVertexBuffer( MAX_VERT * sizeof(vertex_t), D3DUSAGE_WRITEONLY|D3DUSAGE_DYNAMIC,
+		D3DFVF_VERTEXFORMAT2D, D3DPOOL_DEFAULT, &vertex_buf );
 }
 
-static __inline void __add_vertex( uint x, uint y )
+void CMGuiDX8Drawing::Shutdown( void )
+{
+	vertex_buf->Release();
+}
+
+void CMGuiDX8Drawing::Begin( void )
+{
+	d3dDevice->BeginScene();
+	d3dDevice->Clear( 0, NULL, D3DCLEAR_TARGET, D3DCOLOR_XRGB( 0, 0, 0 ), 1, 0 );
+
+	d3dDevice->SetRenderState( D3DRS_ALPHABLENDENABLE, TRUE );
+	d3dDevice->SetRenderState( D3DRS_SRCBLEND, D3DBLEND_SRCALPHA );
+	d3dDevice->SetRenderState( D3DRS_DESTBLEND, D3DBLEND_INVSRCALPHA );
+
+	d3dDevice->SetTextureStageState( 0, D3DTSS_COLOROP,		D3DTOP_MODULATE );
+	d3dDevice->SetTextureStageState( 0, D3DTSS_COLORARG1,	D3DTA_TEXTURE );
+	d3dDevice->SetTextureStageState( 0, D3DTSS_COLORARG2,	D3DTA_CURRENT );
+
+	d3dDevice->SetTextureStageState( 0, D3DTSS_ALPHAOP,		D3DTOP_MODULATE );
+	d3dDevice->SetTextureStageState( 0, D3DTSS_ALPHAARG1,	D3DTA_TEXTURE );
+	d3dDevice->SetTextureStageState( 0, D3DTSS_ALPHAARG2,	D3DTA_CURRENT );
+
+	d3dDevice->SetTextureStageState( 1, D3DTSS_ALPHAOP, D3DTOP_DISABLE );
+	d3dDevice->SetTextureStageState( 1, D3DTSS_COLOROP, D3DTOP_DISABLE );
+
+	d3dDevice->GetVertexShader( &fvf );
+	d3dDevice->SetVertexShader( D3DFVF_VERTEXFORMAT2D );
+
+	vertex_buf->Lock( 0, 0, (BYTE**)&vertex, D3DLOCK_DISCARD );
+}
+
+void CMGuiDX8Drawing::End( void )
+{
+	Flush();
+
+	d3dDevice->SetVertexShader( fvf );
+
+	d3dDevice->EndScene();
+	d3dDevice->Present( NULL, NULL, NULL, NULL );
+}
+
+void CMGuiDX8Drawing::Resize( uint32 w, uint32 h )
+{
+	UNREFERENCED_PARAM( w );
+	UNREFERENCED_PARAM( h );
+	// TODO: !
+}
+
+void CMGuiDX8Drawing::SetDrawColour( const colour_t* col )
+{
+	if ( col == NULL ) return;
+
+	colour = (col->a << 24) | (col->r << 16) | (col->g << 8) | col->b;
+}
+
+void CMGuiDX8Drawing::StartClip( uint32 x, uint32 y, uint32 w, uint32 h )
+{
+	// DX8 doesn't seem to have a built-in scissor feature,
+	// so we'll have to figure out something else here.
+	// TODO: Make this work for more than just text.
+
+	Flush();
+
+	clip.left = x;
+	clip.top = y;
+	clip.right = x + w;
+	clip.bottom = y + h;
+}
+
+void CMGuiDX8Drawing::EndClip( void )
+{
+	Flush();
+
+	clip.left = 0;
+	clip.top = 0;
+	clip.right = 0;
+	clip.bottom = 0;
+}
+
+void CMGuiDX8Drawing::DrawRect( uint32 x, uint32 y, uint32 w, uint32 h )
+{
+	if ( num_vertices >= MAX_VERT-7 ) Flush();
+
+	if ( texture )
+	{
+		Flush();
+
+		d3dDevice->SetTexture( 0, NULL );
+		texture = NULL;
+	}
+
+	AddVertex( x, y );
+	AddVertex( x+w, y );
+	AddVertex( x, y+h );
+
+	AddVertex( x+w, y );
+	AddVertex( x+w, y+h );
+	AddVertex( x, y+h );
+}
+
+void CMGuiDX8Drawing::DrawTriangle( uint32 x1, uint32 y1, uint32 x2, uint32 y2, uint32 x3, uint32 y3 )
+{
+	if ( num_vertices >= MAX_VERT-4 ) Flush();
+
+	AddVertex( x1, y1 );
+	AddVertex( x2, y2 );
+	AddVertex( x3, y3 );
+}
+
+void* CMGuiDX8Drawing::LoadTexture( const char_t* path )
+{
+	UNREFERENCED_PARAM( path );
+
+	return NULL;
+}
+
+void CMGuiDX8Drawing::DestroyTexture( void* texture )
+{
+	UNREFERENCED_PARAM( texture );
+}
+
+void CMGuiDX8Drawing::DrawTexturedRect( void* texture, uint32 x, uint32 y, uint32 w, uint32 h )
+{
+	UNREFERENCED_PARAM( texture );
+	UNREFERENCED_PARAM( x );
+	UNREFERENCED_PARAM( y );
+	UNREFERENCED_PARAM( w );
+	UNREFERENCED_PARAM( h );
+}
+
+void* CMGuiDX8Drawing::LoadFont( const char_t* name, uint32 size, uint32 flags, uint32 charset, uint32 firstc, uint32 lastc )
+{
+	LOGFONT font;
+	LPD3DXFONT d3dxFont;
+
+	UNREFERENCED_PARAM( firstc );
+	UNREFERENCED_PARAM( lastc );
+
+	memset( &font, 0, sizeof(font) );
+
+	font.lfHeight = -1 * size;
+	font.lfWidth = 0;
+	font.lfWeight = BIT_ON( flags, FFLAG_BOLD ) ? FW_BOLD : FW_NORMAL;
+	font.lfItalic = BIT_ON( flags, FFLAG_ITALIC ) ? 1 : 0;
+	font.lfUnderline = BIT_ON( flags, FFLAG_ULINE ) ? 1 : 0;
+	font.lfStrikeOut = BIT_ON( flags, FFLAG_STRIKE ) ? 1 : 0;
+	font.lfCharSet = (BYTE)charset;
+	font.lfOutPrecision = OUT_DEFAULT_PRECIS;
+	font.lfQuality = BIT_ON( flags, FFLAG_NOAA ) ? DEFAULT_QUALITY : CLEARTYPE_QUALITY;
+	font.lfPitchAndFamily = DEFAULT_PITCH | FF_DONTCARE;
+
+	mstrcpy( font.lfFaceName, name, sizeof(font.lfFaceName) );
+
+	D3DXCreateFontIndirect( d3dDevice, &font, &d3dxFont );
+
+	return (void*)d3dxFont;
+}
+
+void CMGuiDX8Drawing::DestroyFont( void* font )
+{
+	LPD3DXFONT d3dxFont;
+
+	if ( font == NULL ) return;
+
+	d3dxFont = (LPD3DXFONT)font;
+	d3dxFont->Release();
+}
+
+void CMGuiDX8Drawing::DrawText( void* font, const char_t* text, uint32 x, uint32 y, uint32 flags )
+{
+	LPD3DXFONT d3dxFont;
+	RECT r;
+
+	UNREFERENCED_PARAM( flags );
+
+	if ( font == NULL ) return;
+
+	Flush();
+
+	d3dxFont = (LPD3DXFONT)font;
+
+	r.left = x;
+	r.top = y;
+	r.right = clip.right;
+	r.bottom = clip.bottom;
+
+	// OK, this seems to be a _really_ crappy way to draw text (->massive memory usage).
+	// TODO: Write our own font rendering system.
+	if ( r.right )
+	{
+		d3dxFont->DrawText( text, -1, &r, DT_LEFT|DT_TOP|DT_SINGLELINE, colour );
+	}
+	else
+	{
+		d3dxFont->DrawText( text, -1, &r, DT_LEFT|DT_TOP|DT_NOCLIP|DT_SINGLELINE, colour );
+	}
+}
+
+void CMGuiDX8Drawing::MeasureText( void* font, const char_t* text, uint32* x_out, uint32* y_out )
+{
+	LPD3DXFONT d3dxFont;
+	RECT r;
+
+	if ( font == NULL || text == NULL ) return;
+	if ( x_out == NULL || y_out == NULL ) return;
+
+	d3dxFont = (LPD3DXFONT)font;
+
+	r.left = 0;
+	r.right = 0;
+	r.top = 0;
+	r.bottom = 0;
+
+	if ( !*text )
+	{
+		d3dxFont->DrawText( "X", -1, &r, DT_CALCRECT, colour );
+
+		*x_out = 0;
+		*y_out = r.bottom;
+
+		return;
+	}
+
+	d3dxFont->DrawText( text, -1, &r, DT_CALCRECT|DT_LEFT|DT_TOP|DT_SINGLELINE, colour );
+
+	*x_out = r.right;
+	*y_out = r.bottom;
+}
+
+inline void CMGuiDX8Drawing::AddVertex( uint32 x, uint32 y )
 {
 	vertex->x = (float)x;
 	vertex->y = (float)y;
@@ -84,15 +284,12 @@ static __inline void __add_vertex( uint x, uint y )
 	num_vertices++;
 }
 
-static __inline void __add_vertex_tex( uint x, uint y, float u, float v )
+inline void CMGuiDX8Drawing::AddVertexTex( uint32 x, uint32 y, float u, float v )
 {
-	UNREFERENCED_PARAM( u );
-	UNREFERENCED_PARAM( v );
-
 	vertex->x = -0.5f + (float)x;
 	vertex->y = -0.5f + (float)y;
-	vertex->x = -0.5f + (float)x;
-	vertex->y = -0.5f + (float)y;
+	vertex->v = -0.5f + (float)u;
+	vertex->u = -0.5f + (float)v;
 	vertex->z = 1.0f;
 	vertex->rhw = 1.0f;
 	vertex->col = colour;
@@ -101,444 +298,16 @@ static __inline void __add_vertex_tex( uint x, uint y, float u, float v )
 	num_vertices++;
 }
 
-void mgui_dx8_drawing_initialize( void )
+void CMGuiDX8Drawing::Flush( void )
 {
-	if ( FAILED( D3DDevice->CreateVertexBuffer( MAX_VERT * sizeof(vertex_t), D3DUSAGE_WRITEONLY|D3DUSAGE_DYNAMIC, D3DFVF_VERTEXFORMAT2D, D3DPOOL_DEFAULT, &vertex_buf ) ) ) 
-		return;
-}
+	if ( num_vertices == 0 ) return;
 
-void mgui_dx8_drawing_shutdown( void )
-{
-	vertex_buf->Release();
-}
+	vertex_buf->Unlock();
 
-void mgui_dx8_begin( void )
-{
-	D3DDevice->BeginScene();
-	D3DDevice->Clear( 0, NULL, D3DCLEAR_TARGET, D3DCOLOR_XRGB( 0, 0, 0 ), 1, 0 );
-
-	D3DDevice->SetRenderState( D3DRS_ALPHABLENDENABLE, TRUE );
-	D3DDevice->SetRenderState( D3DRS_SRCBLEND, D3DBLEND_SRCALPHA );
-	D3DDevice->SetRenderState( D3DRS_DESTBLEND, D3DBLEND_INVSRCALPHA );
-
-	D3DDevice->SetTextureStageState( 0, D3DTSS_COLOROP,		D3DTOP_MODULATE );
-	D3DDevice->SetTextureStageState( 0, D3DTSS_COLORARG1,	D3DTA_TEXTURE );
-	D3DDevice->SetTextureStageState( 0, D3DTSS_COLORARG2,	D3DTA_CURRENT );
-
-	D3DDevice->SetTextureStageState( 0, D3DTSS_ALPHAOP,		D3DTOP_MODULATE );
-	D3DDevice->SetTextureStageState( 0, D3DTSS_ALPHAARG1,	D3DTA_TEXTURE );
-	D3DDevice->SetTextureStageState( 0, D3DTSS_ALPHAARG2,	D3DTA_CURRENT );
-
-	D3DDevice->SetTextureStageState( 1, D3DTSS_ALPHAOP, D3DTOP_DISABLE );
-	D3DDevice->SetTextureStageState( 1, D3DTSS_COLOROP, D3DTOP_DISABLE );
-
-	D3DDevice->GetVertexShader( &fvf );
-	D3DDevice->SetVertexShader( D3DFVF_VERTEXFORMAT2D );
+	d3dDevice->SetStreamSource( 0, vertex_buf, sizeof(vertex_t) );
+	d3dDevice->DrawPrimitive( D3DPT_TRIANGLELIST, 0, num_vertices/3 );
 
 	vertex_buf->Lock( 0, 0, (BYTE**)&vertex, D3DLOCK_DISCARD );
-}
 
-void mgui_dx8_end( void )
-{
-	__flush();
-
-	D3DDevice->SetVertexShader( fvf );
-
-	D3DDevice->EndScene();
-	D3DDevice->Present( NULL, NULL, NULL, NULL );
-}
-
-void mgui_dx8_resize( uint w, uint h )
-{
-	UNREFERENCED_PARAM( w );
-	UNREFERENCED_PARAM( h );
-	// TODO: !
-}
-
-void mgui_dx8_set_draw_colour( const colour_t* col )
-{
-	colour = (col->a << 24) | (col->r << 16) | (col->g << 8) | col->b;
-}
-
-void mgui_dx8_start_clip( uint x, uint y, uint w, uint h )
-{
-	/*RECT r = { x, y, w, h };
-
-	__flush();
-
-	D3DDevice->SetRenderState( D3DRS_SCISSORTESTENABLE, TRUE );
-	D3DDevice->SetScissorRect( &r );*/
-
-	UNREFERENCED_PARAM( x );
-	UNREFERENCED_PARAM( y );
-	UNREFERENCED_PARAM( w );
-	UNREFERENCED_PARAM( h );
-}
-
-void mgui_dx8_end_clip( void )
-{
-	/*__flush();
-	D3DDevice->SetRenderState( D3DRS_SCISSORTESTENABLE, FALSE );*/
-}
-
-void mgui_dx8_draw_rect( uint x, uint y, uint w, uint h )
-{
-	if ( num_vertices >= MAX_VERT-7 ) __flush();
-
-	if ( texture )
-	{
-		__flush();
-
-		D3DDevice->SetTexture( 0, NULL );
-		texture = NULL;
-	}
-
-	__add_vertex( x, y );
-	__add_vertex( x+w, y );
-	__add_vertex( x, y+h );
-
-	__add_vertex( x+w, y );
-	__add_vertex( x+w, y+h );
-	__add_vertex( x, y+h );
-}
-
-void mgui_dx8_draw_triangle( uint x1, uint y1, uint x2, uint y2, uint x3, uint y3 )
-{
-	if ( num_vertices >= MAX_VERT-4 ) __flush();
-
-	__add_vertex( x1, y1 );
-	__add_vertex( x2, y2 );
-	__add_vertex( x3, y3 );
-}
-
-void* mgui_dx8_load_texture( const char* path )
-{
-	UNREFERENCED_PARAM( path );
-
-	return NULL;
-}
-
-void mgui_dx8_destroy_texture( void* texture )
-{
-	UNREFERENCED_PARAM( texture );
-}
-
-void mgui_dx8_draw_textured_rect( void* texture, uint x, uint y, uint w, uint h )
-{
-	UNREFERENCED_PARAM( texture );
-	UNREFERENCED_PARAM( x );
-	UNREFERENCED_PARAM( y );
-	UNREFERENCED_PARAM( w );
-	UNREFERENCED_PARAM( h );
-}
-
-static bool __measure_font( HDC tmpdc, MGuiDX8Font* font, bool print )
-{
-	SIZE size;
-	uint32 x, y;
-	uint32 c, idx;
-	char_t tmp[2] = _MTEXT(" ");
-
-	GetTextExtentPoint32( tmpdc, tmp, 1, &size );
-
-	font->spacing = (int32)ceil( size.cy * 0.5f );
-
-	x = font->spacing;
-	y = 0;
-
-	for ( c = font->first_char; c <= font->last_char; c++ )
-	{
-		tmp[0] = (char_t)c;
-		GetTextExtentPoint32( tmpdc, tmp, 1, &size );
-
-		if ( x + size.cx + font->spacing > font->width )
-		{
-			x = font->spacing;
-			y += size.cy + 1;
-		}
-
-		// Check to see if there's room to write the character here
-		if ( y + size.cy > font->height ) return false;
-
-		if ( print )
-		{
-			// Print the character
-			ExtTextOut( tmpdc, x, y, ETO_OPAQUE, NULL, tmp, 1, NULL );
-
-			idx = c - font->first_char;
-			font->coords[idx][0] = (float)x / font->width;
-			font->coords[idx][1] = (float)y / font->height;
-			font->coords[idx][2] = (float)( x + size.cx ) / font->width;
-			font->coords[idx][3] = (float)( y + size.cy ) / font->height;
-		}
-
-		x += size.cx + ( 2 * font->spacing );
-	}
-
-	return true;
-}
-
-void* mgui_dx8_load_font( const char* name, uint32 size, uint32 flags, uint32 charset, uint32 firstc, uint32 lastc )
-{
-	HFONT newfnt, oldfnt;
-	DWORD* bm_bits;
-	BITMAPINFO bmi;
-	HBITMAP bitmap;
-	HGDIOBJ bmold;
-	BITMAP bm;
-	MGuiDX8Font* font;
-	HDC tmpdc;
-	uint32 i, *pixels;
-	float ratio;
-	D3DLOCKED_RECT d3drect;
-
-	tmpdc = CreateCompatibleDC( NULL );
-	SetMapMode( tmpdc, MM_TEXT );
-
-	newfnt = CreateFont( -(int32)size, 0, 0, 0,
-		flags & FFLAG_BOLD ? FW_BOLD : FW_NORMAL,
-		flags & FFLAG_ITALIC ? TRUE : FALSE,
-		flags & FFLAG_ULINE ? TRUE : FALSE,
-		flags & FFLAG_STRIKE ? TRUE : FALSE,
-		charset, OUT_DEFAULT_PRECIS, CLIP_DEFAULT_PRECIS,
-		flags & FFLAG_NOAA ? NONANTIALIASED_QUALITY : CLEARTYPE_QUALITY,
-		VARIABLE_PITCH, name );
-
-	if ( !newfnt ) return NULL;
-
-	firstc = firstc > 32 ? firstc : 32;
-	lastc = lastc > firstc ? lastc : 255;
-
-	font = (MGuiDX8Font*)mem_alloc( sizeof(*font) );
-	font->first_char = firstc;
-	font->last_char = lastc++;
-	font->data_len = lastc - firstc;
-	font->width = 128;
-	font->height = 128;
-	font->size = size;
-	font->flags = flags;
-
-	oldfnt = (HFONT)SelectObject( tmpdc, newfnt );
-
-	// Find out a sufficient size for our texture bitmap (needs to be power of 2)
-	while ( !__measure_font( tmpdc, font, false ) )
-	{
-		font->width <<= 1;
-		font->height <<= 1;
-	}
-
-	D3DDevice->CreateTexture( font->width, font->height, 1, 0, D3DFMT_A4R4G4B4, D3DPOOL_MANAGED, &font->texture );
-
-	if ( !font->texture )
-	{
-		mem_free( font );
-		return NULL;
-	}
-
-	// Create a table for character texture coordinates
-	font->coords	= (float**)mem_alloc( font->data_len * sizeof(float*) );
-	font->coords[0]	= (float*)mem_alloc( 4 * font->data_len * sizeof(float) );
-
-	for ( i = 1; i < font->data_len; i++ )
-		font->coords[i] = font->coords[0] + i * 4;
-
-	ZeroMemory( &bmi.bmiHeader, sizeof(BITMAPINFOHEADER) );
-	bmi.bmiHeader.biSize        = sizeof(BITMAPINFOHEADER);
-	bmi.bmiHeader.biWidth       = (int)font->width;
-	bmi.bmiHeader.biHeight      = (int)font->height;
-	bmi.bmiHeader.biPlanes      = 1;
-	bmi.bmiHeader.biCompression = BI_RGB;
-	bmi.bmiHeader.biBitCount    = 32;
-
-	bitmap = CreateDIBSection( tmpdc, &bmi, DIB_RGB_COLORS, (void**)&bm_bits, NULL, 0 );
-	bmold = SelectObject( tmpdc, bitmap );
-
-	SetTextColor( tmpdc, 0x00FFFFFF );
-	SetBkColor( tmpdc, 0x00000000 );
-	SetTextAlign( tmpdc, TA_TOP );
-
-	// Paint the alphabet onto the selected bitmap
-	__measure_font( tmpdc, font, true );
-
-	GetObject( bitmap, sizeof(BITMAP), &bm );
-
-	// Hacky method to convert the background colour (black) to alpha
-#if 1
-	for ( i = 0, pixels = (uint32*)bm.bmBits; i < font->width * font->height; i++ )
-	{
-		if ( pixels[i] == 0x0 ) /* BLACK */
-		{
-			pixels[i] &= ~-1;
-		}
-
-		else if ( pixels[i] == 0xFFFFFF ) /* WHITE */
-		{
-			pixels[i] |= 0xFF << 24;
-		}
-
-		else /* GREY - or at least close enough */
-		{
-			ratio = ( (float)( ( pixels[i] & 0xFF0000 ) >> 16 ) / 0xFF
-				+ (float)( ( pixels[i] & 0x00FF00 ) >> 8 ) / 0xFF
-				+ (float)( pixels[i] & 0x0000FF ) / 0xFF ) / 3;
-
-			pixels[i] = 0x00FFFFFF | ( (uint32)( ratio * 0xFF ) << 24 );
-		}
-	}
-#endif
-
-	font->texture->LockRect( 0, &d3drect, 0, 0 );
-
-	GetDIBits( tmpdc, bitmap, 0, 0, d3drect.pBits, &bmi, DIB_RGB_COLORS );
-
-	font->texture->UnlockRect( 0 );
-
-	SelectObject( tmpdc, bmold );
-	SelectObject( tmpdc, oldfnt );
-	DeleteObject( bitmap );
-	DeleteObject( newfnt );
-	DeleteDC( tmpdc );
-
-	return font;
-}
-
-void mgui_dx8_destroy_font( void* font )
-{
-	MGuiDX8Font* dxfont = (MGuiDX8Font*)font;
-
-	if ( dxfont->texture )
-		dxfont->texture->Release();
-
-	mem_free( dxfont->coords[0] );
-	mem_free( dxfont->coords );
-	mem_free( font );
-}
-
-static __inline uint32 __render_char( MGuiDX8Font* font, uint32 c, uint32 x, uint32 y, uint32 flags )
-{
-	float x1, y1, x2, y2;
-	float space, offset;
-	uint32 w, h;
-
-	if ( num_vertices >= MAX_VERT-13 ) __flush();
-
-	x1 = font->coords[c][0];
-	x2 = font->coords[c][2];
-	y1 = font->coords[c][1];
-	y2 = font->coords[c][3];
-
-	space = ( font->flags & FFLAG_ITALIC ) ? (x2-x1) : 0;
-	offset = space * font->width;
-
-	w = (uint32)( ( x2 - x1 + space ) * font->width );
-	h = (uint32)( ( y2 - y1 ) * font->height );
-	y -= h;
-
-	if ( flags & FFLAG_SHADOW )
-	{
-		/*glColor4ubv( (const GLubyte*)&shadow_col );
-
-		glTexCoord2f( x1, y2 );
-		glVertex2i( x + SHADOW_OFFSET, y + SHADOW_OFFSET );
-
-		glTexCoord2f( x2+space, y2 );
-		glVertex2i( x+w + SHADOW_OFFSET, y + SHADOW_OFFSET );
-
-		glTexCoord2f( x2+space, y1 );
-		glVertex2i( x+w + SHADOW_OFFSET, y+h + SHADOW_OFFSET );
-
-		glTexCoord2f( x1, y1 );
-		glVertex2i( x + SHADOW_OFFSET, y+h + SHADOW_OFFSET );
-
-		glColor4ubv( (const GLubyte*)&colour );*/
-	}
-
-	__add_vertex_tex( x, y, x1, y2 );
-	__add_vertex_tex( x+w, y, x2+space, y2 );
-	__add_vertex_tex( x+w, y+h, x2+space, y1 );
-
-	__add_vertex_tex( x, y, x1, y2 );
-	__add_vertex_tex( x, y+h, x1, y1 );
-	__add_vertex_tex( x+w, y+h, x2+space, y1 );
-
-	/*__add_vertex_tex( x, y, x1, y2 );
-	__add_vertex_tex( x+w, y, x2+space, y2 );
-	__add_vertex_tex( x, y+h, x1, y1 );
-
-	__add_vertex_tex( x+w, y, x2+space, y2 );
-	__add_vertex_tex( x+w, y+h, x2+space, y1 );
-	__add_vertex_tex( x, y+h, x1, y1 );*/
-
-	return (uint32)( w - offset );
-}
-
-void mgui_dx8_draw_text( void* font, const char_t* text, uint x, uint y, uint flags )
-{
-	uint32 dx, dy, c;
-	register const char_t* s;
-	MGuiDX8Font* fnt = (MGuiDX8Font*)font;
-
-	assert( font != NULL );
-
-	if ( !text ) return;
-
-	__flush();
-
-	D3DDevice->SetTexture( 0, fnt->texture );
-	texture = fnt->texture;
-
-	dx = x;
-	dy = y;
-
-	for ( s = text; *s; s += sizeof(char_t) )
-	{
-		c = *(uchar_t*)s;
-
-		if ( c < fnt->first_char || c > fnt->last_char )
-		{
-			continue;
-		}
-		else
-		{
-			dx += __render_char( fnt, c - fnt->first_char, dx, dy, flags );		
-		}
-	}
-}
-
-void mgui_dx8_measure_text( void* font, const char_t* text, uint* x_out, uint* y_out )
-{
-	float x, y, xout;
-	float tmp1, tmp2;
-	register const char_t* s;
-	uint32 c;
-	MGuiDX8Font* fnt = (MGuiDX8Font*)font;
-
-	assert( font != NULL );
-	assert( text != NULL );
-
-	x = xout = 0;
-	y = (float)fnt->size;
-
-	for ( s = text; *s; s += sizeof(char_t) )
-	{
-		c = *(uchar_t*)s;
-
-		if ( c < fnt->first_char || c > fnt->last_char )
-		{
-			continue;
-		}
-		else
-		{
-			c -= fnt->first_char;
-			tmp1 = fnt->coords[c][0];
-			tmp2 = fnt->coords[c][2];
-
-			x += (tmp2-tmp1) * fnt->width;
-		}
-	}	
-
-	xout = math_max( xout, x );
-
-	*x_out = (uint32)xout;
-	*y_out = (uint32)y;
+	num_vertices = 0;
 }

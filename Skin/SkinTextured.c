@@ -14,6 +14,8 @@
 #include "Renderer.h"
 #include "Platform/Alloc.h"
 
+extern MGuiRenderer* renderer;
+
 // TODO: Actually finish this some day!
 
 typedef struct
@@ -84,35 +86,35 @@ MGuiSkin* mgui_setup_skin_textured( const char_t* texture )
 
 static void skin_textured_draw_panel( const rectangle_t* r, const colour_t* col )
 {
-	render->set_draw_colour( col );
-	render->draw_rect( r->x, r->y, r->w, r->h );
+	renderer->set_draw_colour( col );
+	renderer->draw_rect( r->x, r->y, r->w, r->h );
 }
 
 static void skin_textured_draw_border( const rectangle_t* r, const colour_t* col, uint32 borders, uint32 thickness )
 {
-	render->set_draw_colour( col );
+	renderer->set_draw_colour( col );
 
 	if ( borders & BORDER_LEFT )
-		render->draw_rect( r->x, r->y, thickness, r->h );
+		renderer->draw_rect( r->x, r->y, thickness, r->h );
 
 	if ( borders & BORDER_RIGHT )
-		render->draw_rect( r->x + r->w-thickness, r->y, thickness, r->h );
+		renderer->draw_rect( r->x + r->w-thickness, r->y, thickness, r->h );
 
 	if ( borders & BORDER_TOP )
-		render->draw_rect( r->x, r->y, r->w, thickness );
+		renderer->draw_rect( r->x, r->y, r->w, thickness );
 
 	if ( borders & BORDER_BOTTOM )
-		render->draw_rect( r->x, r->y + r->h-thickness, r->w, thickness );
+		renderer->draw_rect( r->x, r->y + r->h-thickness, r->w, thickness );
 }
 
 static void skin_textured_draw_shadow( const rectangle_t* r, uint offset )
 {
 	static const colour_t c = { 0x0A0A0A32 };
 
-	render->set_draw_colour( &c );
+	renderer->set_draw_colour( &c );
 
-	render->draw_rect( r->x + r->w, r->y + offset, offset, r->h - offset );
-	render->draw_rect( r->x + offset, r->y + r->h, r->w, offset );
+	renderer->draw_rect( r->x + r->w, r->y + offset, offset, r->h - offset );
+	renderer->draw_rect( r->x + offset, r->y + r->h, r->w, offset );
 }
 
 static void skin_textured_draw_button( const rectangle_t* r, const colour_t* col, uint32 flags, const MGuiText* text )
