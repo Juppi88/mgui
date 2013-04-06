@@ -164,7 +164,8 @@ void mgui_move_forward( MGuiElement* child )
 	if ( !child->parent ) return;
 	if ( !child->parent->children ) return;
 
-	list_move_forward( child->parent->children, cast_node(child) );
+	// Yes, this is a bit backwards (no pun intended), but the list is rendered from front to back.
+	list_move_backward( child->parent->children, cast_node(child) );
 }
 
 void mgui_move_backward( MGuiElement* child )
@@ -174,7 +175,7 @@ void mgui_move_backward( MGuiElement* child )
 	if ( !child->parent ) return;
 	if ( !child->parent->children ) return;
 
-	list_move_backward( child->parent->children, cast_node(child) );
+	list_move_forward( child->parent->children, cast_node(child) );
 }
 
 void mgui_send_to_top( MGuiElement* child )
@@ -184,7 +185,7 @@ void mgui_send_to_top( MGuiElement* child )
 	if ( !child->parent ) return;
 	if ( !child->parent->children ) return;
 
-	list_send_to_front( child->parent->children, cast_node(child) );
+	list_send_to_back( child->parent->children, cast_node(child) );
 }
 
 void mgui_send_to_bottom( MGuiElement* child )
@@ -194,7 +195,7 @@ void mgui_send_to_bottom( MGuiElement* child )
 	if ( !child->parent ) return;
 	if ( !child->parent->children ) return;
 
-	list_send_to_back( child->parent->children, cast_node(child) );
+	list_send_to_front( child->parent->children, cast_node(child) );
 }
 
 bool mgui_is_child_of( MGuiControl* parent, MGuiElement* child )
@@ -229,7 +230,7 @@ MGuiElement* mgui_get_element_at( MGuiControl* parent, uint16 x, uint16 y )
 	// Test all the children as well
 	if ( parent->children )
 	{
-		list_foreach( parent->children, node ) 
+		list_foreach_r( parent->children, node ) 
 		{
 			element = cast_elem(node);
 			if ( ( ret = mgui_get_element_at( cast_ctrl(element), x, y ) ) != NULL )

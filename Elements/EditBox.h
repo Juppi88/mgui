@@ -55,6 +55,7 @@ static void			mgui_editbox_press_end				( struct MGuiEditbox* editbox );
 static void			mgui_destroy_editbox				( MGuiElement* editbox );
 static void			mgui_editbox_render					( MGuiElement* element );
 static void			mgui_editbox_process				( MGuiElement* element, uint32 ticks );
+static void			mgui_editbox_set_bounds				( MGuiElement* element, bool pos, bool size );
 static void			mgui_editbox_set_text				( MGuiElement* element );
 static void			mgui_editbox_on_mouse_click			( MGuiElement* element, MOUSEBTN button, uint16 x, uint16 y );
 static void			mgui_editbox_on_mouse_release		( MGuiElement* element, MOUSEBTN button, uint16 x, uint16 y );

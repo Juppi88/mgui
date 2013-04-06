@@ -10,7 +10,6 @@
  **********************************************************************/
 
 #include "InputHook.h"
-#include "Input/Input.h"
 #include "Element.h"
 #include "Control.h"
 #include "Renderer.h"
@@ -21,31 +20,93 @@ static MGuiElement*	dragged			= NULL;	// Element that is being dragged
 static MGuiElement*	mousefocus		= NULL; // The element that has the mouse focus
 static MGuiElement*	kbfocus			= NULL;	// The element that has the keyboard focus
 
-static bool __handle_char( input_event_t* event )
+void mgui_input_initialize_hooks( void )
+{
+	input_add_hook( INPUT_CHARACTER, mgui_input_handle_char );
+	input_add_hook( INPUT_KEY_UP, mgui_input_handle_key_up );
+	input_add_hook( INPUT_KEY_DOWN, mgui_input_handle_key_down );
+	input_add_hook( INPUT_MOUSE_MOVE, mgui_input_handle_mouse_move );
+	input_add_hook( INPUT_MOUSE_WHEEL, mgui_input_handle_mouse_wheel );
+	input_add_hook( INPUT_LBUTTON_UP, mgui_input_handle_lmb_up );
+	input_add_hook( INPUT_LBUTTON_DOWN, mgui_input_handle_lmb_down );
+}
+
+void mgui_input_shutdown_hooks( void )
+{
+	input_remove_hook( INPUT_CHARACTER, mgui_input_handle_char );
+	input_remove_hook( INPUT_KEY_UP, mgui_input_handle_key_up );
+	input_remove_hook( INPUT_KEY_DOWN, mgui_input_handle_key_down );
+	input_remove_hook( INPUT_MOUSE_MOVE, mgui_input_handle_mouse_move );
+	input_remove_hook( INPUT_MOUSE_WHEEL, mgui_input_handle_mouse_wheel );
+	input_remove_hook( INPUT_LBUTTON_UP, mgui_input_handle_lmb_up );
+	input_remove_hook( INPUT_LBUTTON_DOWN, mgui_input_handle_lmb_down );
+}
+
+void mgui_input_cleanup_references( MGuiElement* element )
+{
+	if ( element == hovered ) hovered = NULL;
+	if ( element == pressed ) hovered = NULL;
+	if ( element == dragged ) hovered = NULL;
+	if ( element == mousefocus ) mousefocus = NULL;
+	if ( element == kbfocus ) kbfocus = NULL;
+}
+
+MGuiElement* mgui_get_focus( void )
+{
+	return kbfocus;
+}
+
+void mgui_set_focus( MGuiElement* element )
 {
 	if ( kbfocus )
+	{
+		kbfocus->flags &= ~FLAG_FOCUS;
+		kbfocus = NULL;
+	}
+
+	if ( !element ) return;
+
+	if ( BIT_ON( element->flags, FLAG_KBCTRL ) &&
+		BIT_OFF( element->flags, FLAG_INACTIVE ) )
+	{
+		kbfocus = element;
+		element->flags |= FLAG_FOCUS;
+	}
+
+	mgui_force_redraw();
+}
+
+static bool mgui_input_handle_char( input_event_t* event )
+{
+	if ( kbfocus )
+	{
 		kbfocus->on_character( kbfocus, (char_t)event->keyboard.key );
+	}
 
 	return true;
 }
 
-static bool __handle_key_up( input_event_t* event )
+static bool mgui_input_handle_key_up( input_event_t* event )
 {
 	if ( kbfocus )
+	{
 		kbfocus->on_key_press( kbfocus, event->keyboard.key, false );
+	}
 
 	return true;
 }
 
-static bool __handle_key_down( input_event_t* event )
+static bool mgui_input_handle_key_down( input_event_t* event )
 {
 	if ( kbfocus )
+	{
 		kbfocus->on_key_press( kbfocus, event->keyboard.key, true );
+	}
 
 	return true;
 }
 
-static bool __handle_mouse_move( input_event_t* event )
+static bool mgui_input_handle_mouse_move( input_event_t* event )
 {
 	uint16 x, y;
 	MGuiElement* element;
@@ -102,13 +163,13 @@ static bool __handle_mouse_move( input_event_t* event )
 	return true;
 }
 
-static bool __handle_mouse_wheel( input_event_t* event )
+static bool mgui_input_handle_mouse_wheel( input_event_t* event )
 {
-	UNREFERENCED_PARAM(event);
+	UNREFERENCED_PARAM( event );
 	return true;
 }
 
-static bool __handle_lmb_up( input_event_t* event )
+static bool mgui_input_handle_lmb_up( input_event_t* event )
 {
 	uint16 x, y;
 	MGuiElement* element;
@@ -145,7 +206,7 @@ static bool __handle_lmb_up( input_event_t* event )
 	return true;
 }
 
-static bool __handle_lmb_down( input_event_t* event )
+static bool mgui_input_handle_lmb_down( input_event_t* event )
 {
 	uint16 x, y;
 	MGuiElement* element;
@@ -155,7 +216,7 @@ static bool __handle_lmb_down( input_event_t* event )
 	y = event->mouse.y;
 
 	dragged = NULL;
-	
+
 	if ( kbfocus )
 	{
 		kbfocus->flags &= ~FLAG_FOCUS;
@@ -217,60 +278,4 @@ static bool __handle_lmb_down( input_event_t* event )
 	}
 
 	return true;
-}
-
-void mgui_input_initialize_hooks( void )
-{
-	input_add_hook( INPUT_CHARACTER, __handle_char );
-	input_add_hook( INPUT_KEY_UP, __handle_key_up );
-	input_add_hook( INPUT_KEY_DOWN, __handle_key_down );
-	input_add_hook( INPUT_MOUSE_MOVE, __handle_mouse_move );
-	input_add_hook( INPUT_MOUSE_WHEEL, __handle_mouse_wheel );
-	input_add_hook( INPUT_LBUTTON_UP, __handle_lmb_up );
-	input_add_hook( INPUT_LBUTTON_DOWN, __handle_lmb_down );
-}
-
-void mgui_input_shutdown_hooks( void )
-{
-	input_remove_hook( INPUT_CHARACTER, __handle_char );
-	input_remove_hook( INPUT_KEY_UP, __handle_key_up );
-	input_remove_hook( INPUT_KEY_DOWN, __handle_key_down );
-	input_remove_hook( INPUT_MOUSE_MOVE, __handle_mouse_move );
-	input_remove_hook( INPUT_MOUSE_WHEEL, __handle_mouse_wheel );
-	input_remove_hook( INPUT_LBUTTON_UP, __handle_lmb_up );
-	input_remove_hook( INPUT_LBUTTON_DOWN, __handle_lmb_down );
-}
-
-void mgui_input_cleanup_references( MGuiElement* element )
-{
-	if ( element == hovered ) hovered = NULL;
-	if ( element == pressed ) hovered = NULL;
-	if ( element == dragged ) hovered = NULL;
-	if ( element == mousefocus ) mousefocus = NULL;
-	if ( element == kbfocus ) kbfocus = NULL;
-}
-
-MGuiElement* mgui_get_focus( void )
-{
-	return kbfocus;
-}
-
-void mgui_set_focus( MGuiElement* element )
-{
-	if ( kbfocus )
-	{
-		kbfocus->flags &= ~FLAG_FOCUS;
-		kbfocus = NULL;
-	}
-
-	if ( !element ) return;
-
-	if ( BIT_ON( element->flags, FLAG_KBCTRL ) &&
-		BIT_OFF( element->flags, FLAG_INACTIVE ) )
-	{
-		kbfocus = element;
-		element->flags |= FLAG_FOCUS;
-	}
-
-	mgui_force_redraw();
 }

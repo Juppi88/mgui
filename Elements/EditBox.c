@@ -40,14 +40,13 @@ MGuiEditbox* mgui_create_editbox( MGuiControl* parent )
 	*editbox->text->buffer = '\0';
 	*editbox->buffer = '\0';
 
-	editbox->cursor.w = 1;
-
 	editbox->colour.hex = COL_ELEMENT_DARK;
 
 	// Editbox callbacks
 	editbox->destroy		= mgui_destroy_editbox;
 	editbox->render			= mgui_editbox_render;
 	editbox->process		= mgui_editbox_process;
+	editbox->set_bounds		= mgui_editbox_set_bounds;
 	editbox->set_text		= mgui_editbox_set_text;
 	editbox->on_mouse_click	= mgui_editbox_on_mouse_click;
 	editbox->on_mouse_release = mgui_editbox_on_mouse_release;
@@ -117,6 +116,14 @@ static void mgui_editbox_process( MGuiElement* element, uint32 ticks )
 		editbox->cursor_visible = !editbox->cursor_visible;
 		mgui_force_redraw();
 	}
+}
+
+static void mgui_editbox_set_bounds( MGuiElement* element, bool pos, bool size )
+{
+	UNREFERENCED_PARAM( pos );
+	UNREFERENCED_PARAM( size );
+
+	mgui_editbox_refresh_cursor_bounds( (struct MGuiEditbox*)element );
 }
 
 static void mgui_editbox_set_text( MGuiElement* element )
