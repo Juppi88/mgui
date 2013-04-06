@@ -100,11 +100,11 @@ void mgui_render_controls( void )
 
 	if ( controls == NULL ) return;
 
-	// Render all elements on every visible parent controls
+	// Render all elements on every visible parent control
 	list_foreach( controls, cnode )
 	{
 		control = cast_ctrl(cnode);
-		if ( BIT_OFF(control->flags, FLAG_VISIBLE) ) continue;
+		if ( BIT_OFF( control->flags, FLAG_VISIBLE ) ) continue;
 
 		list_foreach( control->children, enode )
 		{
@@ -126,7 +126,7 @@ void mgui_process_controls( uint32 ticks )
 	list_foreach( controls, cnode )
 	{
 		control = cast_ctrl(cnode);
-		if ( BIT_OFF(control->flags, FLAG_VISIBLE) ) continue;
+		if ( BIT_OFF( control->flags, FLAG_VISIBLE ) ) continue;
 
 		list_foreach( control->children, enode )
 		{

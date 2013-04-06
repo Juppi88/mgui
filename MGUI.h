@@ -81,9 +81,12 @@ typedef enum
 	EVENT_CLICK,		/* Element is clicked (lmb down) */
 	EVENT_RELEASE,		/* Element is released (lmb up) */
 	EVENT_DRAG,			/* Element is dragged */
+	EVENT_FOCUS_ENTER,	/* Element receives focus */
+	EVENT_FOCUS_EXIT,	/* Element loses focus */
 	EVENT_INPUT_CHANGE,	/* User modifies the text of an input element */
 	EVENT_INPUT_RETURN,	/* User presses return while an input element is focused */
 	EVENT_WINDOW_CLOSE,	/* Window is closed from the close button */
+	EVENT_FORCE_DWORD = 0x7FFFFFFF
 } MGUI_EVENT;
 
 typedef struct 
