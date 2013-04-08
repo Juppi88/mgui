@@ -62,11 +62,14 @@ void mgui_set_focus( MGuiElement* element )
 
 	if ( kbfocus )
 	{
-		guievent.type = EVENT_FOCUS_EXIT;
-		guievent.element = kbfocus;
-		guievent.data = kbfocus->event_data;
+		if ( kbfocus->event_handler )
+		{
+			guievent.type = EVENT_FOCUS_EXIT;
+			guievent.element = kbfocus;
+			guievent.data = kbfocus->event_data;
 
-		kbfocus->event_handler( &guievent );
+			kbfocus->event_handler( &guievent );
+		}
 
 		kbfocus->flags &= ~FLAG_FOCUS;
 		kbfocus = NULL;
@@ -80,11 +83,14 @@ void mgui_set_focus( MGuiElement* element )
 		kbfocus = element;
 		element->flags |= FLAG_FOCUS;
 
-		guievent.type = EVENT_FOCUS_ENTER;
-		guievent.element = element;
-		guievent.data = element->event_data;
+		if ( kbfocus->event_handler )
+		{
+			guievent.type = EVENT_FOCUS_ENTER;
+			guievent.element = kbfocus;
+			guievent.data = element->event_data;
 
-		element->event_handler( &guievent );
+			kbfocus->event_handler( &guievent );
+		}
 	}
 
 	mgui_force_redraw();
@@ -234,11 +240,14 @@ static bool mgui_input_handle_lmb_down( input_event_t* event )
 
 	if ( kbfocus && kbfocus != element )
 	{
-		guievent.type = EVENT_FOCUS_EXIT;
-		guievent.element = kbfocus;
-		guievent.data = kbfocus->event_data;
+		if ( kbfocus->event_handler )
+		{
+			guievent.type = EVENT_FOCUS_EXIT;
+			guievent.element = kbfocus;
+			guievent.data = kbfocus->event_data;
 
-		kbfocus->event_handler( &guievent );
+			kbfocus->event_handler( &guievent );
+		}
 
 		kbfocus->flags &= ~FLAG_FOCUS;
 		kbfocus = NULL;
@@ -292,11 +301,14 @@ static bool mgui_input_handle_lmb_down( input_event_t* event )
 			kbfocus = element;
 			element->flags |= FLAG_FOCUS;
 
-			guievent.type = EVENT_FOCUS_ENTER;
-			guievent.element = kbfocus;
-			guievent.data = kbfocus->event_data;
+			if ( kbfocus->event_handler )
+			{
+				guievent.type = EVENT_FOCUS_ENTER;
+				guievent.element = kbfocus;
+				guievent.data = kbfocus->event_data;
 
-			kbfocus->event_handler( &guievent );
+				kbfocus->event_handler( &guievent );
+			}
 		}
 
 		mgui_force_redraw();
