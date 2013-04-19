@@ -15,6 +15,15 @@
 #include "Input/Input.h"
 #include "Platform/Alloc.h"
 
+// Buton callbacks
+static void		mgui_destroy_button			( MGuiElement* button );
+static void		mgui_button_render			( MGuiElement* button );
+static void		mgui_button_set_bounds		( MGuiElement* button, bool pos, bool size );
+static void		mgui_button_on_mouse_enter	( MGuiElement* button );
+static void		mgui_button_on_mouse_leave	( MGuiElement* button );
+static void		mgui_button_on_key_press	( MGuiElement* element, uint key, bool down );
+
+
 MGuiButton* mgui_create_button( MGuiControl* parent )
 {
 	struct MGuiButton* button;

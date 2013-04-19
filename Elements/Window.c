@@ -16,6 +16,15 @@
 #include "Font.h"
 #include "Platform/Alloc.h"
 
+// Window callback handlers
+static void		mgui_destroy_window				( MGuiElement* window );
+static void		mgui_window_render				( MGuiElement* window );
+static void		mgui_window_set_bounds			( MGuiElement* window, bool pos, bool size );
+static void		mgui_window_set_colour			( MGuiElement* window );
+static void		mgui_window_on_mouse_click		( MGuiElement* element, MOUSEBTN button, uint16 x, uint16 y );
+static void		mgui_window_on_mouse_drag		( MGuiElement* element, uint16 x, uint16 y );
+
+
 MGuiWindow* mgui_create_window( MGuiControl* parent )
 {
 	struct MGuiWindow* window;

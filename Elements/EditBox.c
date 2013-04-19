@@ -18,6 +18,34 @@
 #include "Stringy/Stringy.h"
 #include "Input/Input.h"
 
+static void			mgui_editbox_refresh_cursor_bounds	( struct MGuiEditbox* editbox );
+static void			mgui_editbox_erase_text				( struct MGuiEditbox* editbox, uint32 begin, uint32 end );
+static void			mgui_editbox_insert_text			( struct MGuiEditbox* editbox, const char_t* text, size_t len );
+static void			mgui_editbox_select_all				( struct MGuiEditbox* editbox );
+static void			mgui_editbox_cut_selection			( struct MGuiEditbox* editbox );
+static void			mgui_editbox_copy_selection			( struct MGuiEditbox* editbox );
+static void			mgui_editbox_paste_selection		( struct MGuiEditbox* editbox );
+static void			mgui_editbox_press_backspace		( struct MGuiEditbox* editbox );
+static void			mgui_editbox_press_delete			( struct MGuiEditbox* editbox );
+static void			mgui_editbox_press_return			( struct MGuiEditbox* editbox );
+static void			mgui_editbox_move_left				( struct MGuiEditbox* editbox );
+static void			mgui_editbox_move_right				( struct MGuiEditbox* editbox );
+static void			mgui_editbox_press_home				( struct MGuiEditbox* editbox );
+static void			mgui_editbox_press_end				( struct MGuiEditbox* editbox );
+
+// Editbox callback handlers
+static void			mgui_destroy_editbox				( MGuiElement* editbox );
+static void			mgui_editbox_render					( MGuiElement* element );
+static void			mgui_editbox_process				( MGuiElement* element, uint32 ticks );
+static void			mgui_editbox_set_bounds				( MGuiElement* element, bool pos, bool size );
+static void			mgui_editbox_set_text				( MGuiElement* element );
+static void			mgui_editbox_on_mouse_click			( MGuiElement* element, MOUSEBTN button, uint16 x, uint16 y );
+static void			mgui_editbox_on_mouse_release		( MGuiElement* element, MOUSEBTN button, uint16 x, uint16 y );
+static void			mgui_editbox_on_mouse_drag			( MGuiElement* element, uint16 x, uint16 y );
+static void			mgui_editbox_on_character			( MGuiElement* element, char_t c );
+static void			mgui_editbox_on_key_press			( MGuiElement* element, uint key, bool down );
+
+
 MGuiEditbox* mgui_create_editbox( MGuiControl* parent )
 {
 	struct MGuiEditbox* editbox;

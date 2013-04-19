@@ -214,8 +214,12 @@ MYLLY_API void				mgui_memobox_set_display_pos	( MGuiMemobox* memobox, float pos
 MYLLY_API bool				mgui_memobox_get_top_to_bottom	( MGuiMemobox* memobox );
 MYLLY_API void				mgui_memobox_set_top_to_bottom	( MGuiMemobox* memobox, bool enable );
 MYLLY_API uint32			mgui_memobox_get_lines			( MGuiMemobox* memobox );
+MYLLY_API void				mgui_memobox_set_lines			( MGuiMemobox* memobox, uint32 lines );
+MYLLY_API uint32			mgui_memobox_get_num_lines		( MGuiMemobox* memobox );
 MYLLY_API uint32			mgui_memobox_get_history		( MGuiMemobox* memobox );
 MYLLY_API void				mgui_memobox_set_history		( MGuiMemobox* memobox, uint32 lines );
+MYLLY_API uint32			mgui_memobox_get_margin			( MGuiMemobox* memobox );
+MYLLY_API void				mgui_memobox_set_margin			( MGuiMemobox* memobox, uint32 margin );
 
 /* Scrollbar functions */
 MYLLY_API float				mgui_scrollbar_get_bar_pos		( MGuiScrollbar* scrollbar );

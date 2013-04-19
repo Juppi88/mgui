@@ -50,9 +50,4 @@ void			mgui_scrollbar_set_nudge		( MGuiScrollbar* scrollbar, float amount );
 void			mgui_scrollbar_get_track_colour	( MGuiScrollbar* scrollbar, colour_t* col );
 void			mgui_scrollbar_set_track_colour	( MGuiScrollbar* scrollbar, const colour_t* col );
 
-// Scrollbar callback handlers
-static void		mgui_destroy_scrollbar			( MGuiElement* scrollbar );
-static void		mgui_scrollbar_render			( MGuiElement* scrollbar );
-static void		mgui_scrollbar_set_bounds		( MGuiElement* scrollbar, bool pos, bool size );
-
 #endif /* __MGUI_SCROLLBAR_H */

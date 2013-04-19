@@ -15,6 +15,11 @@
 #include "Font.h"
 #include "Platform/Alloc.h"
 
+// Window titlebar callback handlers
+static void		mgui_titlebar_on_mouse_click	( MGuiElement* element, MOUSEBTN button, uint16 x, uint16 y );
+static void		mgui_titlebar_on_mouse_drag		( MGuiElement* element, uint16 x, uint16 y );
+
+
 MGuiTitlebar* mgui_create_titlebar( MGuiWindow* parent )
 {
 	MGuiTitlebar* titlebar;

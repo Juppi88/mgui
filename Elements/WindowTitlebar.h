@@ -27,8 +27,4 @@ struct MGuiTitlebar
 MGuiTitlebar*	mgui_create_titlebar			( MGuiWindow* parent );
 void			mgui_destroy_titlebar			( MGuiTitlebar* titlebar );
 
-// Window titlebar callback handlers
-static void		mgui_titlebar_on_mouse_click	( MGuiElement* element, MOUSEBTN button, uint16 x, uint16 y );
-static void		mgui_titlebar_on_mouse_drag		( MGuiElement* element, uint16 x, uint16 y );
-
 #endif /* __MGUI_WINDOWTITLEBAR_H */

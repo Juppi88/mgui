@@ -23,8 +23,4 @@ struct MGuiLabel
 MGuiLabel*			mgui_create_label			( MGuiControl* parent );
 void				mgui_label_make_text_fit	( MGuiLabel* label );
 
-// Label callback handlers
-static void			mgui_destroy_label			( MGuiElement* label );
-static void			mgui_label_render			( MGuiElement* label );
-
 #endif /* __MGUI_LABEL_H */

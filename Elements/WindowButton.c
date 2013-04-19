@@ -17,7 +17,16 @@
 #include "Input/Input.h"
 #include "Platform/Alloc.h"
 
+// Window button callback handlers
+static void			mgui_windowbutton_set_bounds		( MGuiElement* button, bool pos, bool size );
+static void			mgui_windowbutton_set_colour		( MGuiElement* button );
+static void			mgui_windowbutton_on_mouse_enter	( MGuiElement* button );
+static void			mgui_windowbutton_on_mouse_leave	( MGuiElement* button );
+static void			mgui_windowbutton_on_mouse_click	( MGuiElement* element, MOUSEBTN button, uint16 x, uint16 y );
+static void			mgui_windowbutton_on_mouse_release	( MGuiElement* element, MOUSEBTN button, uint16 x, uint16 y );
+
 static MGuiFont* font = NULL;
+
 
 MGuiWindowButton* mgui_create_windowbutton( MGuiWindow* parent )
 {

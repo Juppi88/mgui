@@ -40,12 +40,4 @@ uint32			mgui_window_get_title_col_i		( MGuiWindow* window );
 void			mgui_window_set_title_col_i		( MGuiWindow* window, uint32 hex );
 void			mgui_window_get_drag_offset		( MGuiWindow* window, vectorscreen_t* pos );
 
-// Window callback handlers
-static void		mgui_destroy_window				( MGuiElement* window );
-static void		mgui_window_render				( MGuiElement* window );
-static void		mgui_window_set_bounds			( MGuiElement* window, bool pos, bool size );
-static void		mgui_window_set_colour			( MGuiElement* window );
-static void		mgui_window_on_mouse_click		( MGuiElement* element, MOUSEBTN button, uint16 x, uint16 y );
-static void		mgui_window_on_mouse_drag		( MGuiElement* element, uint16 x, uint16 y );
-
 #endif /* __MGUI_WINDOW_H */

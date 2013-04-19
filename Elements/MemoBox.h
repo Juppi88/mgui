@@ -35,12 +35,14 @@ struct MGuiMemobox
 {
 	MGuiElement;				// Inherit all generic element properties
 
-	float		position;		// Scroll position of the editbox 'screen'
-	uint32		max_history;	// Max number of lines to keep as history
+	float		position;		// Scroll position on the editbox render area
+	uint8		margin;			// Margin between two memobox lines
+	uint8		max_history;	// Max number of lines to keep as history
+	uint8		num_lines;		// Max number of lines to show in the memobox at once
+	uint8		visible_lines;	// Number of lines to be rendered
 	list_t*		lines;			// A list of processed (wrapped) memobox lines
 	list_t*		raw_lines;		// A list of unprocessed (raw) memobox lines
-	node_t*		first_line;		// First line to render
-	uint32		visible_lines;	// Number of lines to be rendered
+	node_t*		first_line;		// First visible line to be rendered
 };
 
 MGuiMemobox*	mgui_create_memobox				( MGuiControl* parent );
@@ -55,23 +57,11 @@ void			mgui_memobox_set_display_pos	( MGuiMemobox* memobox, float pos );
 bool			mgui_memobox_get_top_to_bottom	( MGuiMemobox* memobox );
 void			mgui_memobox_set_top_to_bottom	( MGuiMemobox* memobox, bool enable );
 uint32			mgui_memobox_get_lines			( MGuiMemobox* memobox );
+void			mgui_memobox_set_lines			( MGuiMemobox* memobox, uint32 lines );
+uint32			mgui_memobox_get_num_lines		( MGuiMemobox* memobox );
 uint32			mgui_memobox_get_history		( MGuiMemobox* memobox );
 void			mgui_memobox_set_history		( MGuiMemobox* memobox, uint32 lines );
-
-static void		mgui_memobox_update_display_positions_topbottom	( struct MGuiMemobox* memobox );
-static void		mgui_memobox_update_display_positions_bottomtop	( struct MGuiMemobox* memobox );
-static void		mgui_memobox_update_display_positions			( struct MGuiMemobox* memobox );
-static void		mgui_memobox_wrap_line							( struct MGuiMemobox* memobox, struct MGuiMemoRaw* raw );
-static void		mgui_memobox_process_new_line					( struct MGuiMemobox* memobox, struct MGuiMemoRaw* raw );
-
-// Memobox callbacks
-static void		mgui_destroy_memobox			( MGuiElement* memobox );
-static void		mgui_memobox_render				( MGuiElement* memobox );
-static void		mgui_memobox_set_bounds			( MGuiElement* memobox, bool pos, bool size );
-static void		mgui_memobox_on_mouse_click		( MGuiElement* element, MOUSEBTN button, uint16 x, uint16 y );
-static void		mgui_memobox_on_mouse_release	( MGuiElement* element, MOUSEBTN button, uint16 x, uint16 y );
-static void		mgui_memobox_on_mouse_drag		( MGuiElement* element, uint16 x, uint16 y );
-static void		mgui_memobox_on_key_press		( MGuiElement* element, uint key, bool down );
-
+uint32			mgui_memobox_get_margin			( MGuiMemobox* memobox );
+void			mgui_memobox_set_margin			( MGuiMemobox* memobox, uint32 margin );
 
 #endif /* __MGUI_MEMOBOX_H */
