@@ -246,7 +246,7 @@ static void skin_simple_draw_memobox_lines( const rectangle_t* r, uint32 flags, 
 	}
 
 	for ( node = first, i = 0;
-		  node != lines->end && i < count;
+		  node != list_end(lines) && i < count;
 		  node = node->prev, i++ )
 	{
 		line = (struct MGuiMemoLine*)node;

@@ -215,8 +215,8 @@ MGuiElement* mgui_get_element_at( MGuiControl* parent, uint16 x, uint16 y )
 
 	if ( !parent )
 	{
-		if ( list_empty( controls ) ) return NULL;
-		parent = cast_ctrl(controls->begin);
+		if ( list_empty(controls) ) return NULL;
+		parent = cast_ctrl( list_begin(controls) );
 	}
 
 	// If this element is invisible, dont bother going any further
