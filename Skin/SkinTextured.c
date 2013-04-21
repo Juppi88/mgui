@@ -41,20 +41,6 @@ typedef struct
 	MGuiPrimitive	windowbtn_close_pressed;
 } MGuiTexturedSkin;
 
-static void		skin_textured_draw_panel			( const rectangle_t* r, const colour_t* col );
-static void		skin_textured_draw_border			( const rectangle_t* r, const colour_t* col, uint32 borders, uint32 thickness );
-static void		skin_textured_draw_shadow			( const rectangle_t* r, uint offset );
-static void		skin_textured_draw_button			( const rectangle_t* r, const colour_t* col, uint32 flags, const MGuiText* text );
-static void		skin_textured_draw_editbox			( const rectangle_t* r, const colour_t* col, uint32 flags, const MGuiText* text );
-static void		skin_textured_draw_label			( const rectangle_t* r, const colour_t* col, uint32 flags, const MGuiText* text );
-static void		skin_textured_draw_memobox			( const rectangle_t* r, const colour_t* col, uint32 flags );
-static void		skin_textured_draw_memobox_lines	( const rectangle_t* r, uint32 flags, list_t* lines, node_t* first, uint32 count );
-static void		skin_textured_draw_scrollbar		( const rectangle_t* r, const colour_t* col, uint32 flags );
-static void		skin_textured_draw_scrollbar_bar	( const rectangle_t* r, const colour_t* col, uint32 flags );
-static void		skin_textured_draw_scrollbar_button	( const rectangle_t* r, const colour_t* col, uint32 flags, const colour_t* arrowcol, uint32 direction );
-static void		skin_textured_draw_window			( const rectangle_t* r, const colour_t* col, uint32 flags );
-static void		skin_textured_draw_window_titlebar	( const rectangle_t* r, const colour_t* col, const MGuiText* text );
-
 MGuiSkin* mgui_setup_skin_textured( const char_t* texture )
 {
 	MGuiSkin* skin;
@@ -74,10 +60,7 @@ MGuiSkin* mgui_setup_skin_textured( const char_t* texture )
 	skin->draw_editbox			= skin_textured_draw_editbox;
 	skin->draw_label			= skin_textured_draw_label;
 	skin->draw_memobox			= skin_textured_draw_memobox;
-	skin->draw_memobox_lines	= skin_textured_draw_memobox_lines;
 	skin->draw_scrollbar		= skin_textured_draw_scrollbar;
-	skin->draw_scrollbar_bar	= skin_textured_draw_scrollbar_bar;
-	skin->draw_scrollbar_button	= skin_textured_draw_scrollbar_button;
 	skin->draw_window			= skin_textured_draw_window;
 	skin->draw_window_titlebar	= skin_textured_draw_window_titlebar;
 
@@ -117,79 +100,37 @@ static void skin_textured_draw_shadow( const rectangle_t* r, uint offset )
 	renderer->draw_rect( r->x + offset, r->y + r->h, r->w, offset );
 }
 
-static void skin_textured_draw_button( const rectangle_t* r, const colour_t* col, uint32 flags, const MGuiText* text )
+static void skin_textured_draw_button( MGuiElement* element )
 {
-	UNREFERENCED_PARAM( r );
-	UNREFERENCED_PARAM( col );
-	UNREFERENCED_PARAM( flags );
-	UNREFERENCED_PARAM( text );
+	UNREFERENCED_PARAM( element );
 }
 
-static void skin_textured_draw_editbox( const rectangle_t* r, const colour_t* col, uint32 flags, const MGuiText* text )
+static void skin_textured_draw_editbox( MGuiElement* element )
 {
-	UNREFERENCED_PARAM( r );
-	UNREFERENCED_PARAM( col );
-	UNREFERENCED_PARAM( flags );
-	UNREFERENCED_PARAM( text );
+	UNREFERENCED_PARAM( element );
 }
 
-static void skin_textured_draw_label( const rectangle_t* r, const colour_t* col, uint32 flags, const MGuiText* text )
+static void skin_textured_draw_label( MGuiElement* element )
 {
-	UNREFERENCED_PARAM( r );
-	UNREFERENCED_PARAM( col );
-	UNREFERENCED_PARAM( flags );
-	UNREFERENCED_PARAM( text );
+	UNREFERENCED_PARAM( element );
 }
 
-static void skin_textured_draw_memobox( const rectangle_t* r, const colour_t* col, uint32 flags )
+static void skin_textured_draw_memobox( MGuiElement* element )
 {
-	UNREFERENCED_PARAM( r );
-	UNREFERENCED_PARAM( col );
-	UNREFERENCED_PARAM( flags );
+	UNREFERENCED_PARAM( element );
 }
 
-static void skin_textured_draw_memobox_lines( const rectangle_t* r, uint32 flags, list_t* lines, node_t* first, uint32 count )
+static void skin_textured_draw_scrollbar( MGuiElement* element )
 {
-	UNREFERENCED_PARAM( r );
-	UNREFERENCED_PARAM( flags );
-	UNREFERENCED_PARAM( lines );
-	UNREFERENCED_PARAM( first );
-	UNREFERENCED_PARAM( count );
+	UNREFERENCED_PARAM( element );
 }
 
-static void skin_textured_draw_scrollbar( const rectangle_t* r, const colour_t* col, uint32 flags )
+static void skin_textured_draw_window( MGuiElement* element )
 {
-	UNREFERENCED_PARAM( r );
-	UNREFERENCED_PARAM( col );
-	UNREFERENCED_PARAM( flags );
+	UNREFERENCED_PARAM( element );
 }
 
-static void skin_textured_draw_scrollbar_bar( const rectangle_t* r, const colour_t* col, uint32 flags )
+static void skin_textured_draw_window_titlebar( MGuiElement* element )
 {
-	UNREFERENCED_PARAM( r );
-	UNREFERENCED_PARAM( col );
-	UNREFERENCED_PARAM( flags );
-}
-
-static void skin_textured_draw_scrollbar_button( const rectangle_t* r, const colour_t* col, uint32 flags, const colour_t* arrowcol, uint32 direction )
-{
-	UNREFERENCED_PARAM( r );
-	UNREFERENCED_PARAM( col );
-	UNREFERENCED_PARAM( flags );
-	UNREFERENCED_PARAM( arrowcol );
-	UNREFERENCED_PARAM( direction );
-}
-
-static void skin_textured_draw_window( const rectangle_t* r, const colour_t* col, uint32 flags )
-{
-	UNREFERENCED_PARAM( r );
-	UNREFERENCED_PARAM( col );
-	UNREFERENCED_PARAM( flags );
-}
-
-static void skin_textured_draw_window_titlebar( const rectangle_t* r, const colour_t* col, const MGuiText* text )
-{
-	UNREFERENCED_PARAM( r );
-	UNREFERENCED_PARAM( col );
-	UNREFERENCED_PARAM( text );
+	UNREFERENCED_PARAM( element );
 }

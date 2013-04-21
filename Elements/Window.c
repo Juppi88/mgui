@@ -66,56 +66,7 @@ static void mgui_destroy_window( MGuiElement* window )
 
 static void mgui_window_render( MGuiElement* window )
 {
-	rectangle_t* r;
-	rectangle_t border;
-	uint32 flags;
-	colour_t col;
-	struct MGuiWindow* wnd = (struct MGuiWindow*)window;
-
-	r = &window->bounds;
-	flags = window->flags;
-
-	if ( BIT_ON( flags, FLAG_SHADOW ) )
-	{
-		skin->draw_shadow( &wnd->window_bounds, 3 );
-	}
-
-	if ( BIT_ON( flags, FLAG_TITLEBAR ) && wnd->titlebar )
-	{
-		skin->draw_window_titlebar( &wnd->titlebar->bounds, &wnd->titlebar->colour, window->text );
-		skin->draw_window( r, &window->colour, flags );
-
-		if ( BIT_ON( flags, FLAG_CLOSEBTN ) && wnd->closebtn )
-		{
-			skin->draw_button( &wnd->closebtn->bounds, &wnd->closebtn->colour, wnd->closebtn->flags, wnd->closebtn->text );
-		}
-
-		if ( BIT_ON( flags, FLAG_BORDER ) )
-		{
-			border.x = wnd->bounds.x + 1;
-			border.y = wnd->bounds.y;
-			border.w = wnd->bounds.w - 2;
-			border.h = wnd->bounds.h;
-
-			colour_add_scalar( &col, &wnd->titlebar->colour, 60 );
-			col.a = wnd->titlebar->colour.a;
-
-			skin->draw_border( &border, &wnd->titlebar->colour, BORDER_ALL&(~BORDER_TOP), 2 );
-			skin->draw_border( &wnd->window_bounds, &col, BORDER_ALL, 1 );
-		}
-	}
-	else
-	{
-		skin->draw_window( r, &window->colour, flags );
-
-		if ( flags & FLAG_BORDER )
-		{
-			colour_subtract_scalar( &col, &wnd->colour, 40 );
-			col.a = wnd->colour.a;
-
-			skin->draw_border( r, &col, BORDER_ALL, 2 );
-		}
-	}
+	window->skin->draw_window( window );
 }
 
 static void mgui_window_set_bounds( MGuiElement* window, bool pos, bool size )
@@ -225,7 +176,7 @@ bool mgui_window_get_closebtn( MGuiWindow* window )
 {
 	if ( window == NULL ) return false;
 
-	return BIT_ON( window->flags, FLAG_CLOSEBTN );
+	return BIT_ON( window->flags, FLAG_WINDOW_CLOSEBTN );
 }
 
 void mgui_window_set_closebtn( MGuiWindow* window, bool enabled )
@@ -237,10 +188,10 @@ void mgui_window_set_closebtn( MGuiWindow* window, bool enabled )
 
 	if ( enabled )
 	{
-		if ( BIT_ON( window->flags, FLAG_CLOSEBTN ) ) return;
-		if ( BIT_OFF( window->flags, FLAG_TITLEBAR ) ) return;
+		if ( BIT_ON( window->flags, FLAG_WINDOW_CLOSEBTN ) ) return;
+		if ( BIT_OFF( window->flags, FLAG_WINDOW_TITLEBAR ) ) return;
 
-		window->flags |= FLAG_CLOSEBTN;
+		window->flags |= FLAG_WINDOW_CLOSEBTN;
 
 		if ( !wnd->closebtn )
 			wnd->closebtn = mgui_create_windowbutton( window );
@@ -249,9 +200,9 @@ void mgui_window_set_closebtn( MGuiWindow* window, bool enabled )
 	}
 	else
 	{
-		if ( BIT_OFF( window->flags, FLAG_CLOSEBTN ) ) return;
+		if ( BIT_OFF( window->flags, FLAG_WINDOW_CLOSEBTN ) ) return;
 
-		window->flags &= ~FLAG_CLOSEBTN;
+		window->flags &= ~FLAG_WINDOW_CLOSEBTN;
 
 		if ( wnd->closebtn )
 		{
@@ -265,7 +216,7 @@ bool mgui_window_get_titlebar( MGuiWindow* window )
 {
 	if ( window == NULL ) return false;
 
-	return BIT_ON( window->flags, FLAG_TITLEBAR );
+	return BIT_ON( window->flags, FLAG_WINDOW_TITLEBAR );
 }
 
 void mgui_window_set_titlebar( MGuiWindow* window, bool enabled )
@@ -277,9 +228,9 @@ void mgui_window_set_titlebar( MGuiWindow* window, bool enabled )
 
 	if ( enabled )
 	{
-		if ( BIT_ON( window->flags, FLAG_TITLEBAR ) ) return;
+		if ( BIT_ON( window->flags, FLAG_WINDOW_TITLEBAR ) ) return;
 
-		window->flags |= FLAG_TITLEBAR;
+		window->flags |= FLAG_WINDOW_TITLEBAR;
 		wnd->titlebar = mgui_create_titlebar( window );
 
 		wnd->titlebar->bounds.x = window->bounds.x;
@@ -297,9 +248,9 @@ void mgui_window_set_titlebar( MGuiWindow* window, bool enabled )
 	}
 	else
 	{
-		if ( BIT_OFF( window->flags, FLAG_TITLEBAR ) || !wnd->titlebar ) return;
+		if ( BIT_OFF( window->flags, FLAG_WINDOW_TITLEBAR ) || !wnd->titlebar ) return;
 
-		window->flags &= ~FLAG_TITLEBAR;
+		window->flags &= ~FLAG_WINDOW_TITLEBAR;
 		mgui_destroy_titlebar( wnd->titlebar );
 		wnd->titlebar = NULL;
 
@@ -308,7 +259,7 @@ void mgui_window_set_titlebar( MGuiWindow* window, bool enabled )
 
 		if ( wnd->closebtn )
 		{
-			window->flags &= ~FLAG_CLOSEBTN;
+			window->flags &= ~FLAG_WINDOW_CLOSEBTN;
 			mgui_destroy_windowbutton( wnd->closebtn );
 			wnd->closebtn = NULL;
 		}

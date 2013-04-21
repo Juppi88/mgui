@@ -71,17 +71,17 @@ void mgui_set_focus( MGuiElement* element )
 			kbfocus->event_handler( &guievent );
 		}
 
-		kbfocus->flags &= ~FLAG_FOCUS;
+		kbfocus->flags_int &= ~INTFLAG_FOCUS;
 		kbfocus = NULL;
 	}
 
 	if ( !element ) return;
 
 	if ( BIT_ON( element->flags, FLAG_KBCTRL ) &&
-		BIT_OFF( element->flags, FLAG_INACTIVE ) )
+		 BIT_ON( element->flags, FLAG_VISIBLE ) )
 	{
 		kbfocus = element;
-		element->flags |= FLAG_FOCUS;
+		element->flags_int |= INTFLAG_FOCUS;
 
 		if ( kbfocus->event_handler )
 		{
@@ -146,7 +146,7 @@ static bool mgui_input_handle_mouse_move( input_event_t* event )
 
 	if ( hovered )
 	{
-		hovered->flags &= ~FLAG_HOVER;
+		hovered->flags_int &= ~INTFLAG_HOVER;
 		hovered->on_mouse_leave( hovered );
 
 		if ( hovered->event_handler )
@@ -163,7 +163,7 @@ static bool mgui_input_handle_mouse_move( input_event_t* event )
 
 	if ( ( hovered = element ) != NULL )
 	{
-		hovered->flags |= FLAG_HOVER;
+		hovered->flags_int |= INTFLAG_HOVER;
 		hovered->on_mouse_enter( hovered );
 
 		if ( hovered->event_handler )
@@ -204,7 +204,7 @@ static bool mgui_input_handle_lmb_up( input_event_t* event )
 
 	if ( pressed )
 	{
-		pressed->flags &= ~FLAG_PRESSED;
+		pressed->flags_int &= ~INTFLAG_PRESSED;
 		pressed->on_mouse_release( pressed, MOUSE_LBUTTON, x, y );
 
 		if ( pressed->event_handler )
@@ -249,7 +249,7 @@ static bool mgui_input_handle_lmb_down( input_event_t* event )
 			kbfocus->event_handler( &guievent );
 		}
 
-		kbfocus->flags &= ~FLAG_FOCUS;
+		kbfocus->flags_int &= ~INTFLAG_FOCUS;
 		kbfocus = NULL;
 
 		mgui_force_redraw();
@@ -257,7 +257,7 @@ static bool mgui_input_handle_lmb_down( input_event_t* event )
 
 	if ( pressed )
 	{
-		pressed->flags &= ~FLAG_PRESSED;
+		pressed->flags_int &= ~INTFLAG_PRESSED;
 		pressed->on_mouse_release( pressed, MOUSE_LBUTTON, x, y );
 
 		if ( pressed->event_handler )
@@ -276,7 +276,7 @@ static bool mgui_input_handle_lmb_down( input_event_t* event )
 
 	if ( ( pressed = element ) != NULL )
 	{
-		pressed->flags |= FLAG_PRESSED;
+		pressed->flags_int |= INTFLAG_PRESSED;
 		pressed->on_mouse_click( pressed, MOUSE_LBUTTON, x, y );
 
 		if ( BIT_ON( pressed->flags, FLAG_DRAGGABLE ) )
@@ -296,10 +296,10 @@ static bool mgui_input_handle_lmb_down( input_event_t* event )
 		}
 
 		if ( BIT_ON( element->flags, FLAG_KBCTRL ) &&
-			BIT_OFF( element->flags, FLAG_INACTIVE ) )
+			 BIT_ON( element->flags, FLAG_VISIBLE ) )
 		{
 			kbfocus = element;
-			element->flags |= FLAG_FOCUS;
+			element->flags_int |= INTFLAG_FOCUS;
 
 			if ( kbfocus->event_handler )
 			{

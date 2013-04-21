@@ -18,6 +18,8 @@
 #include "Stringy/Stringy.h"
 #include "Input/Input.h"
 
+extern MGuiRenderer* renderer;
+
 static void			mgui_editbox_refresh_cursor_bounds	( struct MGuiEditbox* editbox );
 static void			mgui_editbox_erase_text				( struct MGuiEditbox* editbox, uint32 begin, uint32 end );
 static void			mgui_editbox_insert_text			( struct MGuiEditbox* editbox, const char_t* text, size_t len );
@@ -54,7 +56,7 @@ MGuiEditbox* mgui_create_editbox( MGuiControl* parent )
 	mgui_element_create( cast_elem(editbox), parent, true );
 
 	editbox->type = GUI_EDITBOX;
-	editbox->flags |= (FLAG_BORDER|FLAG_BACKGROUND|FLAG_CLIP|FLAG_DRAGGABLE|FLAG_MOUSECTRL|FLAG_KBCTRL);
+	editbox->flags |= (FLAG_BORDER|FLAG_BACKGROUND|FLAG_CLIP|FLAG_DRAGGABLE|FLAG_MOUSECTRL|FLAG_KBCTRL|FLAG_ANIMATION);
 
 	editbox->font = mgui_font_create( DEFAULT_FONT, 11, FFLAG_NONE, ANSI_CHARSET );
 	editbox->text->font = editbox->font;
@@ -94,40 +96,34 @@ static void mgui_editbox_render( MGuiElement* element )
 {
 	struct MGuiEditbox* editbox;
 	colour_t col;
-	char* tmp;
 
 	editbox = (struct MGuiEditbox*)element;
 
-	// This is a really ugly hack to make mgui_get_text return the correct buffer:
-	// We replace the MGuiText buffer with our own (with masked input etc cool)
-	// while we render, and put the original buffer back afterwards
-	tmp = editbox->text->buffer;
-	editbox->text->buffer = editbox->buffer;
+	element->skin->draw_editbox( element );
 
-	skin->draw_editbox( &editbox->bounds, &editbox->colour, editbox->flags, editbox->text );
-
-	if ( BIT_ON( editbox->flags, FLAG_FOCUS ) )
+	if ( BIT_ON( editbox->flags_int, INTFLAG_FOCUS ) )
 	{
-		if ( editbox->cursor_visible )
+		// Draw the cursor, make sure it's within the editbox boundaries
+		if ( editbox->cursor_visible || BIT_OFF( editbox->flags, FLAG_ANIMATION ) )
 		{
-			// Draw the cursor, make sure it's within the editbox boundaries
 			if ( editbox->cursor.x < editbox->bounds.x + editbox->bounds.w )
-				skin->draw_panel( &editbox->cursor, &editbox->text->colour );
+			{
+				renderer->set_draw_colour( &editbox->text->colour );
+				renderer->draw_rect( editbox->cursor.x, editbox->cursor.y, editbox->cursor.w, editbox->cursor.h );
+			}
 		}
 
+		// Draw the selection. TODO: Would be cool to change the text colour as well
 		if ( editbox->cursor_pos != editbox->cursor_end )
 		{
-			// Draw the selection. TODO: Change text colour as well
 			col = editbox->colour;
 			colour_invert( &col, &col );
 			col.a = 90;
 
-			skin->draw_panel( &editbox->selection, &col );
+			renderer->set_draw_colour( &col );
+			renderer->draw_rect( editbox->selection.x, editbox->selection.y, editbox->selection.w, editbox->selection.h );
 		}
 	}
-
-	// Really ugly hack cleanup
-	editbox->text->buffer = tmp;
 }
 
 static void mgui_editbox_process( MGuiElement* element, uint32 ticks )
@@ -135,7 +131,7 @@ static void mgui_editbox_process( MGuiElement* element, uint32 ticks )
 	struct MGuiEditbox* editbox;
 	editbox = (struct MGuiEditbox*)element;
 
-	if ( BIT_OFF( editbox->flags, FLAG_FOCUS ) ) return;
+	if ( BIT_OFF( editbox->flags_int, INTFLAG_FOCUS ) ) return;
 
 	if ( ticks - editbox->last_update >= 500 )
 	{
@@ -166,7 +162,7 @@ static void mgui_editbox_set_text( MGuiElement* element )
 
 	editbox->buffer = mstrdup( element->text->buffer, element->text->bufsize / sizeof(char_t) );
 
-	if ( BIT_ON( editbox->flags, FLAG_MASKINPUT ) )
+	if ( BIT_ON( editbox->flags, FLAG_EDIT_MASKINPUT ) )
 	{
 		// Mask our input
 		for ( str = editbox->buffer; *str; str++ )
@@ -338,7 +334,7 @@ void mgui_editbox_get_selection( MGuiEditbox* editbox, char_t* buf, size_t bufle
 
 	if ( editbox == NULL ) return;
 
-	if ( BIT_OFF( edit->flags, FLAG_FOCUS ) )
+	if ( BIT_OFF( edit->flags_int, INTFLAG_FOCUS ) )
 	{
 		*buf = '\0';
 	}
@@ -362,7 +358,7 @@ void mgui_editbox_select_text( MGuiEditbox* editbox, uint32 begin, uint32 end )
 	edit = (struct MGuiEditbox*)editbox;
 
 	if ( editbox == NULL ) return;
-	if ( BIT_OFF( edit->flags, FLAG_FOCUS ) ) return;
+	if ( BIT_OFF( edit->flags_int, INTFLAG_FOCUS ) ) return;
 
 	begin = begin < edit->text->len ? begin : edit->text->len;
 	begin = math_max( 0, begin );
@@ -384,7 +380,7 @@ uint32 mgui_editbox_get_cursor_pos( MGuiEditbox* editbox )
 	edit = (struct MGuiEditbox*)editbox;
 
 	if ( editbox == NULL ) return 0;
-	if ( BIT_OFF( editbox->flags, FLAG_FOCUS ) ) return 0;
+	if ( BIT_OFF( editbox->flags_int, INTFLAG_FOCUS ) ) return 0;
 
 	return edit->cursor_pos;
 }
@@ -395,7 +391,7 @@ void mgui_editbox_set_cursor_pos( MGuiEditbox* editbox, uint32 pos )
 	edit = (struct MGuiEditbox*)editbox;
 
 	if ( editbox == NULL ) return;
-	if ( BIT_OFF( editbox->flags, FLAG_FOCUS ) ) return;
+	if ( BIT_OFF( editbox->flags_int, INTFLAG_FOCUS ) ) return;
 
 	pos = math_min( pos, edit->text->len );
 	edit->cursor_pos = pos;
@@ -468,7 +464,7 @@ static void mgui_editbox_erase_text( struct MGuiEditbox* editbox, uint32 begin, 
 	editbox->cursor_pos = editbox->cursor_end = begin;
 
 	// Mask input if the user wants it
-	if ( BIT_ON( editbox->flags, FLAG_MASKINPUT ) )
+	if ( BIT_ON( editbox->flags, FLAG_EDIT_MASKINPUT ) )
 	{
 		str = editbox->text->buffer;
 		str2 = editbox->buffer;
@@ -528,7 +524,7 @@ static void mgui_editbox_insert_text( struct MGuiEditbox* editbox, const char_t*
 	mstrins( editbox->text->buffer, text, editbox->text->bufsize, editbox->cursor_pos );
 
 	// Finally either copy the text into the secondary buffer or mask the input
-	if ( BIT_ON( editbox->flags, FLAG_MASKINPUT ) )
+	if ( BIT_ON( editbox->flags, FLAG_EDIT_MASKINPUT ) )
 	{
 		str = editbox->text->buffer;
 		old = editbox->buffer;

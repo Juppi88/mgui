@@ -24,10 +24,13 @@ MGuiControl* mgui_create_control( void )
 	MGuiControl* control;
 	extern vectorscreen_t draw_size;
 
-	if ( !controls )
+	if ( controls == NULL )
+	{
 		controls = list_create();
+	}
 
-	control = (MGuiControl*)mem_alloc( sizeof(*control) );
+	control = (MGuiControl*)mem_alloc_clean( sizeof(*control) );
+
 	control->children = list_create();
 	control->parent = NULL;
 	control->flags = FLAG_VISIBLE;
@@ -223,7 +226,7 @@ MGuiElement* mgui_get_element_at( MGuiControl* parent, uint16 x, uint16 y )
 	if ( BIT_OFF( parent->flags, FLAG_VISIBLE ) ) return NULL;
 
 	// If our control is an element test it and its sub-elements first
-	if ( BIT_ON( parent->flags, FLAG_ELEMENT ) && 
+	if ( BIT_ON( parent->flags_int, INTFLAG_ELEMENT ) && 
 	   ( ret = mgui_get_element_at_test_self( cast_elem(parent), x, y ) ) != NULL )
 		return ret;
 
@@ -246,7 +249,7 @@ __inline MGuiElement* mgui_get_element_at_test_self( MGuiElement* element, uint1
 	struct MGuiWindow* window;
 	MGuiElement* ret = NULL;
 
-	if ( BIT_ON( element->flags, FLAG_INACTIVE ) ) return NULL;
+	if ( BIT_OFF( element->flags, FLAG_VISIBLE ) ) return NULL;
 
 	switch ( element->type )
 	{

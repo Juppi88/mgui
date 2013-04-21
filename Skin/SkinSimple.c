@@ -11,7 +11,11 @@
 
 #include "SkinSimple.h"
 #include "Element.h"
+#include "EditBox.h"
 #include "MemoBox.h"
+#include "ScrollBar.h"
+#include "Window.h"
+#include "WindowTitlebar.h"
 #include "Renderer.h"
 #include "Platform/Alloc.h"
 
@@ -32,10 +36,7 @@ MGuiSkin* mgui_setup_skin_simple( void )
 	skin->draw_editbox			= skin_simple_draw_editbox;
 	skin->draw_label			= skin_simple_draw_label;
 	skin->draw_memobox			= skin_simple_draw_memobox;
-	skin->draw_memobox_lines	= skin_simple_draw_memobox_lines;
 	skin->draw_scrollbar		= skin_simple_draw_scrollbar;
-	skin->draw_scrollbar_bar	= skin_simple_draw_scrollbar_bar;
-	skin->draw_scrollbar_button	= skin_simple_draw_scrollbar_button;
 	skin->draw_window			= skin_simple_draw_window;
 	skin->draw_window_titlebar	= skin_simple_draw_window_titlebar;
 
@@ -65,23 +66,14 @@ static void skin_simple_draw_border( const rectangle_t* r, const colour_t* col, 
 		renderer->draw_rect( r->x, r->y + r->h-thickness, r->w, thickness );
 }
 
-static void skin_simple_draw_shadow( const rectangle_t* r, uint offset )
-{
-	static const colour_t c = { 0x0A0A0A32 };
-
-	renderer->set_draw_colour( &c );
-	
-	renderer->draw_rect( r->x + r->w, r->y + offset, offset, r->h - offset );
-	renderer->draw_rect( r->x + offset, r->y + r->h, r->w, offset );
-}
-
-static void skin_simple_draw_button( const rectangle_t* r, const colour_t* col, uint32 flags, const MGuiText* text )
+static void skin_simple_draw_generic_button( const rectangle_t* r, const colour_t* col, uint32 flags )
 {
 	colour_t c;
+
 	c = *col;
 
-	// Actual button
-	if ( BIT_ON( flags, FLAG_HOVER ) )
+	// Actual button part
+	if ( BIT_ON( flags, INTFLAG_HOVER ) )
 	{
 		colour_add_scalar( &c, &c, 10 );
 	}
@@ -89,25 +81,10 @@ static void skin_simple_draw_button( const rectangle_t* r, const colour_t* col, 
 	renderer->set_draw_colour( &c );
 	renderer->draw_rect( r->x + 1, r->y + 1, r->w - 2, r->h - 2 );
 
-	if ( text )
-	{
-		renderer->start_clip( text->bounds->x, text->bounds->y, text->bounds->w, text->bounds->h );
-		renderer->set_draw_colour( &text->colour );
-
-		if ( flags & FLAG_PRESSED )
-			renderer->draw_text( text->font->data, text->buffer, text->pos.x+1, text->pos.y+1, text->font->flags );
-		else
-			renderer->draw_text( text->font->data, text->buffer, text->pos.x, text->pos.y, text->font->flags );
-
-		renderer->end_clip();
-	}
-
-	if ( BIT_OFF( flags, FLAG_BORDER ) ) return;
-
 	// Borders
 	colour_add_scalar( &c, &c, 40 );
 
-	if ( BIT_OFF( flags, FLAG_PRESSED ) )
+	if ( BIT_OFF( flags, INTFLAG_PRESSED ) )
 	{
 		renderer->set_draw_colour( &c );
 		renderer->draw_rect( r->x, r->y, r->w, 1 );
@@ -133,33 +110,127 @@ static void skin_simple_draw_button( const rectangle_t* r, const colour_t* col, 
 	}
 }
 
-static void skin_simple_draw_editbox( const rectangle_t* r, const colour_t* col, uint32 flags, const MGuiText* text )
+
+static void skin_simple_draw_shadow( const rectangle_t* r, uint offset )
+{
+	static const colour_t c = { 0x0A0A0A32 };
+
+	renderer->set_draw_colour( &c );
+	
+	renderer->draw_rect( r->x + r->w, r->y + offset, offset, r->h - offset );
+	renderer->draw_rect( r->x + offset, r->y + r->h, r->w, offset );
+}
+
+static void skin_simple_draw_button( MGuiElement* element )
 {
 	colour_t c;
+	rectangle_t* r;
+	MGuiText* text;
 
-	if ( BIT_ON( flags, FLAG_BACKGROUND ) )
+	c = element->colour;
+	r = &element->bounds;
+
+	// Actual button part
+	if ( BIT_ON( element->flags_int, INTFLAG_HOVER ) )
 	{
-		skin_simple_draw_panel( r, col );
+		colour_add_scalar( &c, &c, 10 );
 	}
 
-	if ( BIT_ON( flags, FLAG_BORDER ) )
+	if ( BIT_ON( element->flags, FLAG_BACKGROUND ) )
 	{
-		colour_add_scalar( &c, col, 60 );
-		c.a = col->a;
+		renderer->set_draw_colour( &c );
+		renderer->draw_rect( r->x + 1, r->y + 1, r->w - 2, r->h - 2 );
+	}
+
+	if ( ( text = element->text ) != NULL )
+	{
+		renderer->start_clip( text->bounds->x, text->bounds->y, text->bounds->w, text->bounds->h );
+		renderer->set_draw_colour( &text->colour );
+
+		if ( element->flags & INTFLAG_PRESSED )
+		{
+			renderer->draw_text( text->font->data, text->buffer, text->pos.x+1, text->pos.y+1, text->font->flags );
+		}
+		else
+		{
+			renderer->draw_text( text->font->data, text->buffer, text->pos.x, text->pos.y, text->font->flags );
+		}
+
+		renderer->end_clip();
+	}
+
+	// Borders
+	if ( BIT_ON( element->flags, FLAG_BORDER ) )
+	{
+		colour_add_scalar( &c, &c, 40 );
+
+		if ( BIT_OFF( element->flags_int, INTFLAG_PRESSED ) )
+		{
+			renderer->set_draw_colour( &c );
+			renderer->draw_rect( r->x, r->y, r->w, 1 );
+			renderer->draw_rect( r->x, r->y, 1, r->h );
+
+			colour_subtract_scalar( &c, &c, 80 );
+
+			renderer->set_draw_colour( &c );
+			renderer->draw_rect( r->x + r->w - 1, r->y, 1, r->h );
+			renderer->draw_rect( r->x, r->y + r->h - 1, r->w, 1 );
+		}
+		else
+		{
+			renderer->set_draw_colour( &c );
+			renderer->draw_rect( r->x + r->w - 1, r->y, 1, r->h );
+			renderer->draw_rect( r->x, r->y + r->h - 1, r->w, 1 );
+
+			colour_subtract_scalar( &c, &c, 80 );
+
+			renderer->set_draw_colour( &c );
+			renderer->draw_rect( r->x, r->y, r->w, 1 );
+			renderer->draw_rect( r->x, r->y, 1, r->h );
+		}
+	}
+}
+
+static void skin_simple_draw_editbox( MGuiElement* element )
+{
+	colour_t c;
+	rectangle_t* r;
+	MGuiText* text;
+	char_t* tmp;
+	struct MGuiEditbox* editbox;
+
+	r = &element->bounds;
+	editbox = (struct MGuiEditbox*)element;
+
+	// This is a really ugly hack to make mgui_get_text return the correct buffer:
+	// We replace the MGuiText buffer with our own (with masked input etc cool)
+	// while we render, and put the original buffer back afterwards
+	tmp = element->text->buffer;
+	element->text->buffer = editbox->buffer;
+
+	if ( BIT_ON( element->flags, FLAG_BACKGROUND ) )
+	{
+		skin_simple_draw_panel( r, &element->colour );
+	}
+
+	if ( BIT_ON( element->flags, FLAG_BORDER ) )
+	{
+		colour_add_scalar( &c, &element->colour, 60 );
+		c.a = element->colour.a;
 
 		skin_simple_draw_border( r, &c, BORDER_BOTTOM|BORDER_RIGHT, 1 );
 
 		colour_subtract_scalar( &c, &c, 60 );
-		c.a = col->a;
+		c.a = element->colour.a;
 
 		skin_simple_draw_border( r, &c, BORDER_TOP|BORDER_LEFT, 1 );
 	}
 
-	if ( text )
+	if ( ( text = element->text ) != NULL )
 	{
 		renderer->set_draw_colour( &text->colour );
 
-		if ( BIT_ON( flags, FLAG_CLIP ) )
+		if ( BIT_ON( element->flags, FLAG_CLIP ) )
 		{
 			renderer->start_clip( text->bounds->x, text->bounds->y, text->bounds->w, text->bounds->h );
 			renderer->draw_text( text->font->data, text->buffer, text->pos.x, text->pos.y, text->font->flags );
@@ -170,32 +241,38 @@ static void skin_simple_draw_editbox( const rectangle_t* r, const colour_t* col,
 			renderer->draw_text( text->font->data, text->buffer, text->pos.x, text->pos.y, text->font->flags );
 		}
 	}
+
+	// Really ugly hack cleanup
+	element->text->buffer = tmp;
 }
 
-static void skin_simple_draw_label( const rectangle_t* r, const colour_t* col, uint32 flags, const MGuiText* text )
+static void skin_simple_draw_label( MGuiElement* element )
 {
 	colour_t c;
+	rectangle_t* r;
+	MGuiText* text;
 
-	if ( BIT_ON( flags, FLAG_BACKGROUND ) )
+	r = &element->bounds;
+	c = element->colour;
+
+	if ( BIT_ON( element->flags, FLAG_BACKGROUND ) )
 	{
-		skin_simple_draw_panel( r, col );
+		skin_simple_draw_panel( r, &c );
 	}
 
-	if ( BIT_ON( flags, FLAG_BORDER ) )
+	if ( BIT_ON( element->flags, FLAG_BORDER ) )
 	{
-		c.r = col->r / 2;
-		c.g = col->g / 2;
-		c.b = col->b / 2;
-		c.a = col->a;
+		colour_divide( &c, &element->colour, 2 );
+		c.a = element->colour.a;
 
 		skin_simple_draw_border( r, &c, BORDER_ALL, 1 );
 	}
 
-	if ( text )
+	if ( ( text = element->text ) != NULL )
 	{
 		renderer->set_draw_colour( &text->colour );
 
-		if ( BIT_ON( flags, FLAG_CLIP ) )
+		if ( BIT_ON( element->flags, FLAG_CLIP ) )
 		{
 			renderer->start_clip( text->bounds->x, text->bounds->y, text->bounds->w, text->bounds->h );
 			renderer->draw_text( text->font->data, text->buffer, text->pos.x, text->pos.y, text->font->flags );
@@ -208,45 +285,51 @@ static void skin_simple_draw_label( const rectangle_t* r, const colour_t* col, u
 	}
 }
 
-static void skin_simple_draw_memobox( const rectangle_t* r, const colour_t* col, uint32 flags )
+static void skin_simple_draw_memobox( MGuiElement* element )
 {
 	colour_t c;
+	rectangle_t* r;
+	struct MGuiMemobox* memo;
+	struct MGuiMemoLine* line;
+	node_t* node;
+	uint32 i, count;
 
-	if ( BIT_ON( flags, FLAG_BACKGROUND ) )
+	memo = (struct MGuiMemobox*)element;
+
+	// Actual memobox
+	r = &element->bounds;
+
+	if ( BIT_ON( element->flags, FLAG_BACKGROUND ) )
 	{
-		skin_simple_draw_panel( r, col );
+		skin_simple_draw_panel( r, &element->colour );
 	}
 
-	if ( BIT_ON( flags, FLAG_BORDER ) )
+	if ( BIT_ON( element->flags, FLAG_BORDER ) )
 	{
-		colour_add_scalar( &c, col, 60 );
-		c.a = col->a;
+		colour_add_scalar( &c, &element->colour, 60 );
+		c.a = element->colour.a;
 
 		skin_simple_draw_border( r, &c, BORDER_BOTTOM|BORDER_RIGHT, 1 );
 
 		colour_subtract_scalar( &c, &c, 60 );
-		c.a = col->a;
+		c.a = element->colour.a;
 
 		skin_simple_draw_border( r, &c, BORDER_TOP|BORDER_LEFT, 1 );
 	}
-}
 
-static void skin_simple_draw_memobox_lines( const rectangle_t* r, uint32 flags, list_t* lines, node_t* first, uint32 count )
-{
-	struct MGuiMemoLine* line;
-	node_t* node;
-	uint32 i;
+	// Memobox lines
+	if ( memo->lines->size == 0 ) return;
 
-	if ( lines->size == 0 ) return;
+	count = memo->visible_lines;
 	if ( count == 0 ) count = 0xFFFFFFFF;
 
-	if ( BIT_ON( flags, FLAG_CLIP ) )
+	if ( BIT_ON( memo->flags, FLAG_CLIP ) )
 	{
 		renderer->start_clip( r->x, r->y, r->w, r->h );
 	}
 
-	for ( node = first, i = 0;
-		  node != list_end(lines) && i < count;
+	for ( node = memo->first_line, i = 0;
+		  node != list_end(memo->lines) && i < count;
 		  node = node->prev, i++ )
 	{
 		line = (struct MGuiMemoLine*)node;
@@ -255,30 +338,41 @@ static void skin_simple_draw_memobox_lines( const rectangle_t* r, uint32 flags, 
 		renderer->draw_text( line->font->data, line->text, line->pos.x, line->pos.y, line->font->flags );
 	}
 
-	if ( BIT_ON( flags, FLAG_CLIP ) )
+	if ( BIT_ON( memo->flags, FLAG_CLIP ) )
 	{
 		renderer->end_clip();
 	}
 }
 
-static void skin_simple_draw_scrollbar( const rectangle_t* r, const colour_t* col, uint32 flags )
+static void skin_simple_draw_scrollbar( MGuiElement* element )
 {
-	UNREFERENCED_PARAM( flags );
+	rectangle_t* r;
+	struct MGuiScrollbar* bar;
 
-	skin_simple_draw_panel( r, col );
+	r = &element->bounds;
+	bar = (struct MGuiScrollbar*)element;
+
+	// Scrollbar background
+	skin_simple_draw_panel( r, &bar->track_col );
+
+	// Scrollbar buttons - for now we only have up/down
+	// TODO: Add horizontal direction
+	skin_simple_draw_scrollbar_button( &bar->button1, &bar->colour, &bar->track_col, bar->flags_button1, ARROW_UP );
+	skin_simple_draw_scrollbar_button( &bar->button2, &bar->colour, &bar->track_col, bar->flags_button2, ARROW_DOWN );
+
+	// Scrollbac track
+	if ( bar->bar_size != 1.0f )
+	{
+		skin_simple_draw_generic_button( &bar->bar, &bar->colour, bar->flags_int );
+	}
 }
 
-static void skin_simple_draw_scrollbar_bar( const rectangle_t* r, const colour_t* col, uint32 flags )
-{
-	skin_simple_draw_button( r, col, flags|FLAG_BORDER, NULL );
-}
-
-static void skin_simple_draw_scrollbar_button( const rectangle_t* r, const colour_t* col, uint32 flags, const colour_t* arrowcol, uint32 direction )
+static void skin_simple_draw_scrollbar_button( const rectangle_t* r, const colour_t* col, const colour_t* arrowcol, uint32 flags, uint32 dir )
 {
 	uint32 x1, x2, y1, y2, xm, ym;
 	colour_t c;
 
-	skin_simple_draw_button( r, col, flags|FLAG_BORDER, NULL );
+	skin_simple_draw_generic_button( r, col, flags|FLAG_BORDER );
 
 	colour_subtract_scalar( &c, arrowcol, 10 );
 
@@ -291,7 +385,7 @@ static void skin_simple_draw_scrollbar_button( const rectangle_t* r, const colou
 	xm = r->x + r->w / 2;
 	ym = r->y + r->h / 2;
 
-	switch ( direction )
+	switch ( dir )
 	{
 	case ARROW_UP:
 		renderer->draw_triangle( xm, y1, x2, y2, x1, y2 );
@@ -311,22 +405,74 @@ static void skin_simple_draw_scrollbar_button( const rectangle_t* r, const colou
 	}
 }
 
-static void skin_simple_draw_window( const rectangle_t* r, const colour_t* col, uint32 flags )
+static void skin_simple_draw_window( MGuiElement* element )
 {
-	UNREFERENCED_PARAM(flags);
+	rectangle_t* r;
+	rectangle_t border;
+	colour_t col;
+	struct MGuiWindow* window = (struct MGuiWindow*)element;
 
-	renderer->set_draw_colour( col );
-	renderer->draw_rect( r->x, r->y, r->w, r->h );
+	r = &element->bounds;
+
+	if ( BIT_ON( element->flags, FLAG_SHADOW ) )
+	{
+		skin_simple_draw_shadow( &window->window_bounds, 3 );
+	}
+
+	if ( BIT_ON( element->flags, FLAG_WINDOW_TITLEBAR ) && window->titlebar != NULL )
+	{
+		skin_simple_draw_window_titlebar( cast_elem(window->titlebar) );
+
+		renderer->set_draw_colour( &element->colour );
+		renderer->draw_rect( r->x, r->y, r->w, r->h );
+
+		if ( BIT_ON( element->flags, FLAG_WINDOW_CLOSEBTN ) && window->closebtn != NULL )
+		{
+			skin->draw_button( cast_elem(window->closebtn) );
+		}
+
+		if ( BIT_ON( element->flags, FLAG_BORDER ) )
+		{
+			border.x = r->x + 1;
+			border.y = r->y;
+			border.w = r->w - 2;
+			border.h = r->h;
+
+			colour_add_scalar( &col, &window->titlebar->colour, 60 );
+			col.a = window->titlebar->colour.a;
+
+			skin_simple_draw_border( &border, &window->titlebar->colour, BORDER_ALL&(~BORDER_TOP), 2 );
+			skin_simple_draw_border( &window->window_bounds, &col, BORDER_ALL, 1 );
+		}
+	}
+	else
+	{
+		renderer->set_draw_colour( &element->colour );
+		renderer->draw_rect( r->x, r->y, r->w, r->h );
+
+		if ( element->flags & FLAG_BORDER )
+		{
+			colour_subtract_scalar( &col, &element->colour, 40 );
+			col.a = element->colour.a;
+
+			skin_simple_draw_border( r, &col, BORDER_ALL, 2 );
+		}
+	}
 }
 
-static void skin_simple_draw_window_titlebar( const rectangle_t* r, const colour_t* col, const MGuiText* text )
+static void skin_simple_draw_window_titlebar( MGuiElement* element )
 {
-	uint h, h2;
+	rectangle_t* r;
 	colour_t c;
+	uint32 h, h2;
+	MGuiText* text;
+
+	r = &element->bounds;
+	text = element->text;
 
 	h2 = r->h * 3/5;
 	h = r->h - h2;
-	c = *col;
+	c = element->colour;
 
 	renderer->set_draw_colour( &c );
 	renderer->draw_rect( r->x, r->y+h, r->w, h2 );

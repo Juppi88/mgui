@@ -24,6 +24,7 @@ struct MGuiControl
 {
 	node_t;							// Next and previous controls (linked list node)
 	uint32				flags;		// Element flags
+	uint32				flags_int;	// Internal flags
 	rectangle_t			bounds;		// Absolute rectangle for this control (in pixels)
 	MGuiControl*		parent;		// Parent control
 	list_t*				children;	// List of children elements

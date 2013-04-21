@@ -19,7 +19,7 @@
 #include "Text.h"
 #include "Types/List.h"
 
-// Some default element values
+// Default element style
 #define COL_BACKGROUND		0xAFAF9FFF
 #define COL_ELEMENT			0xAFAF9FFF
 #define COL_ELEMENT_DARK	0x989884FF
@@ -49,22 +49,19 @@
 // Skin interface 
 typedef struct MGuiSkin
 {
-	void*	texture;
+	void*	texture; // Not used right now
 
 	void	( *draw_panel )				( const rectangle_t* r, const colour_t* col );
 	void	( *draw_border )			( const rectangle_t* r, const colour_t* col, uint32 borders, uint32 thickness );
-	void	( *draw_shadow )			( const rectangle_t* r, uint offset );
+	void	( *draw_shadow )			( const rectangle_t* r, uint32 offset );
 
-	void	( *draw_button )			( const rectangle_t* r, const colour_t* col, uint32 flags, const MGuiText* text );
-	void	( *draw_editbox )			( const rectangle_t* r, const colour_t* col, uint32 flags, const MGuiText* text );
-	void	( *draw_label )				( const rectangle_t* r, const colour_t* col, uint32 flags, const MGuiText* text );
-	void	( *draw_memobox )			( const rectangle_t* r, const colour_t* col, uint32 flags );
-	void	( *draw_memobox_lines )		( const rectangle_t* r, uint32 flags, list_t* lines, node_t* first, uint32 count );
-	void	( *draw_scrollbar )			( const rectangle_t* r, const colour_t* col, uint32 flags );
-	void	( *draw_scrollbar_bar )		( const rectangle_t* r, const colour_t* col, uint32 flags );
-	void	( *draw_scrollbar_button )	( const rectangle_t* r, const colour_t* col, uint32 flags, const colour_t* arrowcol, uint32 direction );
-	void	( *draw_window )			( const rectangle_t* r, const colour_t* col, uint32 flags );
-	void	( *draw_window_titlebar )	( const rectangle_t* r, const colour_t* col, const MGuiText* text );
+	void	( *draw_button )			( MGuiElement* element );
+	void	( *draw_editbox )			( MGuiElement* element );
+	void	( *draw_label )				( MGuiElement* element );
+	void	( *draw_memobox )			( MGuiElement* element );
+	void	( *draw_scrollbar )			( MGuiElement* element );
+	void	( *draw_window )			( MGuiElement* element );
+	void	( *draw_window_titlebar )	( MGuiElement* element );
 } MGuiSkin;
 
 

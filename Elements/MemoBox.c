@@ -79,11 +79,7 @@ static void mgui_destroy_memobox( MGuiElement* memobox )
 
 static void mgui_memobox_render( MGuiElement* memobox )
 {
-	struct MGuiMemobox* memo;
-	memo = (struct MGuiMemobox*)memobox;
-
-	skin->draw_memobox( &memo->bounds, &memo->colour, memo->flags );
-	skin->draw_memobox_lines( &memo->bounds, memo->flags, memo->lines, memo->first_line, memo->visible_lines );
+	memobox->skin->draw_memobox( memobox );
 }
 
 static void mgui_memobox_set_bounds( MGuiElement* memobox, bool pos, bool size )
@@ -263,21 +259,21 @@ bool mgui_memobox_get_top_to_bottom( MGuiMemobox* memobox )
 {
 	if ( memobox == NULL ) return false;
 
-	return BIT_ON( memobox->flags, FLAG_TOPBOTTOM );
+	return BIT_ON( memobox->flags, FLAG_MEMO_TOPBOTTOM );
 }
 
 void mgui_memobox_set_top_to_bottom( MGuiMemobox* memobox, bool enable )
 {
 	if ( memobox == NULL ) return;
 
-	if ( enable && BIT_OFF( memobox->flags, FLAG_TOPBOTTOM ) )
+	if ( enable && BIT_OFF( memobox->flags, FLAG_MEMO_TOPBOTTOM ) )
 	{
-		memobox->flags |= FLAG_TOPBOTTOM;
+		memobox->flags |= FLAG_MEMO_TOPBOTTOM;
 		mgui_memobox_update_display_positions( (struct MGuiMemobox*)memobox );
 	}
-	else if ( !enable && BIT_ON( memobox->flags, FLAG_TOPBOTTOM ) )
+	else if ( !enable && BIT_ON( memobox->flags, FLAG_MEMO_TOPBOTTOM ) )
 	{
-		memobox->flags &= ~FLAG_TOPBOTTOM;
+		memobox->flags &= ~FLAG_MEMO_TOPBOTTOM;
 		mgui_memobox_update_display_positions( (struct MGuiMemobox*)memobox );
 	}
 }
@@ -452,7 +448,7 @@ static void mgui_memobox_update_display_positions( struct MGuiMemobox* memobox )
 {
 	if ( memobox->lines->size == 0 ) return;
 
-	if ( BIT_ON( memobox->flags, FLAG_TOPBOTTOM ) )
+	if ( BIT_ON( memobox->flags, FLAG_MEMO_TOPBOTTOM ) )
 	{
 		mgui_memobox_update_display_positions_topbottom( memobox );
 	}

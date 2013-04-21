@@ -19,9 +19,29 @@
 
 extern vectorscreen_t draw_size;
 
+// Default callback handlers
+static void		mgui_render_cb				( MGuiElement* element );
+static void		mgui_destroy_cb				( MGuiElement* element );
+static void		mgui_process_cb				( MGuiElement* element, uint32 ticks );
+static void		mgui_set_bounds_cb			( MGuiElement* element, bool pos, bool size );
+static void		mgui_set_flags_cb			( MGuiElement* element, uint32 old_flags );
+static void		mgui_set_colour_cb			( MGuiElement* element );
+static void		mgui_set_text_cb			( MGuiElement* element );
+static void		mgui_on_mouse_enter_cb		( MGuiElement* element );
+static void		mgui_on_mouse_leave_cb		( MGuiElement* element );
+static void		mgui_on_mouse_click_cb		( MGuiElement* element, MOUSEBTN button, uint16 x, uint16 y );
+static void		mgui_on_mouse_release_cb	( MGuiElement* element, MOUSEBTN button, uint16 x, uint16 y );
+static void		mgui_on_mouse_drag_cb		( MGuiElement* element, uint16 x, uint16 y );
+static void		mgui_on_mouse_wheel_cb		( MGuiElement* element, float wheel );
+static void		mgui_on_character_cb		( MGuiElement* element, char_t key );
+static void		mgui_on_key_press_cb		( MGuiElement* element, uint key, bool down );
+
+
 void mgui_element_create( MGuiElement* element, MGuiControl* parent, bool has_text )
 {
-	element->flags |= (FLAG_VISIBLE|FLAG_ELEMENT|FLAG_CLIP);
+	element->flags |= (FLAG_VISIBLE|FLAG_CLIP);
+	element->flags_int |= INTFLAG_ELEMENT;
+	element->skin = skin;
 
 	if ( has_text )
 	{
@@ -37,6 +57,7 @@ void mgui_element_create( MGuiElement* element, MGuiControl* parent, bool has_te
 	element->destroy		= mgui_destroy_cb;
 	element->process		= mgui_process_cb;
 	element->set_bounds		= mgui_set_bounds_cb;
+	element->set_flags		= mgui_set_flags_cb;
 	element->set_colour		= mgui_set_colour_cb;
 	element->set_text		= mgui_set_text_cb;
 	element->on_mouse_enter	= mgui_on_mouse_enter_cb;
@@ -57,7 +78,7 @@ void mgui_element_create( MGuiElement* element, MGuiControl* parent, bool has_te
 
 	mgui_add_child( parent, element );
 
-	if ( BIT_OFF( parent->flags, FLAG_ELEMENT ) ) return;
+	if ( BIT_OFF( parent->flags_int, INTFLAG_ELEMENT ) ) return;
 
 	// Set alpha to parent's value, if the parent is an element
 	element->colour.a = cast_elem(parent)->colour.a;
@@ -790,6 +811,12 @@ static void mgui_set_bounds_cb( MGuiElement* element, bool pos, bool size )
 	UNREFERENCED_PARAM( element );
 	UNREFERENCED_PARAM( pos );
 	UNREFERENCED_PARAM( size );
+}
+
+static void mgui_set_flags_cb( MGuiElement* element, uint32 old_flags )
+{
+	UNREFERENCED_PARAM( element );
+	UNREFERENCED_PARAM( old_flags );
 }
 
 static void mgui_set_colour_cb( MGuiElement* element )

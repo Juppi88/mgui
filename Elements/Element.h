@@ -15,25 +15,19 @@
 
 #include "MGUI.h"
 #include "Text.h"
+#include "Skin.h"
 #include "Control.h"
 #include "Input/Input.h"
 
 /* The following are internal flags and should not be used by the library user */
 enum MGUI_INTERNAL_FLAGS
 {
-	FLAG_TABSTOP	= 0x00010000,	/* Tab press can change focus to this element */
-	FLAG_MOUSECTRL	= 0x00020000,	/* Allow mouse input */
-	FLAG_KBCTRL		= 0x00040000,	/* Allow keyboard input */
-	FLAG_DRAGGABLE	= 0x00080000,	/* This element can be dragged */
-	FLAG_HOVER		= 0x00100000,	/* Element is hovered over by a mouse cursor */
-	FLAG_PRESSED	= 0x00200000,	/* Element is pressed down */
-	FLAG_TITLEBAR	= 0x00400000,	/* Enable window titlebar */
-	FLAG_CLOSEBTN	= 0x00800000,	/* Enable window close button */
-	FLAG_MASKINPUT	= 0x01000000,	/* Mask user input */
-	FLAG_TOPBOTTOM	= 0x02000000,	/* Memobox order is top to bottom */
-	FLAG_INACTIVE	= 0x10000000,	/* This element is inactive (=background) */
-	FLAG_FOCUS		= 0x20000000,	/* This element has focus */
-	FLAG_ELEMENT	= 0x40000000,	/* This is an element (not a control) */
+	INTFLAG_BACKBUFFER	= 1 << 0,	/* Cache this element into a backbuffer */
+	INTFLAG_REFRESH		= 1 << 1,	/* Backbuffer needs refreshing */
+	INTFLAG_FOCUS		= 1 << 2,	/* This element has captured focus */
+	INTFLAG_HOVER		= 1 << 3,	/* The element is hovered over by a mouse cursor */
+	INTFLAG_PRESSED		= 1 << 4,	/* The element is pressed down */
+	INTFLAG_ELEMENT		= 1 << 30,	/* This is an actual element, not a control */
 };
 
 typedef enum MGUI_TYPE
@@ -67,6 +61,7 @@ struct MGuiElement
 	colour_t				colour;			// Element colour
 	MGuiText*				text;			// Text on this element (label, title etc)
 	MGuiFont*				font;			// Default font used for all the text on this element
+	MGuiSkin*				skin;			// Skin to be used for rendering
 	mgui_event_handler_t	event_handler;	// User event handler callback
 	void*					event_data;		// User-specified data to be passed via event_handler
 
@@ -76,6 +71,7 @@ struct MGuiElement
 	void		( *process )			( MGuiElement* element, uint32 ticks );
 
 	void		( *set_bounds )			( MGuiElement* element, bool pos, bool size );
+	void		( *set_flags )			( MGuiElement* element, uint32 old_flags );
 	void		( *set_colour )			( MGuiElement* element );
 	void		( *set_text )			( MGuiElement* element );
 
@@ -152,21 +148,5 @@ void			mgui_add_flags				( MGuiElement* element, const uint32 flags );
 void			mgui_remove_flags			( MGuiElement* element, const uint32 flags );
 
 void			mgui_set_event_handler		( MGuiElement* element, mgui_event_handler_t handler, void* data );
-
-// Default callback handlers
-static void		mgui_render_cb				( MGuiElement* element );
-static void		mgui_destroy_cb				( MGuiElement* element );
-static void		mgui_process_cb				( MGuiElement* element, uint32 ticks );
-static void		mgui_set_bounds_cb			( MGuiElement* element, bool pos, bool size );
-static void		mgui_set_colour_cb			( MGuiElement* element );
-static void		mgui_set_text_cb			( MGuiElement* element );
-static void		mgui_on_mouse_enter_cb		( MGuiElement* element );
-static void		mgui_on_mouse_leave_cb		( MGuiElement* element );
-static void		mgui_on_mouse_click_cb		( MGuiElement* element, MOUSEBTN button, uint16 x, uint16 y );
-static void		mgui_on_mouse_release_cb	( MGuiElement* element, MOUSEBTN button, uint16 x, uint16 y );
-static void		mgui_on_mouse_drag_cb		( MGuiElement* element, uint16 x, uint16 y );
-static void		mgui_on_mouse_wheel_cb		( MGuiElement* element, float wheel );
-static void		mgui_on_character_cb		( MGuiElement* element, char_t key );
-static void		mgui_on_key_press_cb		( MGuiElement* element, uint key, bool down );
 
 #endif /* __MGUI_ELEMENT_H */

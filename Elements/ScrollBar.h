@@ -24,7 +24,7 @@
 #define SBFLAG_BARPRESSED	0x0020		// Bar is pressed/dragged
 #define SBFLAG_HORIZONTAL	0x0040		// Scrollbar is horizontal
 
-struct MGuiScrollBar
+struct MGuiScrollbar
 {
 	MGuiElement;					// Inherit all generic element properties
 
@@ -35,8 +35,10 @@ struct MGuiScrollBar
 	float			bar_position;	// The position of the scrollbar (0...1)
 	float			bar_size;		// The relative size of the scrollbar (0...1)
 	float			nudge_amount;	// Amount to move the bar when a button is clicked
+	uint32			flags_sb;		// Scrollbar flags
+	uint32			flags_button1;	// Scrollbar button 1 flags
+	uint32			flags_button2;	// Scrollbar button 2 flags
 	colour_t		track_col;		// Scrollbar track colour
-	uint32			sbflags;		// Scrollbar flags
 };
 
 MGuiScrollbar*	mgui_create_scrollbar			( MGuiControl* parent );

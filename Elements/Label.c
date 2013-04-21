@@ -44,7 +44,7 @@ static void mgui_destroy_label( MGuiElement* label )
 
 static void mgui_label_render( MGuiElement* label )
 {
-	skin->draw_label( &label->bounds, &label->colour, label->flags, label->text );
+	label->skin->draw_label( label );
 }
 
 void mgui_label_make_text_fit( MGuiLabel* label )
@@ -59,12 +59,13 @@ void mgui_label_make_text_fit( MGuiLabel* label )
 
 	if ( w >= label->text->size.x && h >= label->text->size.y ) return;
 
-	// Dodgy. yes.
-	w = label->text->size.x + label->text->pad.left + label->text->pad.right;
-	h = (uint16)( 1.3f * ( label->text->size.y + label->text->pad.top + label->text->pad.bottom ) );
+	// Dodgy. yes. - Edit: Even worse now. Really need to add precise dimensions to the font struct... For now let's just stab ourselves in the eye.
+	w = label->text->size.x + label->text->pad.left + label->text->pad.right + label->text->size.y;
+	h = (uint16)( 1.5f * ( label->text->size.y + label->text->pad.top + label->text->pad.bottom ) );
 
 	label->bounds.w = math_max( w, label->bounds.w );
 	label->bounds.h = math_max( h, label->bounds.h );
 
 	label->set_bounds( label, false, true );
+	mgui_text_update_position( label->text );
 }

@@ -57,7 +57,7 @@ static void mgui_destroy_button( MGuiElement* button )
 
 static void mgui_button_render( MGuiElement* button )
 {
-	skin->draw_button( &button->bounds, &button->colour, button->flags, button->text );
+	button->skin->draw_button( button );
 }
 
 static void mgui_button_on_mouse_enter( MGuiElement* button )
@@ -78,7 +78,7 @@ static void mgui_button_on_key_press( MGuiElement* element, uint key, bool down 
 
 	if ( down )
 	{
-		element->flags |= FLAG_PRESSED;
+		element->flags_int |= INTFLAG_PRESSED;
 		element->on_mouse_click( element, MOUSE_LBUTTON, 0, 0 );
 
 		if ( element->event_handler )
@@ -94,7 +94,7 @@ static void mgui_button_on_key_press( MGuiElement* element, uint key, bool down 
 	}
 	else
 	{
-		element->flags &= ~FLAG_PRESSED;
+		element->flags_int &= ~INTFLAG_PRESSED;
 		element->on_mouse_release( element, MOUSE_LBUTTON, 0, 0 );
 
 		if ( element->event_handler )
