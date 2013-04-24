@@ -54,8 +54,6 @@ void			mgui_memobox_add_line_col_s		( MGuiMemobox* memobox, const char* text, co
 void			mgui_memobox_clear				( MGuiMemobox* memobox );
 float			mgui_memobox_get_display_pos	( MGuiMemobox* memobox );
 void			mgui_memobox_set_display_pos	( MGuiMemobox* memobox, float pos );
-bool			mgui_memobox_get_top_to_bottom	( MGuiMemobox* memobox );
-void			mgui_memobox_set_top_to_bottom	( MGuiMemobox* memobox, bool enable );
 uint32			mgui_memobox_get_lines			( MGuiMemobox* memobox );
 void			mgui_memobox_set_lines			( MGuiMemobox* memobox, uint32 lines );
 uint32			mgui_memobox_get_num_lines		( MGuiMemobox* memobox );

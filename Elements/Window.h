@@ -30,10 +30,6 @@ struct MGuiWindow
 
 MGuiWindow*		mgui_create_window				( MGuiControl* parent );
 
-bool			mgui_window_get_closebtn		( MGuiWindow* window );
-void			mgui_window_set_closebtn		( MGuiWindow* window, bool enabled );
-bool			mgui_window_get_titlebar		( MGuiWindow* window );
-void			mgui_window_set_titlebar		( MGuiWindow* window, bool enabled );
 void			mgui_window_get_title_col		( MGuiWindow* window, colour_t* col );
 void			mgui_window_set_title_col		( MGuiWindow* window, const colour_t* col );
 uint32			mgui_window_get_title_col_i		( MGuiWindow* window );

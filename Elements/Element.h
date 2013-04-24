@@ -143,9 +143,9 @@ void			mgui_set_font_flags			( MGuiElement* element, uint8 flags );
 void			mgui_set_font				( MGuiElement* element, const char_t* font, uint8 size, uint8 flags, uint8 charset );
 
 uint32			mgui_get_flags				( MGuiElement* element );
-void			mgui_set_flags				( MGuiElement* element, const uint32 flags );
-void			mgui_add_flags				( MGuiElement* element, const uint32 flags );
-void			mgui_remove_flags			( MGuiElement* element, const uint32 flags );
+void			mgui_set_flags				( MGuiElement* element, uint32 flags );
+void			mgui_add_flags				( MGuiElement* element, uint32 flags );
+void			mgui_remove_flags			( MGuiElement* element, uint32 flags );
 
 void			mgui_set_event_handler		( MGuiElement* element, mgui_event_handler_t handler, void* data );
 

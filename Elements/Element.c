@@ -39,7 +39,7 @@ static void		mgui_on_key_press_cb		( MGuiElement* element, uint key, bool down )
 
 void mgui_element_create( MGuiElement* element, MGuiControl* parent, bool has_text )
 {
-	element->flags |= (FLAG_VISIBLE|FLAG_CLIP);
+	element->flags |= (FLAG_VISIBLE|FLAG_CLIP|FLAG_SHADOW|FLAG_INHERIT_ALPHA);
 	element->flags_int |= INTFLAG_ELEMENT;
 	element->skin = skin;
 
@@ -577,6 +577,7 @@ uint8 mgui_get_alpha( MGuiElement* elem )
 void mgui_set_alpha( MGuiElement* elem, uint8 alpha )
 {
 	node_t* node;
+	MGuiElement* child;
 
 	if ( elem == NULL ) return;
 
@@ -590,7 +591,13 @@ void mgui_set_alpha( MGuiElement* elem, uint8 alpha )
 
 	list_foreach( elem->children, node )
 	{
-		mgui_set_alpha( cast_elem(node), alpha );
+		child = cast_elem(node);
+
+		if ( BIT_ON( child->flags, FLAG_INHERIT_ALPHA ) )
+		{
+			// If this child element is supposed to inherit its parent's alpha, do it
+			mgui_set_alpha( child, alpha );
+		}
 	}
 }
 
@@ -757,27 +764,40 @@ uint32 mgui_get_flags( MGuiElement* element )
 	return element->flags;
 }
 
-void mgui_set_flags( MGuiElement* element, const uint32 flags )
+void mgui_set_flags( MGuiElement* element, uint32 flags )
 {
+	uint32 old;
+
 	if ( element == NULL ) return;
 
-	// Set the given flags, leave internal flags (most significant 16) intact
-	element->flags &= 0xFFFF0000;
-	element->flags |= (flags & ~0xFFFF0000);
+	old = element->flags;
+	element->flags = flags;
+
+	element->set_flags( element, old );
 }
 
-void mgui_add_flags( MGuiElement* element, const uint32 flags )
+void mgui_add_flags( MGuiElement* element, uint32 flags )
 {
+	uint32 old;
+
 	if ( element == NULL ) return;
 
-	element->flags |= (flags & ~0xFFFF0000);
+	old = element->flags;
+	element->flags |= flags;
+
+	element->set_flags( element, old );
 }
 
-void mgui_remove_flags( MGuiElement* element, const uint32 flags )
+void mgui_remove_flags( MGuiElement* element, uint32 flags )
 {
+	uint32 old;
+
 	if ( element == NULL ) return;
 
-	element->flags &= ~(flags & ~0xFFFF0000);
+	old = element->flags;
+	element->flags &= ~flags;
+
+	element->set_flags( element, old );
 }
 
 void mgui_set_event_handler( MGuiElement* element, mgui_event_handler_t handler, void* data )

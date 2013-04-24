@@ -61,7 +61,7 @@ enum MGUI_FLAGS
 	FLAG_CLIP				= 1 << 6,	/* Clip text within the element if it exceeds the boundaries */
 	FLAG_WRAP				= 1 << 7,	/* Wrap text if it exceeds the boundaries (if applicable) */
 	FLAG_AUTO_RESIZE		= 1 << 8,	/* Resize element automatically if parent size changes */
-	FLAG_TRANSIT_ALPHA		= 1 << 9,	/* Alpha value will be passed on to child elements */
+	FLAG_INHERIT_ALPHA		= 1 << 9,	/* Element will inherit alpha from it's parent element */
 	FLAG_ANIMATION			= 1 << 10,	/* Enable animations (if applicable) */
 	FLAG_TABSTOP			= 1 << 11,	/* Tab press can switch focus to this element */
 	FLAG_MOUSECTRL			= 1 << 12,	/* Element triggers mouse input events */
@@ -200,9 +200,9 @@ MYLLY_API void				mgui_set_font_flags				( MGuiElement* element, uint8 flags );
 MYLLY_API void				mgui_set_font					( MGuiElement* element, const char_t* font, uint8 size, uint8 flags, uint8 charset );
 
 MYLLY_API uint32			mgui_get_flags					( MGuiElement* element );
-MYLLY_API void				mgui_set_flags					( MGuiElement* element, const uint32 flags );
-MYLLY_API void				mgui_add_flags					( MGuiElement* element, const uint32 flags );
-MYLLY_API void				mgui_remove_flags				( MGuiElement* element, const uint32 flags );
+MYLLY_API void				mgui_set_flags					( MGuiElement* element, uint32 flags );
+MYLLY_API void				mgui_add_flags					( MGuiElement* element, uint32 flags );
+MYLLY_API void				mgui_remove_flags				( MGuiElement* element, uint32 flags );
 
 MYLLY_API void				mgui_set_event_handler			( MGuiElement* element, mgui_event_handler_t handler, void* data );
 
@@ -223,8 +223,6 @@ MYLLY_API void				mgui_memobox_add_line_col_s		( MGuiMemobox* memobox, const cha
 MYLLY_API void				mgui_memobox_clear				( MGuiMemobox* memobox );
 MYLLY_API float				mgui_memobox_get_display_pos	( MGuiMemobox* memobox );
 MYLLY_API void				mgui_memobox_set_display_pos	( MGuiMemobox* memobox, float pos );
-MYLLY_API bool				mgui_memobox_get_top_to_bottom	( MGuiMemobox* memobox );
-MYLLY_API void				mgui_memobox_set_top_to_bottom	( MGuiMemobox* memobox, bool enable );
 MYLLY_API uint32			mgui_memobox_get_lines			( MGuiMemobox* memobox );
 MYLLY_API void				mgui_memobox_set_lines			( MGuiMemobox* memobox, uint32 lines );
 MYLLY_API uint32			mgui_memobox_get_num_lines		( MGuiMemobox* memobox );
@@ -244,10 +242,6 @@ MYLLY_API void				mgui_scrollbar_get_track_colour	( MGuiScrollbar* scrollbar, co
 MYLLY_API void				mgui_scrollbar_set_track_colour	( MGuiScrollbar* scrollbar, const colour_t* col );
 
 /* Window functions */
-MYLLY_API bool				mgui_window_get_closebtn		( MGuiWindow* window );
-MYLLY_API void				mgui_window_set_closebtn		( MGuiWindow* window, bool enabled );
-MYLLY_API bool				mgui_window_get_titlebar		( MGuiWindow* window );
-MYLLY_API void				mgui_window_set_titlebar		( MGuiWindow* window, bool enabled );
 MYLLY_API void				mgui_window_get_title_col		( MGuiWindow* window, colour_t* col );
 MYLLY_API void				mgui_window_set_title_col		( MGuiWindow* window, const colour_t* col );
 MYLLY_API uint32			mgui_window_get_title_col_i		( MGuiWindow* window );

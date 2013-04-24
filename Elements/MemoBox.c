@@ -19,6 +19,7 @@
 static void		mgui_destroy_memobox			( MGuiElement* memobox );
 static void		mgui_memobox_render				( MGuiElement* memobox );
 static void		mgui_memobox_set_bounds			( MGuiElement* memobox, bool pos, bool size );
+static void		mgui_memobox_set_flags			( MGuiElement* memobox, uint32 old );
 static void		mgui_memobox_set_text			( MGuiElement* memobox );
 static void		mgui_memobox_on_mouse_click		( MGuiElement* element, MOUSEBTN button, uint16 x, uint16 y );
 static void		mgui_memobox_on_mouse_release	( MGuiElement* element, MOUSEBTN button, uint16 x, uint16 y );
@@ -62,6 +63,7 @@ MGuiMemobox* mgui_create_memobox( MGuiControl* parent )
 	memobox->destroy = mgui_destroy_memobox;
 	memobox->render = mgui_memobox_render;
 	memobox->set_bounds = mgui_memobox_set_bounds;
+	memobox->set_flags = mgui_memobox_set_flags;
 
 	return cast_elem(memobox);
 }
@@ -112,6 +114,16 @@ static void mgui_memobox_set_bounds( MGuiElement* memobox, bool pos, bool size )
 		{
 			mgui_memobox_process_new_line( memo, (struct MGuiMemoRaw*)node );
 		}
+	}
+}
+
+static void mgui_memobox_set_flags( MGuiElement* memobox, uint32 old )
+{
+	// If there was a change, update the memobox
+	if ( BIT_ENABLED( memobox->flags, old, FLAG_MEMO_TOPBOTTOM ) ||
+		 BIT_DISABLED( memobox->flags, old, FLAG_MEMO_TOPBOTTOM ) )
+	{
+		mgui_memobox_update_display_positions( (struct MGuiMemobox*)memobox );
 	}
 }
 
@@ -253,29 +265,6 @@ void mgui_memobox_set_display_pos( MGuiMemobox* memobox, float pos )
 	memo->position = pos;
 
 	mgui_memobox_update_display_positions( memo );
-}
-
-bool mgui_memobox_get_top_to_bottom( MGuiMemobox* memobox )
-{
-	if ( memobox == NULL ) return false;
-
-	return BIT_ON( memobox->flags, FLAG_MEMO_TOPBOTTOM );
-}
-
-void mgui_memobox_set_top_to_bottom( MGuiMemobox* memobox, bool enable )
-{
-	if ( memobox == NULL ) return;
-
-	if ( enable && BIT_OFF( memobox->flags, FLAG_MEMO_TOPBOTTOM ) )
-	{
-		memobox->flags |= FLAG_MEMO_TOPBOTTOM;
-		mgui_memobox_update_display_positions( (struct MGuiMemobox*)memobox );
-	}
-	else if ( !enable && BIT_ON( memobox->flags, FLAG_MEMO_TOPBOTTOM ) )
-	{
-		memobox->flags &= ~FLAG_MEMO_TOPBOTTOM;
-		mgui_memobox_update_display_positions( (struct MGuiMemobox*)memobox );
-	}
 }
 
 uint32 mgui_memobox_get_lines( MGuiMemobox* memobox )
