@@ -312,8 +312,11 @@ void mgui_element_update_child_pos( MGuiElement* elem )
 	elem->bounds.x = r->x + (uint16)( elem->pos.x * r->w );
 	elem->bounds.y = r->y + (uint16)( elem->pos.y * r->h );
 
-	elem->size.x = (float)elem->bounds.w / r->w;
-	elem->size.y = (float)elem->bounds.h / r->h;
+	if ( BIT_ON( elem->flags, FLAG_AUTO_RESIZE ) )
+	{
+		elem->bounds.w = (uint16)( elem->size.x * r->w );
+		elem->bounds.h = (uint16)( elem->size.y * r->h );
+	}
 
 	elem->set_bounds( elem, true, false );
 
