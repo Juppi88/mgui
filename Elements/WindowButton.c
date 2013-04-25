@@ -34,7 +34,7 @@ MGuiWindowButton* mgui_create_windowbutton( MGuiWindow* parent )
 	MGuiWindowButton* button;
 
 	button = mem_alloc_clean( sizeof(*button) );
-	mgui_element_create( cast_elem(button), NULL, true );
+	mgui_element_create( cast_elem(button), NULL );
 
 	button->flags |= (FLAG_BORDER|FLAG_BACKGROUND|FLAG_MOUSECTRL);
 	button->type = GUI_WINDOWBUTTON;

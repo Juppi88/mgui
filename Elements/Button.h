@@ -21,5 +21,6 @@ struct MGuiButton
 };
 
 MGuiButton*		mgui_create_button		( MGuiElement* parent );
+MGuiButton*		mgui_create_button_ex	( MGuiElement* parent, uint16 x, uint16 y, uint16 w, uint16 h, uint32 flags, uint32 col, const char_t* text );
 
 #endif /* __MGUI_BUTTON_H */

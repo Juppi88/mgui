@@ -31,7 +31,7 @@ MGuiWindow* mgui_create_window( MGuiElement* parent )
 	struct MGuiWindow* window;
 
 	window = mem_alloc_clean( sizeof(*window) );
-	mgui_element_create( cast_elem(window), parent, true );
+	mgui_element_create( cast_elem(window), parent );
 
 	window->flags |= (FLAG_BORDER|FLAG_SHADOW|FLAG_WINDOW_TITLEBAR|FLAG_WINDOW_CLOSEBTN);
 	window->type = GUI_WINDOW;
@@ -51,6 +51,21 @@ MGuiWindow* mgui_create_window( MGuiElement* parent )
 	window->set_flags( cast_elem(window), 0 );
 
 	return cast_elem(window);
+}
+
+MGuiWindow* mgui_create_window_ex( MGuiElement* parent, uint16 x, uint16 y, uint16 w, uint16 h, uint32 flags, uint32 col, const char_t* text )
+{
+	MGuiWindow* window;
+
+	window = mgui_create_window( parent );
+
+	mgui_set_abs_pos_i( window, x, y );
+	mgui_set_abs_size_i( window, w, h );
+	mgui_add_flags( window, flags );
+	mgui_set_colour_i( window, col );
+	mgui_set_text_s( window, text );
+
+	return window;
 }
 
 static void mgui_destroy_window( MGuiElement* window )

@@ -24,7 +24,9 @@ MGuiScrollbar* mgui_create_scrollbar( MGuiElement* parent )
 	struct MGuiScrollbar* scrollbar;
 
 	scrollbar = mem_alloc_clean( sizeof(*scrollbar) );
-	mgui_element_create( cast_elem(scrollbar), parent, false );
+	scrollbar->flags_int |= INTFLAG_NOTEXT;
+
+	mgui_element_create( cast_elem(scrollbar), parent );
 
 	scrollbar->type = GUI_SCROLLBAR;
 	scrollbar->flags |= (FLAG_MOUSECTRL|FLAG_DRAGGABLE);

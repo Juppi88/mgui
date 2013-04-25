@@ -42,12 +42,12 @@ static void		mgui_on_character_cb		( MGuiElement* element, char_t key );
 static void		mgui_on_key_press_cb		( MGuiElement* element, uint key, bool down );
 
 
-void mgui_element_create( MGuiElement* element, MGuiElement* parent, bool has_text )
+void mgui_element_create( MGuiElement* element, MGuiElement* parent )
 {
 	element->flags |= (FLAG_VISIBLE|FLAG_CLIP|FLAG_INHERIT_ALPHA);
 	element->skin = skin;
 
-	if ( has_text )
+	if ( BIT_OFF( element->flags_int, INTFLAG_NOTEXT ) )
 	{
 		element->text = mgui_text_create();
 		element->text->bounds = &element->bounds;
@@ -830,7 +830,7 @@ void mgui_set_text( MGuiElement* element, const char_t* fmt, ... )
 {
 	va_list	marker;
 
-	if ( element == NULL ) return;
+	if ( element == NULL || fmt == NULL ) return;
 	if ( element->text == NULL ) return;
 
 	va_start( marker, fmt );
@@ -842,7 +842,7 @@ void mgui_set_text( MGuiElement* element, const char_t* fmt, ... )
 
 void mgui_set_text_s( MGuiElement* element, const char_t* text )
 {
-	if ( element == NULL ) return;
+	if ( element == NULL || text == NULL ) return;
 	if ( element->text == NULL ) return;
 
 	mgui_text_set_buffer_s( element->text, text );

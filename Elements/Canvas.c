@@ -26,7 +26,9 @@ MGuiCanvas* mgui_create_canvas( MGuiElement* parent )
 	struct MGuiCanvas* canvas;
 
 	canvas = mem_alloc_clean( sizeof(*canvas) );
-	mgui_element_create( cast_elem(canvas), parent, false );
+	canvas->flags_int |= INTFLAG_NOTEXT;
+
+	mgui_element_create( cast_elem(canvas), parent );
 
 	canvas->type = GUI_CANVAS;
 	canvas->colour.hex = 0;

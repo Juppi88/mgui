@@ -92,7 +92,7 @@ struct MGuiElement
 };
 
 // Generic element functions
-void			mgui_element_create				( MGuiElement* element, MGuiElement* parent, bool has_text );
+void			mgui_element_create				( MGuiElement* element, MGuiElement* parent );
 void			mgui_element_destroy			( MGuiElement* element );
 void			mgui_element_render				( MGuiElement* element );
 void			mgui_element_process			( MGuiElement* element );

@@ -40,7 +40,7 @@ MGuiMemobox* mgui_create_memobox( MGuiElement* parent )
 	struct MGuiMemobox* memobox;
 
 	memobox = mem_alloc_clean( sizeof(*memobox) );
-	mgui_element_create( cast_elem(memobox), parent, true );
+	mgui_element_create( cast_elem(memobox), parent );
 
 	memobox->type = GUI_MEMOBOX;
 	memobox->flags |= (FLAG_BACKGROUND|FLAG_BORDER|FLAG_MOUSECTRL|FLAG_KBCTRL|FLAG_DRAGGABLE|FLAG_CLIP|FLAG_WRAP);
@@ -66,6 +66,20 @@ MGuiMemobox* mgui_create_memobox( MGuiElement* parent )
 	memobox->set_flags = mgui_memobox_set_flags;
 
 	return cast_elem(memobox);
+}
+
+MGuiMemobox* mgui_create_memobox_ex( MGuiElement* parent, uint16 x, uint16 y, uint16 w, uint16 h, uint32 flags, uint32 col )
+{
+	MGuiMemobox* memobox;
+
+	memobox = mgui_create_memobox( parent );
+
+	mgui_set_abs_pos_i( memobox, x, y );
+	mgui_set_abs_size_i( memobox, w, h );
+	mgui_add_flags( memobox, flags );
+	mgui_set_colour_i( memobox, col );
+
+	return memobox;
 }
 
 static void mgui_destroy_memobox( MGuiElement* memobox )

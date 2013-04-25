@@ -54,15 +54,11 @@ MGuiEditbox* mgui_create_editbox( MGuiElement* parent )
 	struct MGuiEditbox* editbox;
 
 	editbox = mem_alloc_clean( sizeof(*editbox) );
-	mgui_element_create( cast_elem(editbox), parent, true );
+	mgui_element_create( cast_elem(editbox), parent );
 
 	editbox->type = GUI_EDITBOX;
 	editbox->flags |= (FLAG_BORDER|FLAG_BACKGROUND|FLAG_CLIP|FLAG_DRAGGABLE|FLAG_MOUSECTRL|FLAG_KBCTRL|FLAG_ANIMATION);
-
-	editbox->font = mgui_font_create( DEFAULT_FONT, 11, FFLAG_NONE, ANSI_CHARSET );
-	editbox->text->font = editbox->font;
-	editbox->text->alignment = ALIGN_LEFT|ALIGN_CENTERV;
-	editbox->text->pad.left = 5;
+	editbox->flags_int &= ~INTFLAG_NOTEXT;
 
 	// Create an initial buffer
 	editbox->text->bufsize = 20;
@@ -70,6 +66,11 @@ MGuiEditbox* mgui_create_editbox( MGuiElement* parent )
 	editbox->buffer = mem_alloc( editbox->text->bufsize );
 	*editbox->text->buffer = '\0';
 	*editbox->buffer = '\0';
+
+	editbox->font = mgui_font_create( DEFAULT_FONT, 11, FFLAG_NONE, ANSI_CHARSET );
+	editbox->text->font = editbox->font;
+	editbox->text->alignment = ALIGN_LEFT|ALIGN_CENTERV;
+	editbox->text->pad.left = 5;
 
 	editbox->colour.hex = COL_ELEMENT_DARK;
 
@@ -86,6 +87,21 @@ MGuiEditbox* mgui_create_editbox( MGuiElement* parent )
 	editbox->on_key_press	= mgui_editbox_on_key_press;
 
 	return cast_elem(editbox);
+}
+
+MGuiEditbox* mgui_create_editbox_ex( MGuiElement* parent, uint16 x, uint16 y, uint16 w, uint16 h, uint32 flags, uint32 col, const char_t* text )
+{
+	MGuiEditbox* editbox;
+
+	editbox = mgui_create_editbox( parent );
+
+	mgui_set_abs_pos_i( editbox, x, y );
+	mgui_set_abs_size_i( editbox, w, h );
+	mgui_add_flags( editbox, flags );
+	mgui_set_colour_i( editbox, col );
+	mgui_set_text_s( editbox, text );
+
+	return editbox;
 }
 
 static void mgui_destroy_editbox( MGuiElement* editbox )

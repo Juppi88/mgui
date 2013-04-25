@@ -26,7 +26,9 @@ MGuiTitlebar* mgui_create_titlebar( MGuiWindow* parent )
 	MGuiTitlebar* titlebar;
 
 	titlebar = mem_alloc_clean( sizeof(*titlebar) );
-	mgui_element_create( cast_elem(titlebar), NULL, false );
+	titlebar->flags_int = INTFLAG_NOTEXT;
+
+	mgui_element_create( cast_elem(titlebar), NULL );
 
 	titlebar->flags |= (FLAG_MOUSECTRL|FLAG_DRAGGABLE);
 	titlebar->type = GUI_TITLEBAR;

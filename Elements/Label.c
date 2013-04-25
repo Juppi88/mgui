@@ -22,7 +22,7 @@ MGuiLabel* mgui_create_label( MGuiElement* parent )
 	struct MGuiLabel* label;
 
 	label = mem_alloc_clean( sizeof(*label) );
-	mgui_element_create( cast_elem(label), parent, true );
+	mgui_element_create( cast_elem(label), parent );
 
 	label->type = GUI_LABEL;
 	label->flags |= FLAG_CLIP;
@@ -35,6 +35,21 @@ MGuiLabel* mgui_create_label( MGuiElement* parent )
 	label->render = mgui_label_render;
 
 	return cast_elem(label);
+}
+
+MGuiLabel* mgui_create_label_ex( MGuiElement* parent, uint16 x, uint16 y, uint16 w, uint16 h, uint32 flags, uint32 col, const char_t* text )
+{
+	MGuiLabel* label;
+
+	label = mgui_create_label( parent );
+
+	mgui_set_abs_pos_i( label, x, y );
+	mgui_set_abs_size_i( label, w, h );
+	mgui_add_flags( label, flags );
+	mgui_set_colour_i( label, col );
+	mgui_set_text_s( label, text );
+
+	return label;
 }
 
 static void mgui_destroy_label( MGuiElement* label )

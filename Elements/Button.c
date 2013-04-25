@@ -29,7 +29,7 @@ MGuiButton* mgui_create_button( MGuiElement* parent )
 	struct MGuiButton* button;
 
 	button = mem_alloc_clean( sizeof(*button) );
-	mgui_element_create( cast_elem(button), parent, true );
+	mgui_element_create( cast_elem(button), parent );
 
 	button->flags |= (FLAG_BORDER|FLAG_BACKGROUND|FLAG_MOUSECTRL|FLAG_KBCTRL);
 	button->type = GUI_BUTTON;
@@ -47,6 +47,21 @@ MGuiButton* mgui_create_button( MGuiElement* parent )
 	button->on_key_press	= mgui_button_on_key_press;
 
 	return cast_elem(button);
+}
+
+MGuiButton* mgui_create_button_ex( MGuiElement* parent, uint16 x, uint16 y, uint16 w, uint16 h, uint32 flags, uint32 col, const char_t* text )
+{
+	MGuiButton* button;
+
+	button = mgui_create_button( parent );
+
+	mgui_set_abs_pos_i( button, x, y );
+	mgui_set_abs_size_i( button, w, h );
+	mgui_add_flags( button, flags );
+	mgui_set_colour_i( button, col );
+	mgui_set_text_s( button, text );
+
+	return button;
 }
 
 static void mgui_destroy_button( MGuiElement* button )
