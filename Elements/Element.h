@@ -74,7 +74,7 @@ struct MGuiElement
 	// ---------- Internal callbacks ---------- 
 	void		( *render )				( MGuiElement* element );
 	void		( *destroy )			( MGuiElement* element );
-	void		( *process )			( MGuiElement* element, uint32 ticks );
+	void		( *process )			( MGuiElement* element );
 
 	void		( *set_bounds )			( MGuiElement* element, bool pos, bool size );
 	void		( *set_flags )			( MGuiElement* element, uint32 old_flags );
@@ -95,7 +95,7 @@ struct MGuiElement
 void			mgui_element_create				( MGuiElement* element, MGuiElement* parent, bool has_text );
 void			mgui_element_destroy			( MGuiElement* element );
 void			mgui_element_render				( MGuiElement* element );
-void			mgui_element_process			( MGuiElement* element, uint32 ticks );
+void			mgui_element_process			( MGuiElement* element );
 
 MGuiElement*	mgui_get_element_at				( uint16 x, uint16 y );
 

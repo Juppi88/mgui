@@ -18,6 +18,7 @@
 #include "Platform/Alloc.h"
 
 // Window button callback handlers
+static void			mgui_destroy_windowbutton			( MGuiElement* element );
 static void			mgui_windowbutton_set_bounds		( MGuiElement* button, bool pos, bool size );
 static void			mgui_windowbutton_set_colour		( MGuiElement* button );
 static void			mgui_windowbutton_on_mouse_enter	( MGuiElement* button );
@@ -46,6 +47,7 @@ MGuiWindowButton* mgui_create_windowbutton( MGuiWindow* parent )
 	mgui_set_text_s( cast_elem(button), _MTEXT("X") );
 
 	// Button callbacks
+	button->destroy			= mgui_destroy_windowbutton;
 	button->set_bounds		= mgui_windowbutton_set_bounds;
 	button->set_colour		= mgui_windowbutton_set_colour;
 	button->on_mouse_enter	= mgui_windowbutton_on_mouse_enter;
@@ -56,10 +58,9 @@ MGuiWindowButton* mgui_create_windowbutton( MGuiWindow* parent )
 	return button;
 }
 
-void mgui_destroy_windowbutton( MGuiWindowButton* button )
+static void mgui_destroy_windowbutton( MGuiElement* element )
 {
-	mgui_input_cleanup_references( cast_elem(button) );
-	mem_free( button );
+	UNREFERENCED_PARAM( element );
 }
 
 static void mgui_windowbutton_set_bounds( MGuiElement* button, bool pos, bool size )

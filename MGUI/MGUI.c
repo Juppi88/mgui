@@ -27,6 +27,7 @@ MGuiSkin*		skin			= NULL;		// Current skin
 MGuiRenderer*	renderer		= NULL;		// Pointer to the renderer interface
 bool			redraw			= true;		// Force a scene redraw (use only with a standalone app)
 list_t*			layers			= NULL;		// A list of rendered layers
+uint32			tick_count		= 0;		// Current tick count
 
 void mgui_initialize( void* wndhandle )
 {
@@ -48,54 +49,34 @@ void mgui_initialize( void* wndhandle )
 
 void mgui_shutdown( void )
 {
-	// TODO: Fix this...
-	/*
-	node_t* cnode;
-	node_t* enode;
-	node_t *tmp1, *tmp2;
-	MGuiControl* control;
-	MGuiElement* element;
+	node_t *node, *tmp;
 
-	if ( controls == NULL ) return;
-
-	list_foreach_safe( controls, cnode, tmp1 ) 
+	if ( layers != NULL )
 	{
-	control = cast_ctrl(cnode);
+		list_foreach_safe( layers, node, tmp ) 
+		{
+			mgui_element_destroy( cast_elem(node) );
+		}
 
-	list_foreach_safe( control->children, enode, tmp2 )
-	{
-	element = cast_elem(enode);
-	mgui_element_destroy( element );
+		list_destroy( layers );
+		layers = NULL;
 	}
 
-	list_remove( controls, cnode );
-	list_destroy( control->children );
-	mem_free( control );
-	}
-
-	list_destroy( controls );
-	controls = NULL;
-	*/
-
-	//mgui_input_shutdown_hooks();
-
-	//list_destroy( layers );
-	// layers = NULL;
+	mgui_input_shutdown_hooks();
 }
 
 void mgui_process( void )
 {
-	uint32 ticks;
 	node_t* node;
 	MGuiElement* element;
 	static uint32 last_ticks = 0;
 
-	ticks = get_tick_count();
+	tick_count = get_tick_count();
 
 #ifdef MGUI_USE_REDRAW
-	if ( ticks - last_ticks >= 1000 )
+	if ( tick_count - last_ticks >= 1000 )
 	{
-		last_ticks = ticks;
+		last_ticks = tick_count;
 		mgui_redraw();
 	}
 
@@ -115,7 +96,7 @@ void mgui_process( void )
 
 		if ( BIT_ON(element->flags, FLAG_VISIBLE) )
 		{
-			mgui_element_process( element, ticks );
+			mgui_element_process( element );
 			mgui_element_render( element );
 		}
 	}

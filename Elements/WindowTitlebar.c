@@ -16,6 +16,7 @@
 #include "Platform/Alloc.h"
 
 // Window titlebar callback handlers
+static void		mgui_destroy_titlebar			( MGuiElement* element );
 static void		mgui_titlebar_on_mouse_click	( MGuiElement* element, MOUSEBTN button, uint16 x, uint16 y );
 static void		mgui_titlebar_on_mouse_drag		( MGuiElement* element, uint16 x, uint16 y );
 
@@ -42,16 +43,18 @@ MGuiTitlebar* mgui_create_titlebar( MGuiWindow* parent )
 	titlebar->colour.a = parent->colour.a;
 	titlebar->bounds.w = parent->bounds.w;
 
+	titlebar->destroy = mgui_destroy_titlebar;
 	titlebar->on_mouse_click = mgui_titlebar_on_mouse_click;
 	titlebar->on_mouse_drag = mgui_titlebar_on_mouse_drag;
 
 	return titlebar;
 }
 
-void mgui_destroy_titlebar( MGuiTitlebar* titlebar )
+static void mgui_destroy_titlebar( MGuiElement* element )
 {
-	mgui_input_cleanup_references( cast_elem(titlebar) );
-	mem_free( titlebar );
+	// Let the parent window clean up text
+	element->text = NULL;
+	element->font = NULL;
 }
 
 static void mgui_titlebar_on_mouse_click( MGuiElement* element, MOUSEBTN button, uint16 x, uint16 y )

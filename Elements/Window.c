@@ -55,14 +55,7 @@ MGuiWindow* mgui_create_window( MGuiElement* parent )
 
 static void mgui_destroy_window( MGuiElement* window )
 {
-	struct MGuiWindow* wnd;
-	wnd = (struct MGuiWindow*)window;
-
-	if ( wnd->titlebar )
-		mgui_destroy_titlebar( wnd->titlebar );
-
-	if ( wnd->closebtn )
-		mgui_destroy_windowbutton( wnd->closebtn );
+	UNREFERENCED_PARAM( window );
 }
 
 static void mgui_window_render( MGuiElement* window )
@@ -139,7 +132,7 @@ static void mgui_window_set_flags( MGuiElement* window, uint32 old )
 	// Disable the titlebar and deactivate the close button if required
 	else if ( BIT_DISABLED( window->flags, old, FLAG_WINDOW_TITLEBAR ) )
 	{
-		mgui_destroy_titlebar( wnd->titlebar );
+		mgui_element_destroy( cast_elem(wnd->titlebar) );
 		wnd->titlebar = NULL;
 
 		window->bounds.y -= TITLE_H;
@@ -167,7 +160,7 @@ static void mgui_window_set_flags( MGuiElement* window, uint32 old )
 	{
 		if ( wnd->closebtn )
 		{
-			mgui_destroy_windowbutton( wnd->closebtn );
+			mgui_element_destroy( cast_elem(wnd->closebtn) );
 			wnd->closebtn = NULL;
 		}
 	}

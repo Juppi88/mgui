@@ -25,6 +25,5 @@ struct MGuiTitlebar
 };
 
 MGuiTitlebar*	mgui_create_titlebar			( MGuiWindow* parent );
-void			mgui_destroy_titlebar			( MGuiTitlebar* titlebar );
 
 #endif /* __MGUI_WINDOWTITLEBAR_H */

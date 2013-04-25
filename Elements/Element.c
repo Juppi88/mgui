@@ -27,7 +27,7 @@ static MYLLY_INLINE MGuiElement*	mgui_get_element_at_test_bounds		( MGuiElement*
 // Default callback handlers
 static void		mgui_render_cb				( MGuiElement* element );
 static void		mgui_destroy_cb				( MGuiElement* element );
-static void		mgui_process_cb				( MGuiElement* element, uint32 ticks );
+static void		mgui_process_cb				( MGuiElement* element );
 static void		mgui_set_bounds_cb			( MGuiElement* element, bool pos, bool size );
 static void		mgui_set_flags_cb			( MGuiElement* element, uint32 old_flags );
 static void		mgui_set_colour_cb			( MGuiElement* element );
@@ -97,18 +97,15 @@ void mgui_element_create( MGuiElement* element, MGuiElement* parent, bool has_te
 void mgui_element_destroy( MGuiElement* element )
 {
 	node_t *node, *tmp;
-	MGuiElement* tmpelem;
 
-	if ( element->parent )
-		mgui_remove_child( element );
+	mgui_remove_child( element );
 
 	// Destroy children if any
 	if ( element->children )
 	{
 		list_foreach_safe( element->children, node, tmp )
 		{
-			tmpelem = cast_elem(node);
-			mgui_element_destroy( tmpelem );
+			mgui_element_destroy( cast_elem(node) );
 		}
 
 		list_destroy( element->children );
@@ -135,7 +132,7 @@ void mgui_element_render( MGuiElement* element )
 	MGuiElement* child;
 
 	if ( element == NULL ) return;
-	if ( BIT_OFF(element->flags, FLAG_VISIBLE) ) return;
+	if ( BIT_OFF( element->flags, FLAG_VISIBLE ) ) return;
 
 	element->render( element );
 
@@ -148,22 +145,22 @@ void mgui_element_render( MGuiElement* element )
 	}
 }
 
-void mgui_element_process( MGuiElement* element, uint32 ticks )
+void mgui_element_process( MGuiElement* element )
 {
 	node_t* node;
 	MGuiElement* child;
 
 	if ( element == NULL ) return;
-	if ( BIT_OFF(element->flags, FLAG_VISIBLE) ) return;
+	if ( BIT_OFF( element->flags, FLAG_VISIBLE ) ) return;
 
-	element->process( element, ticks );
+	element->process( element );
 
 	if ( !element->children ) return;
 
 	list_foreach( element->children, node )
 	{
 		child = cast_elem(node);
-		mgui_element_process( child, ticks );
+		mgui_element_process( child );
 	}
 }
 
@@ -1034,10 +1031,9 @@ static void mgui_destroy_cb( MGuiElement* element )
 	UNREFERENCED_PARAM( element );
 }
 
-static void mgui_process_cb( MGuiElement* element, uint32 ticks )
+static void mgui_process_cb( MGuiElement* element )
 {
 	UNREFERENCED_PARAM( element );
-	UNREFERENCED_PARAM( ticks );
 }
 
 static void mgui_set_bounds_cb( MGuiElement* element, bool pos, bool size )

@@ -19,6 +19,7 @@
 #include "Input/Input.h"
 
 extern MGuiRenderer* renderer;
+extern uint32 tick_count;
 
 static void			mgui_editbox_refresh_cursor_bounds	( struct MGuiEditbox* editbox );
 static void			mgui_editbox_erase_text				( struct MGuiEditbox* editbox, uint32 begin, uint32 end );
@@ -38,7 +39,7 @@ static void			mgui_editbox_press_end				( struct MGuiEditbox* editbox );
 // Editbox callback handlers
 static void			mgui_destroy_editbox				( MGuiElement* editbox );
 static void			mgui_editbox_render					( MGuiElement* element );
-static void			mgui_editbox_process				( MGuiElement* element, uint32 ticks );
+static void			mgui_editbox_process				( MGuiElement* element );
 static void			mgui_editbox_set_bounds				( MGuiElement* element, bool pos, bool size );
 static void			mgui_editbox_set_text				( MGuiElement* element );
 static void			mgui_editbox_on_mouse_click			( MGuiElement* element, MOUSEBTN button, uint16 x, uint16 y );
@@ -126,16 +127,16 @@ static void mgui_editbox_render( MGuiElement* element )
 	}
 }
 
-static void mgui_editbox_process( MGuiElement* element, uint32 ticks )
+static void mgui_editbox_process( MGuiElement* element )
 {
 	struct MGuiEditbox* editbox;
 	editbox = (struct MGuiEditbox*)element;
 
 	if ( BIT_OFF( editbox->flags_int, INTFLAG_FOCUS ) ) return;
 
-	if ( ticks - editbox->last_update >= 500 )
+	if ( tick_count - editbox->last_update >= 500 )
 	{
-		editbox->last_update = ticks;
+		editbox->last_update = tick_count;
 
 		editbox->cursor_visible = !editbox->cursor_visible;
 		mgui_force_redraw();

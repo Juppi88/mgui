@@ -23,7 +23,6 @@ struct MGuiWindowButton
 	MGuiWindow*	window;		// Parent window
 };
 
-MGuiWindowButton*	mgui_create_windowbutton			( MGuiWindow* parent );
-void				mgui_destroy_windowbutton			( MGuiWindowButton* button );
+MGuiWindowButton*	mgui_create_windowbutton	( MGuiWindow* parent );
 
 #endif /* __MGUI_WINDOWBUTTON_H */

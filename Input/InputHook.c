@@ -44,8 +44,8 @@ void mgui_input_shutdown_hooks( void )
 void mgui_input_cleanup_references( MGuiElement* element )
 {
 	if ( element == hovered ) hovered = NULL;
-	if ( element == pressed ) hovered = NULL;
-	if ( element == dragged ) hovered = NULL;
+	if ( element == pressed ) pressed = NULL;
+	if ( element == dragged ) dragged = NULL;
 	if ( element == mousefocus ) mousefocus = NULL;
 	if ( element == kbfocus ) kbfocus = NULL;
 }
