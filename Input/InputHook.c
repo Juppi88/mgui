@@ -11,7 +11,6 @@
 
 #include "InputHook.h"
 #include "Element.h"
-#include "Control.h"
 #include "Renderer.h"
 
 static MGuiElement*	hovered			= NULL; // Element being hovered currently
@@ -141,7 +140,7 @@ static bool mgui_input_handle_mouse_move( input_event_t* event )
 		mgui_force_redraw();
 	}
 
-	element = mgui_get_element_at( NULL, x, y );
+	element = mgui_get_element_at( x, y );
 	if ( element == hovered ) return true;
 
 	if ( hovered )
@@ -200,7 +199,7 @@ static bool mgui_input_handle_lmb_up( input_event_t* event )
 
 	dragged = NULL;
 
-	element = mgui_get_element_at( NULL, x, y );
+	element = mgui_get_element_at( x, y );
 
 	if ( pressed )
 	{
@@ -236,8 +235,9 @@ static bool mgui_input_handle_lmb_down( input_event_t* event )
 	y = event->mouse.y;
 
 	dragged = NULL;
-	element = mgui_get_element_at( NULL, x, y );
+	element = mgui_get_element_at( x, y );
 
+	// Remove old keyboard focus
 	if ( kbfocus && kbfocus != element )
 	{
 		if ( kbfocus->event_handler )
@@ -255,6 +255,7 @@ static bool mgui_input_handle_lmb_down( input_event_t* event )
 		mgui_force_redraw();
 	}
 
+	// Remove old pressed focus
 	if ( pressed )
 	{
 		pressed->flags_int &= ~INTFLAG_PRESSED;
@@ -274,6 +275,7 @@ static bool mgui_input_handle_lmb_down( input_event_t* event )
 		mgui_force_redraw();
 	}
 
+	// If a new element is being pressed handle focus/event stuff
 	if ( ( pressed = element ) != NULL )
 	{
 		pressed->flags_int |= INTFLAG_PRESSED;
@@ -295,8 +297,7 @@ static bool mgui_input_handle_lmb_down( input_event_t* event )
 			pressed->event_handler( &guievent );
 		}
 
-		if ( BIT_ON( element->flags, FLAG_KBCTRL ) &&
-			 BIT_ON( element->flags, FLAG_VISIBLE ) )
+		if ( BIT_ON( element->flags, FLAG_KBCTRL ) )
 		{
 			kbfocus = element;
 			element->flags_int |= INTFLAG_FOCUS;

@@ -21,10 +21,10 @@ static void		mgui_memobox_render				( MGuiElement* memobox );
 static void		mgui_memobox_set_bounds			( MGuiElement* memobox, bool pos, bool size );
 static void		mgui_memobox_set_flags			( MGuiElement* memobox, uint32 old );
 static void		mgui_memobox_set_text			( MGuiElement* memobox );
-static void		mgui_memobox_on_mouse_click		( MGuiElement* element, MOUSEBTN button, uint16 x, uint16 y );
-static void		mgui_memobox_on_mouse_release	( MGuiElement* element, MOUSEBTN button, uint16 x, uint16 y );
-static void		mgui_memobox_on_mouse_drag		( MGuiElement* element, uint16 x, uint16 y );
-static void		mgui_memobox_on_key_press		( MGuiElement* element, uint key, bool down );
+static void		mgui_memobox_on_mouse_click		( MGuiElement* memobox, MOUSEBTN button, uint16 x, uint16 y );
+static void		mgui_memobox_on_mouse_release	( MGuiElement* memobox, MOUSEBTN button, uint16 x, uint16 y );
+static void		mgui_memobox_on_mouse_drag		( MGuiElement* memobox, uint16 x, uint16 y );
+static void		mgui_memobox_on_key_press		( MGuiElement* memobox, uint32 key, bool down );
 
 static void		mgui_memobox_update_display_positions			( struct MGuiMemobox* memobox );
 static void		mgui_memobox_update_display_positions_topbottom	( struct MGuiMemobox* memobox );
@@ -35,7 +35,7 @@ static void		mgui_memobox_refresh_lines						( struct MGuiMemobox* memobox );
 
 extern MGuiRenderer* renderer;
 
-MGuiMemobox* mgui_create_memobox( MGuiControl* parent )
+MGuiMemobox* mgui_create_memobox( MGuiElement* parent )
 {
 	struct MGuiMemobox* memobox;
 
@@ -127,33 +127,33 @@ static void mgui_memobox_set_flags( MGuiElement* memobox, uint32 old )
 	}
 }
 
-static void mgui_memobox_on_mouse_click( MGuiElement* element, MOUSEBTN button, uint16 x, uint16 y )
+static void mgui_memobox_on_mouse_click( MGuiElement* memobox, MOUSEBTN button, uint16 x, uint16 y )
 {
-	UNREFERENCED_PARAM( element );
+	UNREFERENCED_PARAM( memobox );
 	UNREFERENCED_PARAM( button );
 	UNREFERENCED_PARAM( x );
 	UNREFERENCED_PARAM( y );
 }
 
-static void mgui_memobox_on_mouse_release( MGuiElement* element, MOUSEBTN button, uint16 x, uint16 y )
+static void mgui_memobox_on_mouse_release( MGuiElement* memobox, MOUSEBTN button, uint16 x, uint16 y )
 {
-	UNREFERENCED_PARAM( element );
+	UNREFERENCED_PARAM( memobox );
 	UNREFERENCED_PARAM( button );
 	UNREFERENCED_PARAM( x );
 	UNREFERENCED_PARAM( y );
 }
 
-static void mgui_memobox_on_mouse_drag( MGuiElement* element, uint16 x, uint16 y )
+static void mgui_memobox_on_mouse_drag( MGuiElement* memobox, uint16 x, uint16 y )
 {
-	UNREFERENCED_PARAM( element );
+	UNREFERENCED_PARAM( memobox );
 	UNREFERENCED_PARAM( x );
 	UNREFERENCED_PARAM( y );
 }
 
-static void mgui_memobox_on_key_press( MGuiElement* element, uint key, bool down )
+static void mgui_memobox_on_key_press( MGuiElement* memobox, uint32 key, bool down )
 {
 	// TODO: pgup/down
-	UNREFERENCED_PARAM( element );
+	UNREFERENCED_PARAM( memobox );
 	UNREFERENCED_PARAM( key );
 	UNREFERENCED_PARAM( down );
 }

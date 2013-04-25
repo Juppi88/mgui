@@ -19,7 +19,7 @@ static void		mgui_destroy_scrollbar			( MGuiElement* scrollbar );
 static void		mgui_scrollbar_render			( MGuiElement* scrollbar );
 static void		mgui_scrollbar_set_bounds		( MGuiElement* scrollbar, bool pos, bool size );
 
-MGuiScrollbar* mgui_create_scrollbar( MGuiControl* parent )
+MGuiScrollbar* mgui_create_scrollbar( MGuiElement* parent )
 {
 	struct MGuiScrollbar* scrollbar;
 

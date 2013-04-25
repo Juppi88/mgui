@@ -45,7 +45,7 @@ struct MGuiMemobox
 	node_t*		first_line;		// First visible line to be rendered
 };
 
-MGuiMemobox*	mgui_create_memobox				( MGuiControl* parent );
+MGuiMemobox*	mgui_create_memobox				( MGuiElement* parent );
 
 void			mgui_memobox_add_line			( MGuiMemobox* memobox, const char* fmt, ... );
 void			mgui_memobox_add_line_col		( MGuiMemobox* memobox, const char* fmt, const colour_t*, ... );

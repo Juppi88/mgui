@@ -12,12 +12,17 @@
 #include "Element.h"
 #include "Skin.h"
 #include "InputHook.h"
+#include "Window.h"
 #include "Platform/Alloc.h"
 #include "Stringy/Stringy.h"
 #include <stdio.h>
 #include <stdarg.h>
 
 extern vectorscreen_t draw_size;
+extern list_t* layers;
+
+static MYLLY_INLINE MGuiElement*	mgui_get_element_at_test_self		( MGuiElement* element, uint16 x, uint16 y );
+static MYLLY_INLINE MGuiElement*	mgui_get_element_at_test_bounds		( MGuiElement* element, uint16 x, uint16 y );
 
 // Default callback handlers
 static void		mgui_render_cb				( MGuiElement* element );
@@ -37,10 +42,9 @@ static void		mgui_on_character_cb		( MGuiElement* element, char_t key );
 static void		mgui_on_key_press_cb		( MGuiElement* element, uint key, bool down );
 
 
-void mgui_element_create( MGuiElement* element, MGuiControl* parent, bool has_text )
+void mgui_element_create( MGuiElement* element, MGuiElement* parent, bool has_text )
 {
-	element->flags |= (FLAG_VISIBLE|FLAG_CLIP|FLAG_SHADOW|FLAG_INHERIT_ALPHA);
-	element->flags_int |= INTFLAG_ELEMENT;
+	element->flags |= (FLAG_VISIBLE|FLAG_CLIP|FLAG_INHERIT_ALPHA);
 	element->skin = skin;
 
 	if ( has_text )
@@ -69,19 +73,20 @@ void mgui_element_create( MGuiElement* element, MGuiControl* parent, bool has_te
 	element->on_character	= mgui_on_character_cb;
 	element->on_key_press	= mgui_on_key_press_cb;
 
-	if ( !parent ) return;
-
-	if ( !parent->children )
+	if ( parent )
 	{
-		parent->children = list_create();
+		// Add this element to it's parents children
+		mgui_add_child( parent, element );
+
+		// Set alpha to parent's value, if the parent is an element
+		element->colour.a = parent->colour.a;
 	}
-
-	mgui_add_child( parent, element );
-
-	if ( BIT_OFF( parent->flags_int, INTFLAG_ELEMENT ) ) return;
-
-	// Set alpha to parent's value, if the parent is an element
-	element->colour.a = cast_elem(parent)->colour.a;
+	else
+	{
+		// Add this element to the main layer list
+		list_push( layers, cast_node(element) );
+		element->flags_int |= INTFLAG_LAYER;
+	}
 
 	if ( element->text )
 	{
@@ -160,6 +165,212 @@ void mgui_element_process( MGuiElement* element, uint32 ticks )
 		child = cast_elem(node);
 		mgui_element_process( child, ticks );
 	}
+}
+
+MGuiElement* mgui_get_element_at( uint16 x, uint16 y )
+{
+	node_t* node;
+	MGuiElement *ret = NULL;
+
+	if ( layers == NULL || list_empty( layers ) )
+	{
+		return ret;
+	}
+
+	list_foreach_r( layers, node )
+	{
+		ret = mgui_get_element_at_test_self( cast_elem(node), x, y );
+		if ( ret )
+		{
+			return ret;
+		}
+	}
+
+	return ret;
+}
+
+MYLLY_INLINE MGuiElement* mgui_get_element_at_test_self( MGuiElement* element, uint16 x, uint16 y )
+{
+	node_t* node;
+	MGuiElement *ret, *tmp = NULL;
+
+	// Check that the element is actually visible
+	if ( BIT_OFF( element->flags, FLAG_VISIBLE ) )
+	{
+		return NULL;
+	}
+
+	// Check that the point is within the element (or one of it's sub-elements)
+	if ( ( ret = mgui_get_element_at_test_bounds( element, x, y ) ) == NULL )
+	{
+		return NULL;
+	}
+
+	// If so, check all the child elements
+	if ( ret->children )
+	{
+		list_foreach_r( ret->children, node )
+		{
+			if ( ( tmp = mgui_get_element_at_test_self( cast_elem(node), x, y ) ) != NULL )
+			{
+				return tmp;
+			}
+		}
+	}
+
+	// If a suitable child was not found check whether this element is a candidate
+	if ( BIT_OFF( ret->flags, FLAG_MOUSECTRL ) ||
+		 BIT_ON( ret->flags, FLAG_DISABLED ) )
+	{
+		return NULL;
+	}
+
+	return ret;
+}
+
+static MYLLY_INLINE MGuiElement* mgui_get_element_at_test_bounds( MGuiElement* element, uint16 x, uint16 y )
+{
+	struct MGuiWindow* window;
+	MGuiElement* tmp;
+
+	switch ( element->type )
+	{
+	case GUI_WINDOW:
+		{
+			window = (struct MGuiWindow*)element;
+
+			if ( !rect_is_point_in( &window->window_bounds, x, y ) )
+			{
+				return NULL;
+			}
+
+			if ( window->closebtn )
+			{
+				tmp = mgui_get_element_at_test_self( cast_elem(window->closebtn), x, y );
+				if ( tmp ) return tmp;
+			}
+
+			if ( window->titlebar )
+			{
+				tmp = mgui_get_element_at_test_self( cast_elem(window->titlebar), x, y );
+				if ( tmp ) return tmp;
+			}
+
+			return element;
+
+			break;
+		}
+
+	default:
+		{
+			if ( rect_is_point_in( &element->bounds, x, y ) )
+			{
+				return element;
+			}
+		}
+	}
+
+	return NULL;
+}
+
+void mgui_add_child( MGuiElement* parent, MGuiElement* child )
+{
+	if ( child == NULL ) return;
+	if ( child->parent != NULL ) return;
+	if ( BIT_ON( child->flags_int, INTFLAG_LAYER ) ) return;
+
+	if ( parent )
+	{
+		if ( !parent->children ) parent->children = list_create();
+
+		list_push( parent->children, cast_node(child) );
+		child->parent = parent;
+	}
+	else
+	{
+		list_push( layers, cast_node(child) );
+		child->flags_int |= INTFLAG_LAYER;
+	}
+}
+
+void mgui_remove_child( MGuiElement* child )
+{
+	if ( child == NULL ) return;
+
+	if ( child->parent && child->parent->children )
+	{
+		list_remove( child->parent->children, cast_node(child) );
+		child->parent = NULL;
+	}
+	else if ( BIT_ON( child->flags_int, INTFLAG_LAYER ) )
+	{
+		list_remove( layers, cast_node(child) );
+		child->flags_int &= ~INTFLAG_LAYER;
+	}
+}
+
+void mgui_move_forward( MGuiElement* child )
+{
+	if ( child == NULL ) return;
+	
+	if ( child->parent && child->parent->children )
+	{
+		// Yes, this is a bit backwards (no pun intended), but the list is rendered from front to back.
+		list_move_backward( child->parent->children, cast_node(child) );
+	}
+	else if ( BIT_ON( child->flags_int, INTFLAG_LAYER ) )
+	{
+		list_move_backward( layers, cast_node(child) );
+	}
+}
+
+void mgui_move_backward( MGuiElement* child )
+{
+	if ( child == NULL ) return;
+
+	if ( child->parent && child->parent->children )
+	{
+		list_move_forward( child->parent->children, cast_node(child) );
+	}
+	else if ( BIT_ON( child->flags_int, INTFLAG_LAYER ) )
+	{
+		list_move_forward( layers, cast_node(child) );
+	}
+}
+
+void mgui_send_to_top( MGuiElement* child )
+{
+	if ( child == NULL ) return;
+
+	if ( child->parent && child->parent->children )
+	{
+		list_send_to_back( child->parent->children, cast_node(child) );
+	}
+	else if ( BIT_ON( child->flags_int, INTFLAG_LAYER ) )
+	{
+		list_send_to_back( layers, cast_node(child) );
+	}
+}
+
+void mgui_send_to_bottom( MGuiElement* child )
+{
+	if ( child == NULL ) return;
+
+	if ( child->parent && child->parent->children )
+	{
+		list_send_to_front( child->parent->children, cast_node(child) );
+	}
+	else if ( BIT_ON( child->flags_int, INTFLAG_LAYER ) )
+	{
+		list_send_to_front( layers, cast_node(child) );
+	}
+}
+
+bool mgui_is_child_of( MGuiElement* parent, MGuiElement* child )
+{
+	if ( parent == NULL || child == NULL ) return false;
+
+	return ( parent == child->parent );
 }
 
 void mgui_element_update_abs_pos( MGuiElement* elem )

@@ -41,7 +41,7 @@ struct MGuiScrollbar
 	colour_t		track_col;		// Scrollbar track colour
 };
 
-MGuiScrollbar*	mgui_create_scrollbar			( MGuiControl* parent );
+MGuiScrollbar*	mgui_create_scrollbar			( MGuiElement* parent );
 
 float			mgui_scrollbar_get_bar_pos		( MGuiScrollbar* scrollbar );
 void			mgui_scrollbar_set_bar_pos		( MGuiScrollbar* scrollbar, float pos );

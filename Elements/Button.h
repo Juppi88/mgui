@@ -14,13 +14,12 @@
 #define __MGUI_BUTTON_H
 
 #include "Element.h"
-#include "Input/Input.h"
 
 struct MGuiButton
 {
 	MGuiElement;	// Inherit all generic element properties
 };
 
-MGuiButton*		mgui_create_button			( MGuiControl* parent );
+MGuiButton*		mgui_create_button		( MGuiElement* parent );
 
 #endif /* __MGUI_BUTTON_H */

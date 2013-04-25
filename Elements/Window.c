@@ -26,7 +26,7 @@ static void		mgui_window_on_mouse_click		( MGuiElement* window, MOUSEBTN button,
 static void		mgui_window_on_mouse_drag		( MGuiElement* window, uint16 x, uint16 y );
 
 
-MGuiWindow* mgui_create_window( MGuiControl* parent )
+MGuiWindow* mgui_create_window( MGuiElement* parent )
 {
 	struct MGuiWindow* window;
 

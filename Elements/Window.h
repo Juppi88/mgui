@@ -28,7 +28,7 @@ struct MGuiWindow
 	MGuiWindowButton*	closebtn;		// Close button
 };
 
-MGuiWindow*		mgui_create_window				( MGuiControl* parent );
+MGuiWindow*		mgui_create_window				( MGuiElement* parent );
 
 void			mgui_window_get_title_col		( MGuiWindow* window, colour_t* col );
 void			mgui_window_set_title_col		( MGuiWindow* window, const colour_t* col );

@@ -18,15 +18,14 @@
 #include "Math/MathDefs.h"
 
 // Interface types
-typedef struct MGuiControl	MGuiControl;
 typedef struct MGuiElement	MGuiElement;
-
 typedef struct MGuiRenderer	MGuiRenderer;
 
 #define MGUI_ELEMENT_DECL(x) typedef MGuiElement x
 
 // GUI elements
 MGUI_ELEMENT_DECL( MGuiButton );
+MGUI_ELEMENT_DECL( MGuiCanvas );
 MGUI_ELEMENT_DECL( MGuiEditbox );
 MGUI_ELEMENT_DECL( MGuiLabel );
 MGUI_ELEMENT_DECL( MGuiMemobox );
@@ -34,7 +33,6 @@ MGUI_ELEMENT_DECL( MGuiScrollbar );
 MGUI_ELEMENT_DECL( MGuiWindow );
 
 #define cast_elem(x) ((MGuiElement*)x)
-#define cast_ctrl(x) ((MGuiControl*)x)
 #define cast_node(x) ((node_t*)x)
 
 enum MGUI_ALIGNMENT
@@ -132,26 +130,24 @@ MYLLY_API MGuiElement*		mgui_get_focus					( void );
 MYLLY_API void				mgui_set_focus					( MGuiElement* element );
 
 /* Element relations */
-MYLLY_API void				mgui_add_child					( MGuiControl* parent, MGuiElement* child );
+MYLLY_API void				mgui_add_child					( MGuiElement* parent, MGuiElement* child );
 MYLLY_API void				mgui_remove_child				( MGuiElement* child );
 MYLLY_API void				mgui_move_forward				( MGuiElement* child );
 MYLLY_API void				mgui_move_backward				( MGuiElement* child );
 MYLLY_API void				mgui_send_to_top				( MGuiElement* child );
 MYLLY_API void				mgui_send_to_bottom				( MGuiElement* child );
-MYLLY_API bool				mgui_is_child_of				( MGuiControl* parent, MGuiElement* child );
+MYLLY_API bool				mgui_is_child_of				( MGuiElement* parent, MGuiElement* child );
 
 /* Element constructors */
-MYLLY_API MGuiButton*		mgui_create_button				( MGuiControl* parent );
-MYLLY_API MGuiEditbox*		mgui_create_editbox				( MGuiControl* parent );
-MYLLY_API MGuiLabel*		mgui_create_label				( MGuiControl* parent );
-MYLLY_API MGuiMemobox*		mgui_create_memobox				( MGuiControl* parent );
-MYLLY_API MGuiScrollbar*	mgui_create_scrollbar			( MGuiControl* parent );
-MYLLY_API MGuiWindow*		mgui_create_window				( MGuiControl* parent );
+MYLLY_API MGuiButton*		mgui_create_button				( MGuiElement* parent );
+MYLLY_API MGuiEditbox*		mgui_create_canvas				( MGuiElement* parent );
+MYLLY_API MGuiEditbox*		mgui_create_editbox				( MGuiElement* parent );
+MYLLY_API MGuiLabel*		mgui_create_label				( MGuiElement* parent );
+MYLLY_API MGuiMemobox*		mgui_create_memobox				( MGuiElement* parent );
+MYLLY_API MGuiScrollbar*	mgui_create_scrollbar			( MGuiElement* parent );
+MYLLY_API MGuiWindow*		mgui_create_window				( MGuiElement* parent );
 
 MYLLY_API void				mgui_element_destroy			( MGuiElement* element );
-
-MYLLY_API MGuiControl*		mgui_create_control				( void );
-MYLLY_API void				mgui_destroy_control			( MGuiControl* control );
 
 /* Generic element manipulation */
 MYLLY_API void				mgui_get_pos					( MGuiElement* element, vector2_t* pos );

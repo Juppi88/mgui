@@ -21,10 +21,10 @@ static void		mgui_button_render			( MGuiElement* button );
 static void		mgui_button_set_bounds		( MGuiElement* button, bool pos, bool size );
 static void		mgui_button_on_mouse_enter	( MGuiElement* button );
 static void		mgui_button_on_mouse_leave	( MGuiElement* button );
-static void		mgui_button_on_key_press	( MGuiElement* element, uint key, bool down );
+static void		mgui_button_on_key_press	( MGuiElement* button, uint key, bool down );
 
 
-MGuiButton* mgui_create_button( MGuiControl* parent )
+MGuiButton* mgui_create_button( MGuiElement* parent )
 {
 	struct MGuiButton* button;
 
@@ -70,7 +70,7 @@ static void mgui_button_on_mouse_leave( MGuiElement* button )
 	UNREFERENCED_PARAM( button );
 }
 
-static void mgui_button_on_key_press( MGuiElement* element, uint key, bool down )
+static void mgui_button_on_key_press( MGuiElement* button, uint key, bool down )
 {
 	MGuiEvent guievent;
 	
@@ -78,34 +78,34 @@ static void mgui_button_on_key_press( MGuiElement* element, uint key, bool down 
 
 	if ( down )
 	{
-		element->flags_int |= INTFLAG_PRESSED;
-		element->on_mouse_click( element, MOUSE_LBUTTON, 0, 0 );
+		button->flags_int |= INTFLAG_PRESSED;
+		button->on_mouse_click( button, MOUSE_LBUTTON, 0, 0 );
 
-		if ( element->event_handler )
+		if ( button->event_handler )
 		{
 			guievent.type = EVENT_CLICK;
-			guievent.element = element;
-			guievent.data = element->event_data;
+			guievent.element = button;
+			guievent.data = button->event_data;
 			guievent.mouse.x = 0;
 			guievent.mouse.y = 0;
 
-			element->event_handler( &guievent );
+			button->event_handler( &guievent );
 		}
 	}
 	else
 	{
-		element->flags_int &= ~INTFLAG_PRESSED;
-		element->on_mouse_release( element, MOUSE_LBUTTON, 0, 0 );
+		button->flags_int &= ~INTFLAG_PRESSED;
+		button->on_mouse_release( button, MOUSE_LBUTTON, 0, 0 );
 
-		if ( element->event_handler )
+		if ( button->event_handler )
 		{
 			guievent.type = EVENT_RELEASE;
-			guievent.element = element;
-			guievent.data = element->event_data;
+			guievent.element = button;
+			guievent.data = button->event_data;
 			guievent.mouse.x = 0;
 			guievent.mouse.y = 0;
 
-			element->event_handler( &guievent );
+			button->event_handler( &guievent );
 		}
 	}
 

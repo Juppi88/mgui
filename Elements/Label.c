@@ -17,7 +17,7 @@
 static void			mgui_destroy_label			( MGuiElement* label );
 static void			mgui_label_render			( MGuiElement* label );
 
-MGuiLabel* mgui_create_label( MGuiControl* parent )
+MGuiLabel* mgui_create_label( MGuiElement* parent )
 {
 	struct MGuiLabel* label;
 

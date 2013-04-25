@@ -48,7 +48,7 @@ static void			mgui_editbox_on_character			( MGuiElement* element, char_t c );
 static void			mgui_editbox_on_key_press			( MGuiElement* element, uint key, bool down );
 
 
-MGuiEditbox* mgui_create_editbox( MGuiControl* parent )
+MGuiEditbox* mgui_create_editbox( MGuiElement* parent )
 {
 	struct MGuiEditbox* editbox;
 

@@ -28,7 +28,7 @@ struct MGuiEditbox
 	bool			cursor_visible;	// Should the cursor be visible on this cycle?
 };
 
-MGuiEditbox*		mgui_create_editbox					( MGuiControl* parent );
+MGuiEditbox*		mgui_create_editbox					( MGuiElement* parent );
 
 void				mgui_editbox_get_selection			( MGuiEditbox* editbox, char_t* buf, size_t buflen );
 void				mgui_editbox_select_text			( MGuiEditbox* editbox, uint32 begin, uint32 end );

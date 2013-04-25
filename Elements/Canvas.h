@@ -1,26 +1,26 @@
 /**********************************************************************
  *
  * PROJECT:		Mylly GUI
- * FILE:		Label.h
+ * FILE:		Canvas.h
  * LICENCE:		See Licence.txt
- * PURPOSE:		GUI label related functions.
+ * PURPOSE:		GUI canvas related functions. Canvas is an invisible
+ *				element that can be used as a parent for everything else.
  *
  *				(c) Tuomo Jauhiainen 2012-13
- * 
+ *
  **********************************************************************/
 
 #pragma once
-#ifndef __MGUI_LABEL_H
-#define __MGUI_LABEL_H
+#ifndef __MGUI_CANVAS_H
+#define __MGUI_CANVAS_H
 
 #include "Element.h"
 
-struct MGuiLabel
+struct MGuiCanvas
 {
 	MGuiElement;	// Inherit all generic element properties
 };
 
-MGuiLabel*			mgui_create_label			( MGuiElement* parent );
-void				mgui_label_make_text_fit	( MGuiLabel* label );
+MGuiCanvas*		mgui_create_canvas		( MGuiElement* parent );
 
-#endif /* __MGUI_LABEL_H */
+#endif /* __MGUI_CANVAS_H */
