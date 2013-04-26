@@ -201,13 +201,7 @@ static void skin_simple_draw_editbox( MGuiElement* element )
 
 	r = &element->bounds;
 	editbox = (struct MGuiEditbox*)element;
-
-	// This is a really ugly hack to make mgui_get_text return the correct buffer:
-	// We replace the MGuiText buffer with our own (with masked input etc cool)
-	// while we render, and put the original buffer back afterwards
-	tmp = element->text->buffer;
-	element->text->buffer = editbox->buffer;
-
+	
 	if ( BIT_ON( element->flags, FLAG_BACKGROUND ) )
 	{
 		skin_simple_draw_panel( r, &element->colour );
@@ -228,6 +222,12 @@ static void skin_simple_draw_editbox( MGuiElement* element )
 
 	if ( ( text = element->text ) != NULL )
 	{
+		// This is a really ugly hack to make mgui_get_text return the correct buffer:
+		// We replace the MGuiText buffer with our own (with masked input etc cool)
+		// while we render, and put the original buffer back afterwards
+		tmp = element->text->buffer;
+		element->text->buffer = editbox->buffer;
+
 		renderer->set_draw_colour( &text->colour );
 
 		if ( BIT_ON( element->flags, FLAG_CLIP ) )
@@ -240,10 +240,10 @@ static void skin_simple_draw_editbox( MGuiElement* element )
 		{
 			renderer->draw_text( text->font->data, text->buffer, text->pos.x, text->pos.y, text->font->flags );
 		}
-	}
 
-	// Really ugly hack cleanup
-	element->text->buffer = tmp;
+		// Really ugly hack cleanup
+		element->text->buffer = tmp;
+	}
 }
 
 static void skin_simple_draw_label( MGuiElement* element )
