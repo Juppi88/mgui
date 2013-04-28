@@ -37,17 +37,34 @@ static void			mgui_editbox_press_home				( struct MGuiEditbox* editbox );
 static void			mgui_editbox_press_end				( struct MGuiEditbox* editbox );
 
 // Editbox callback handlers
-static void			mgui_destroy_editbox				( MGuiElement* editbox );
 static void			mgui_editbox_render					( MGuiElement* element );
 static void			mgui_editbox_process				( MGuiElement* element );
-static void			mgui_editbox_set_bounds				( MGuiElement* element, bool pos, bool size );
-static void			mgui_editbox_set_text				( MGuiElement* element );
-static void			mgui_editbox_on_mouse_click			( MGuiElement* element, MOUSEBTN button, uint16 x, uint16 y );
-static void			mgui_editbox_on_mouse_release		( MGuiElement* element, MOUSEBTN button, uint16 x, uint16 y );
+static void			mgui_editbox_on_bounds_change		( MGuiElement* element, bool pos, bool size );
+static void			mgui_editbox_on_text_change			( MGuiElement* element );
+static void			mgui_editbox_on_mouse_click			( MGuiElement* element, uint16 x, uint16 y, MOUSEBTN button );
+static void			mgui_editbox_on_mouse_release		( MGuiElement* element, uint16 x, uint16 y, MOUSEBTN button );
 static void			mgui_editbox_on_mouse_drag			( MGuiElement* element, uint16 x, uint16 y );
 static void			mgui_editbox_on_character			( MGuiElement* element, char_t c );
-static void			mgui_editbox_on_key_press			( MGuiElement* element, uint key, bool down );
+static void			mgui_editbox_on_key_press			( MGuiElement* element, uint32 key, bool down );
 
+static struct MGuiCallbacks callbacks =
+{
+	NULL, /* destroy */
+	mgui_editbox_render,
+	mgui_editbox_process,
+	mgui_editbox_on_bounds_change,
+	NULL, /* on_flags_change */
+	NULL, /* on_colour_change */
+	mgui_editbox_on_text_change,
+	NULL, /* on_mouse_enter */
+	NULL, /* on_mouse_leave */
+	mgui_editbox_on_mouse_click,
+	mgui_editbox_on_mouse_release,
+	mgui_editbox_on_mouse_drag,
+	NULL, /* on_mouse_wheel */
+	mgui_editbox_on_character,
+	mgui_editbox_on_key_press
+};
 
 MGuiEditbox* mgui_create_editbox( MGuiElement* parent )
 {
@@ -75,16 +92,7 @@ MGuiEditbox* mgui_create_editbox( MGuiElement* parent )
 	editbox->colour.hex = COL_ELEMENT_DARK;
 
 	// Editbox callbacks
-	editbox->destroy		= mgui_destroy_editbox;
-	editbox->render			= mgui_editbox_render;
-	editbox->process		= mgui_editbox_process;
-	editbox->set_bounds		= mgui_editbox_set_bounds;
-	editbox->set_text		= mgui_editbox_set_text;
-	editbox->on_mouse_click	= mgui_editbox_on_mouse_click;
-	editbox->on_mouse_release = mgui_editbox_on_mouse_release;
-	editbox->on_mouse_drag	= mgui_editbox_on_mouse_drag;
-	editbox->on_character	= mgui_editbox_on_character;
-	editbox->on_key_press	= mgui_editbox_on_key_press;
+	editbox->callbacks = &callbacks;
 
 	return cast_elem(editbox);
 }
@@ -102,11 +110,6 @@ MGuiEditbox* mgui_create_editbox_ex( MGuiElement* parent, uint16 x, uint16 y, ui
 	mgui_set_text_s( editbox, text );
 
 	return editbox;
-}
-
-static void mgui_destroy_editbox( MGuiElement* editbox )
-{
-	UNREFERENCED_PARAM( editbox );
 }
 
 static void mgui_editbox_render( MGuiElement* element )
@@ -159,7 +162,7 @@ static void mgui_editbox_process( MGuiElement* element )
 	}
 }
 
-static void mgui_editbox_set_bounds( MGuiElement* element, bool pos, bool size )
+static void mgui_editbox_on_bounds_change( MGuiElement* element, bool pos, bool size )
 {
 	UNREFERENCED_PARAM( pos );
 	UNREFERENCED_PARAM( size );
@@ -167,7 +170,7 @@ static void mgui_editbox_set_bounds( MGuiElement* element, bool pos, bool size )
 	mgui_editbox_refresh_cursor_bounds( (struct MGuiEditbox*)element );
 }
 
-static void mgui_editbox_set_text( MGuiElement* element )
+static void mgui_editbox_on_text_change( MGuiElement* element )
 {
 	char* str;
 	struct MGuiEditbox* editbox;
@@ -194,7 +197,7 @@ static void mgui_editbox_set_text( MGuiElement* element )
 	mgui_editbox_refresh_cursor_bounds( editbox );
 }
 
-static void mgui_editbox_on_mouse_click( MGuiElement* element, MOUSEBTN button, uint16 x, uint16 y )
+static void mgui_editbox_on_mouse_click( MGuiElement* element, uint16 x, uint16 y, MOUSEBTN button )
 {
 	uint32 ch;
 	uint16 cx, cy;
@@ -223,7 +226,7 @@ static void mgui_editbox_on_mouse_click( MGuiElement* element, MOUSEBTN button, 
 	mgui_editbox_refresh_cursor_bounds( editbox );
 }
 
-static void mgui_editbox_on_mouse_release( MGuiElement* element, MOUSEBTN button, uint16 x, uint16 y )
+static void mgui_editbox_on_mouse_release( MGuiElement* element, uint16 x, uint16 y, MOUSEBTN button )
 {
 	uint32 ch;
 	uint16 cx, cy;

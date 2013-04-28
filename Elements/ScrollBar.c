@@ -15,9 +15,27 @@
 #include "Platform/Alloc.h"
 
 // Scrollbar callback handlers
-static void		mgui_destroy_scrollbar			( MGuiElement* scrollbar );
 static void		mgui_scrollbar_render			( MGuiElement* scrollbar );
-static void		mgui_scrollbar_set_bounds		( MGuiElement* scrollbar, bool pos, bool size );
+static void		mgui_scrollbar_on_bounds_change	( MGuiElement* scrollbar, bool pos, bool size );
+
+static struct MGuiCallbacks callbacks =
+{
+	NULL, /* destroy */
+	mgui_scrollbar_render,
+	NULL, /* process */
+	mgui_scrollbar_on_bounds_change,
+	NULL, /* on_flags_change */
+	NULL, /* on_colour_change */
+	NULL, /* on_text_change */
+	NULL, /* on_mouse_enter */
+	NULL, /* on_mouse_leave */
+	NULL, /* on_mouse_click */
+	NULL, /* on_mouse_release */
+	NULL, /* on_mouse_drag */
+	NULL, /* on_mouse_wheel */
+	NULL, /* on_character */
+	NULL  /* on_key_press */
+};
 
 MGuiScrollbar* mgui_create_scrollbar( MGuiElement* parent )
 {
@@ -37,16 +55,9 @@ MGuiScrollbar* mgui_create_scrollbar( MGuiElement* parent )
 	scrollbar->nudge_amount = 0.1f;
 
 	// Scrollbar callbacks
-	scrollbar->destroy = mgui_destroy_scrollbar;
-	scrollbar->render = mgui_scrollbar_render;
-	scrollbar->set_bounds = mgui_scrollbar_set_bounds;
+	scrollbar->callbacks = &callbacks;
 
 	return cast_elem(scrollbar);
-}
-
-static void mgui_destroy_scrollbar( MGuiElement* scrollbar )
-{
-	UNREFERENCED_PARAM( scrollbar );
 }
 
 static void mgui_scrollbar_render( MGuiElement* scrollbar )
@@ -54,7 +65,7 @@ static void mgui_scrollbar_render( MGuiElement* scrollbar )
 	scrollbar->skin->draw_scrollbar( scrollbar );
 }
 
-void mgui_scrollbar_set_bounds( MGuiElement* scrollbar, bool pos, bool size )
+void mgui_scrollbar_on_bounds_change( MGuiElement* scrollbar, bool pos, bool size )
 {
 	struct MGuiScrollbar* bar;
 	uint16 tracksize;

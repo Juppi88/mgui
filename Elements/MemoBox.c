@@ -15,16 +15,7 @@
 #include "Platform/Alloc.h"
 #include "Stringy/Stringy.h"
 
-// Memobox callbacks
-static void		mgui_destroy_memobox			( MGuiElement* memobox );
-static void		mgui_memobox_render				( MGuiElement* memobox );
-static void		mgui_memobox_set_bounds			( MGuiElement* memobox, bool pos, bool size );
-static void		mgui_memobox_set_flags			( MGuiElement* memobox, uint32 old );
-static void		mgui_memobox_set_text			( MGuiElement* memobox );
-static void		mgui_memobox_on_mouse_click		( MGuiElement* memobox, MOUSEBTN button, uint16 x, uint16 y );
-static void		mgui_memobox_on_mouse_release	( MGuiElement* memobox, MOUSEBTN button, uint16 x, uint16 y );
-static void		mgui_memobox_on_mouse_drag		( MGuiElement* memobox, uint16 x, uint16 y );
-static void		mgui_memobox_on_key_press		( MGuiElement* memobox, uint32 key, bool down );
+extern MGuiRenderer* renderer;
 
 static void		mgui_memobox_update_display_positions			( struct MGuiMemobox* memobox );
 static void		mgui_memobox_update_display_positions_topbottom	( struct MGuiMemobox* memobox );
@@ -33,7 +24,30 @@ static void		mgui_memobox_process_new_line					( struct MGuiMemobox* memobox, st
 static void		mgui_memobox_wrap_line							( struct MGuiMemobox* memobox, struct MGuiMemoRaw* raw );
 static void		mgui_memobox_refresh_lines						( struct MGuiMemobox* memobox );
 
-extern MGuiRenderer* renderer;
+// Memobox callback handlers
+static void		mgui_memobox_destroy			( MGuiElement* memobox );
+static void		mgui_memobox_render				( MGuiElement* memobox );
+static void		mgui_memobox_on_bounds_change	( MGuiElement* memobox, bool pos, bool size );
+static void		mgui_memobox_on_flags_change	( MGuiElement* memobox, uint32 old );
+
+static struct MGuiCallbacks callbacks =
+{
+	mgui_memobox_destroy,
+	mgui_memobox_render,
+	NULL, /* process */
+	mgui_memobox_on_bounds_change,
+	mgui_memobox_on_flags_change,
+	NULL, /* on_colour_change */
+	NULL, /* on_text_change */
+	NULL, /* on_mouse_enter */
+	NULL, /* on_mouse_leave */
+	NULL, /* on_mouse_click */
+	NULL, /* on_mouse_release */
+	NULL, /* on_mouse_drag */
+	NULL, /* on_mouse_wheel */
+	NULL, /* on_character */
+	NULL  /* on_key_press */
+};
 
 MGuiMemobox* mgui_create_memobox( MGuiElement* parent )
 {
@@ -60,10 +74,7 @@ MGuiMemobox* mgui_create_memobox( MGuiElement* parent )
 	memobox->margin = 5;
 
 	// Memobox callbacks
-	memobox->destroy = mgui_destroy_memobox;
-	memobox->render = mgui_memobox_render;
-	memobox->set_bounds = mgui_memobox_set_bounds;
-	memobox->set_flags = mgui_memobox_set_flags;
+	memobox->callbacks = &callbacks;
 
 	return cast_elem(memobox);
 }
@@ -82,7 +93,7 @@ MGuiMemobox* mgui_create_memobox_ex( MGuiElement* parent, uint16 x, uint16 y, ui
 	return memobox;
 }
 
-static void mgui_destroy_memobox( MGuiElement* memobox )
+static void mgui_memobox_destroy( MGuiElement* memobox )
 {
 	struct MGuiMemobox* memo;
 	memo = (struct MGuiMemobox*)memobox;
@@ -98,7 +109,7 @@ static void mgui_memobox_render( MGuiElement* memobox )
 	memobox->skin->draw_memobox( memobox );
 }
 
-static void mgui_memobox_set_bounds( MGuiElement* memobox, bool pos, bool size )
+static void mgui_memobox_on_bounds_change( MGuiElement* memobox, bool pos, bool size )
 {
 	node_t *node, *tmp;
 	struct MGuiMemoLine* line;
@@ -131,7 +142,7 @@ static void mgui_memobox_set_bounds( MGuiElement* memobox, bool pos, bool size )
 	}
 }
 
-static void mgui_memobox_set_flags( MGuiElement* memobox, uint32 old )
+static void mgui_memobox_on_flags_change( MGuiElement* memobox, uint32 old )
 {
 	// If there was a change, update the memobox
 	if ( BIT_ENABLED( memobox->flags, old, FLAG_MEMO_TOPBOTTOM ) ||
@@ -139,37 +150,6 @@ static void mgui_memobox_set_flags( MGuiElement* memobox, uint32 old )
 	{
 		mgui_memobox_update_display_positions( (struct MGuiMemobox*)memobox );
 	}
-}
-
-static void mgui_memobox_on_mouse_click( MGuiElement* memobox, MOUSEBTN button, uint16 x, uint16 y )
-{
-	UNREFERENCED_PARAM( memobox );
-	UNREFERENCED_PARAM( button );
-	UNREFERENCED_PARAM( x );
-	UNREFERENCED_PARAM( y );
-}
-
-static void mgui_memobox_on_mouse_release( MGuiElement* memobox, MOUSEBTN button, uint16 x, uint16 y )
-{
-	UNREFERENCED_PARAM( memobox );
-	UNREFERENCED_PARAM( button );
-	UNREFERENCED_PARAM( x );
-	UNREFERENCED_PARAM( y );
-}
-
-static void mgui_memobox_on_mouse_drag( MGuiElement* memobox, uint16 x, uint16 y )
-{
-	UNREFERENCED_PARAM( memobox );
-	UNREFERENCED_PARAM( x );
-	UNREFERENCED_PARAM( y );
-}
-
-static void mgui_memobox_on_key_press( MGuiElement* memobox, uint32 key, bool down )
-{
-	// TODO: pgup/down
-	UNREFERENCED_PARAM( memobox );
-	UNREFERENCED_PARAM( key );
-	UNREFERENCED_PARAM( down );
 }
 
 void mgui_memobox_add_line( MGuiMemobox* memobox, const char* fmt, ... )

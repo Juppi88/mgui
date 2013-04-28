@@ -97,9 +97,9 @@ void mgui_set_focus( MGuiElement* element )
 
 static bool mgui_input_handle_char( input_event_t* event )
 {
-	if ( kbfocus )
+	if ( kbfocus && kbfocus->callbacks->on_character )
 	{
-		kbfocus->on_character( kbfocus, (char_t)event->keyboard.key );
+		kbfocus->callbacks->on_character( kbfocus, (char_t)event->keyboard.key );
 	}
 
 	return true;
@@ -107,9 +107,9 @@ static bool mgui_input_handle_char( input_event_t* event )
 
 static bool mgui_input_handle_key_up( input_event_t* event )
 {
-	if ( kbfocus )
+	if ( kbfocus && kbfocus->callbacks->on_key_press )
 	{
-		kbfocus->on_key_press( kbfocus, event->keyboard.key, false );
+		kbfocus->callbacks->on_key_press( kbfocus, event->keyboard.key, false );
 	}
 
 	return true;
@@ -117,9 +117,9 @@ static bool mgui_input_handle_key_up( input_event_t* event )
 
 static bool mgui_input_handle_key_down( input_event_t* event )
 {
-	if ( kbfocus )
+	if ( kbfocus && kbfocus->callbacks->on_key_press )
 	{
-		kbfocus->on_key_press( kbfocus, event->keyboard.key, true );
+		kbfocus->callbacks->on_key_press( kbfocus, event->keyboard.key, true );
 	}
 
 	return true;
@@ -136,8 +136,12 @@ static bool mgui_input_handle_mouse_move( input_event_t* event )
 
 	if ( dragged )
 	{
-		dragged->on_mouse_drag( dragged, x, y );
 		mgui_force_redraw();
+
+		if ( dragged->callbacks->on_mouse_drag )
+		{
+			dragged->callbacks->on_mouse_drag( dragged, x, y );
+		}
 	}
 
 	element = mgui_get_element_at( x, y );
@@ -146,7 +150,11 @@ static bool mgui_input_handle_mouse_move( input_event_t* event )
 	if ( hovered )
 	{
 		hovered->flags_int &= ~INTFLAG_HOVER;
-		hovered->on_mouse_leave( hovered );
+		
+		if ( hovered->callbacks->on_mouse_leave )
+		{
+			hovered->callbacks->on_mouse_leave( hovered );
+		}
 
 		if ( hovered->event_handler )
 		{
@@ -163,7 +171,11 @@ static bool mgui_input_handle_mouse_move( input_event_t* event )
 	if ( ( hovered = element ) != NULL )
 	{
 		hovered->flags_int |= INTFLAG_HOVER;
-		hovered->on_mouse_enter( hovered );
+		
+		if ( hovered->callbacks->on_mouse_enter )
+		{
+			hovered->callbacks->on_mouse_enter( hovered );
+		}
 
 		if ( hovered->event_handler )
 		{
@@ -204,7 +216,11 @@ static bool mgui_input_handle_lmb_up( input_event_t* event )
 	if ( pressed )
 	{
 		pressed->flags_int &= ~INTFLAG_PRESSED;
-		pressed->on_mouse_release( pressed, MOUSE_LBUTTON, x, y );
+
+		if ( pressed->callbacks->on_mouse_release )
+		{
+			pressed->callbacks->on_mouse_release( pressed, x, y, MOUSE_LBUTTON );
+		}
 
 		if ( pressed->event_handler )
 		{
@@ -259,7 +275,11 @@ static bool mgui_input_handle_lmb_down( input_event_t* event )
 	if ( pressed )
 	{
 		pressed->flags_int &= ~INTFLAG_PRESSED;
-		pressed->on_mouse_release( pressed, MOUSE_LBUTTON, x, y );
+
+		if ( pressed->callbacks->on_mouse_release )
+		{
+			pressed->callbacks->on_mouse_release( pressed, x, y, MOUSE_LBUTTON );
+		}
 
 		if ( pressed->event_handler )
 		{
@@ -279,7 +299,11 @@ static bool mgui_input_handle_lmb_down( input_event_t* event )
 	if ( ( pressed = element ) != NULL )
 	{
 		pressed->flags_int |= INTFLAG_PRESSED;
-		pressed->on_mouse_click( pressed, MOUSE_LBUTTON, x, y );
+
+		if ( pressed->callbacks->on_mouse_click )
+		{
+			pressed->callbacks->on_mouse_click( pressed, x, y, MOUSE_LBUTTON );
+		}
 
 		if ( BIT_ON( pressed->flags, FLAG_DRAGGABLE ) )
 		{

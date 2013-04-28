@@ -24,24 +24,6 @@ extern list_t* layers;
 static MYLLY_INLINE MGuiElement*	mgui_get_element_at_test_self		( MGuiElement* element, uint16 x, uint16 y );
 static MYLLY_INLINE MGuiElement*	mgui_get_element_at_test_bounds		( MGuiElement* element, uint16 x, uint16 y );
 
-// Default callback handlers
-static void		mgui_render_cb				( MGuiElement* element );
-static void		mgui_destroy_cb				( MGuiElement* element );
-static void		mgui_process_cb				( MGuiElement* element );
-static void		mgui_set_bounds_cb			( MGuiElement* element, bool pos, bool size );
-static void		mgui_set_flags_cb			( MGuiElement* element, uint32 old_flags );
-static void		mgui_set_colour_cb			( MGuiElement* element );
-static void		mgui_set_text_cb			( MGuiElement* element );
-static void		mgui_on_mouse_enter_cb		( MGuiElement* element );
-static void		mgui_on_mouse_leave_cb		( MGuiElement* element );
-static void		mgui_on_mouse_click_cb		( MGuiElement* element, MOUSEBTN button, uint16 x, uint16 y );
-static void		mgui_on_mouse_release_cb	( MGuiElement* element, MOUSEBTN button, uint16 x, uint16 y );
-static void		mgui_on_mouse_drag_cb		( MGuiElement* element, uint16 x, uint16 y );
-static void		mgui_on_mouse_wheel_cb		( MGuiElement* element, float wheel );
-static void		mgui_on_character_cb		( MGuiElement* element, char_t key );
-static void		mgui_on_key_press_cb		( MGuiElement* element, uint key, bool down );
-
-
 void mgui_element_create( MGuiElement* element, MGuiElement* parent )
 {
 	element->flags |= (FLAG_VISIBLE|FLAG_CLIP|FLAG_INHERIT_ALPHA);
@@ -55,23 +37,6 @@ void mgui_element_create( MGuiElement* element, MGuiElement* parent )
 	}
 
 	element->colour.hex = COL_ELEMENT;
-
-	// Setup default callbacks
-	element->render			= mgui_render_cb;
-	element->destroy		= mgui_destroy_cb;
-	element->process		= mgui_process_cb;
-	element->set_bounds		= mgui_set_bounds_cb;
-	element->set_flags		= mgui_set_flags_cb;
-	element->set_colour		= mgui_set_colour_cb;
-	element->set_text		= mgui_set_text_cb;
-	element->on_mouse_enter	= mgui_on_mouse_enter_cb;
-	element->on_mouse_leave	= mgui_on_mouse_leave_cb;
-	element->on_mouse_click	= mgui_on_mouse_click_cb;
-	element->on_mouse_release = mgui_on_mouse_release_cb;
-	element->on_mouse_drag	= mgui_on_mouse_drag_cb;
-	element->on_mouse_wheel	= mgui_on_mouse_wheel_cb;
-	element->on_character	= mgui_on_character_cb;
-	element->on_key_press	= mgui_on_key_press_cb;
 
 	if ( parent )
 	{
@@ -111,8 +76,8 @@ void mgui_element_destroy( MGuiElement* element )
 		list_destroy( element->children );
 	}
 
-	if ( element->destroy )
-		element->destroy( element );
+	if ( element->callbacks->destroy )
+		element->callbacks->destroy( element );
 
 	if ( element->text )
 		mgui_text_destroy( element->text );
@@ -134,7 +99,10 @@ void mgui_element_render( MGuiElement* element )
 	if ( element == NULL ) return;
 	if ( BIT_OFF( element->flags, FLAG_VISIBLE ) ) return;
 
-	element->render( element );
+	if ( element->callbacks->render )
+	{
+		element->callbacks->render( element );
+	}
 
 	if ( !element->children ) return;
 
@@ -153,7 +121,10 @@ void mgui_element_process( MGuiElement* element )
 	if ( element == NULL ) return;
 	if ( BIT_OFF( element->flags, FLAG_VISIBLE ) ) return;
 
-	element->process( element );
+	if ( element->callbacks->process )
+	{
+		element->callbacks->process( element );
+	}
 
 	if ( !element->children ) return;
 
@@ -396,7 +367,10 @@ void mgui_element_update_abs_pos( MGuiElement* elem )
 		mgui_text_update_position( elem->text );
 	}
 
-	elem->set_bounds( elem, true, false );
+	if ( elem->callbacks->on_bounds_change )
+	{
+		elem->callbacks->on_bounds_change( elem, true, false );
+	}
 
 	if ( elem->children == NULL ) return;
 
@@ -429,7 +403,10 @@ void mgui_element_update_abs_size( MGuiElement* elem )
 		mgui_text_update_position( elem->text );
 	}
 
-	elem->set_bounds( elem, false, true );
+	if ( elem->callbacks->on_bounds_change )
+	{
+		elem->callbacks->on_bounds_change( elem, false, true );
+	}
 
 	if ( elem->children == NULL ) return;
 
@@ -465,7 +442,10 @@ void mgui_element_update_rel_pos( MGuiElement* elem )
 		mgui_text_update_position( elem->text );
 	}
 
-	elem->set_bounds( elem, true, false );
+	if ( elem->callbacks->on_bounds_change )
+	{
+		elem->callbacks->on_bounds_change( elem, true, false );
+	}
 
 	if ( elem->children == NULL ) return;
 
@@ -498,7 +478,10 @@ void mgui_element_update_rel_size( MGuiElement* elem )
 		mgui_text_update_position( elem->text );
 	}
 
-	elem->set_bounds( elem, false, true );
+	if ( elem->callbacks->on_bounds_change )
+	{
+		elem->callbacks->on_bounds_change( elem, false, true );
+	}
 
 	if ( !elem->children ) return;
 
@@ -526,7 +509,10 @@ void mgui_element_update_child_pos( MGuiElement* elem )
 		elem->bounds.h = (uint16)( elem->size.y * r->h );
 	}
 
-	elem->set_bounds( elem, true, false );
+	if ( elem->callbacks->on_bounds_change )
+	{
+		elem->callbacks->on_bounds_change( elem, true, false );
+	}
 
 	if ( elem->text )
 	{
@@ -796,7 +782,10 @@ void mgui_set_alpha( MGuiElement* elem, uint8 alpha )
 
 	if ( elem->text ) elem->text->colour.a = alpha;
 
-	elem->set_colour( elem );
+	if ( elem->callbacks->on_colour_change )
+	{
+		elem->callbacks->on_colour_change( elem );
+	}
 
 	if ( elem->children == NULL ) return;
 
@@ -837,7 +826,10 @@ void mgui_set_text( MGuiElement* element, const char_t* fmt, ... )
 	mgui_text_set_buffer_va( element->text, fmt, marker );
 	va_end( marker );
 
-	element->set_text( element );
+	if ( element->callbacks->on_text_change )
+	{
+		element->callbacks->on_text_change( element );
+	}
 }
 
 void mgui_set_text_s( MGuiElement* element, const char_t* text )
@@ -846,7 +838,11 @@ void mgui_set_text_s( MGuiElement* element, const char_t* text )
 	if ( element->text == NULL ) return;
 
 	mgui_text_set_buffer_s( element->text, text );
-	element->set_text( element );
+	
+	if ( element->callbacks->on_text_change )
+	{
+		element->callbacks->on_text_change( element );
+	}
 }
 
 uint32 mgui_get_alignment( MGuiElement* element )
@@ -887,7 +883,10 @@ void mgui_set_text_padding( MGuiElement* element, uint8 top, uint8 bottom, uint8
 	element->text->pad.left = left;
 	element->text->pad.right = right;
 
-	element->set_bounds( element, false, true );
+	if ( element->callbacks->on_bounds_change )
+	{
+		element->callbacks->on_bounds_change( element, false, true );
+	}
 }
 
 const char_t* mgui_get_font_name( MGuiElement* element )
@@ -984,7 +983,10 @@ void mgui_set_flags( MGuiElement* element, uint32 flags )
 	old = element->flags;
 	element->flags = flags;
 
-	element->set_flags( element, old );
+	if ( element->callbacks->on_flags_change )
+	{
+		element->callbacks->on_flags_change( element, old );
+	}
 }
 
 void mgui_add_flags( MGuiElement* element, uint32 flags )
@@ -996,7 +998,10 @@ void mgui_add_flags( MGuiElement* element, uint32 flags )
 	old = element->flags;
 	element->flags |= flags;
 
-	element->set_flags( element, old );
+	if ( element->callbacks->on_flags_change )
+	{
+		element->callbacks->on_flags_change( element, old );
+	}
 }
 
 void mgui_remove_flags( MGuiElement* element, uint32 flags )
@@ -1008,7 +1013,10 @@ void mgui_remove_flags( MGuiElement* element, uint32 flags )
 	old = element->flags;
 	element->flags &= ~flags;
 
-	element->set_flags( element, old );
+	if ( element->callbacks->on_flags_change )
+	{
+		element->callbacks->on_flags_change( element, old );
+	}
 }
 
 void mgui_set_event_handler( MGuiElement* element, mgui_event_handler_t handler, void* data )
@@ -1017,96 +1025,4 @@ void mgui_set_event_handler( MGuiElement* element, mgui_event_handler_t handler,
 
 	element->event_handler = handler;
 	element->event_data = data;
-}
-
-// ---------- Default callbacks ----------
-
-static void mgui_render_cb( MGuiElement* element )
-{
-	UNREFERENCED_PARAM( element );
-}
-
-static void mgui_destroy_cb( MGuiElement* element )
-{
-	UNREFERENCED_PARAM( element );
-}
-
-static void mgui_process_cb( MGuiElement* element )
-{
-	UNREFERENCED_PARAM( element );
-}
-
-static void mgui_set_bounds_cb( MGuiElement* element, bool pos, bool size )
-{
-	UNREFERENCED_PARAM( element );
-	UNREFERENCED_PARAM( pos );
-	UNREFERENCED_PARAM( size );
-}
-
-static void mgui_set_flags_cb( MGuiElement* element, uint32 old_flags )
-{
-	UNREFERENCED_PARAM( element );
-	UNREFERENCED_PARAM( old_flags );
-}
-
-static void mgui_set_colour_cb( MGuiElement* element )
-{
-	UNREFERENCED_PARAM( element );
-}
-
-static void mgui_set_text_cb( MGuiElement* element )
-{
-	UNREFERENCED_PARAM( element );
-}
-
-static void mgui_on_mouse_enter_cb( MGuiElement* element )
-{
-	UNREFERENCED_PARAM( element );
-}
-
-static void mgui_on_mouse_leave_cb( MGuiElement* element )
-{
-	UNREFERENCED_PARAM( element );
-}
-
-static void mgui_on_mouse_click_cb( MGuiElement* element, MOUSEBTN button, uint16 x, uint16 y )
-{
-	UNREFERENCED_PARAM( element );
-	UNREFERENCED_PARAM( button );
-	UNREFERENCED_PARAM( x );
-	UNREFERENCED_PARAM( y );
-}
-
-static void mgui_on_mouse_release_cb( MGuiElement* element, MOUSEBTN button, uint16 x, uint16 y )
-{
-	UNREFERENCED_PARAM( element );
-	UNREFERENCED_PARAM( button );
-	UNREFERENCED_PARAM( x );
-	UNREFERENCED_PARAM( y );
-}
-
-static void mgui_on_mouse_drag_cb( MGuiElement* element, uint16 x, uint16 y )
-{
-	UNREFERENCED_PARAM( element );
-	UNREFERENCED_PARAM( x );
-	UNREFERENCED_PARAM( y );
-}
-
-static void mgui_on_mouse_wheel_cb( MGuiElement* element, float wheel )
-{
-	UNREFERENCED_PARAM( element );
-	UNREFERENCED_PARAM( wheel );
-}
-
-static void mgui_on_character_cb( MGuiElement* element, char_t key )
-{
-	UNREFERENCED_PARAM( element );
-	UNREFERENCED_PARAM( key );
-}
-
-static void mgui_on_key_press_cb( MGuiElement* element, uint key, bool down )
-{
-	UNREFERENCED_PARAM( element );
-	UNREFERENCED_PARAM( key );
-	UNREFERENCED_PARAM( down );
 }

@@ -71,24 +71,26 @@ struct MGuiElement
 	mgui_event_handler_t	event_handler;	// User event handler callback
 	void*					event_data;		// User-specified data to be passed via event_handler
 
-	// ---------- Internal callbacks ---------- 
-	void		( *render )				( MGuiElement* element );
-	void		( *destroy )			( MGuiElement* element );
-	void		( *process )			( MGuiElement* element );
+	// ---------- Internal callbacks ----------
 
-	void		( *set_bounds )			( MGuiElement* element, bool pos, bool size );
-	void		( *set_flags )			( MGuiElement* element, uint32 old_flags );
-	void		( *set_colour )			( MGuiElement* element );
-	void		( *set_text )			( MGuiElement* element );
+	struct MGuiCallbacks {
+		void		( *destroy )			( MGuiElement* element );
+		void		( *render )				( MGuiElement* element );
+		void		( *process )			( MGuiElement* element );
 
-	void		( *on_mouse_enter )		( MGuiElement* element );
-	void		( *on_mouse_leave )		( MGuiElement* element );
-	void		( *on_mouse_click )		( MGuiElement* element, MOUSEBTN button, uint16 x, uint16 y );
-	void		( *on_mouse_release )	( MGuiElement* element, MOUSEBTN button, uint16 x, uint16 y );
-	void		( *on_mouse_drag )		( MGuiElement* element, uint16 x, uint16 y );
-	void		( *on_mouse_wheel )		( MGuiElement* element, float diff );
-	void		( *on_character )		( MGuiElement* element, char_t c );
-	void		( *on_key_press )		( MGuiElement* element, uint key, bool down );
+		void		( *on_bounds_change )	( MGuiElement* element, bool pos, bool size );
+		void		( *on_flags_change )	( MGuiElement* element, uint32 old );
+		void		( *on_colour_change )	( MGuiElement* element );
+		void		( *on_text_change )		( MGuiElement* element );
+		void		( *on_mouse_enter )		( MGuiElement* element );
+		void		( *on_mouse_leave )		( MGuiElement* element );
+		void		( *on_mouse_click )		( MGuiElement* element, uint16 x, uint16 y, MOUSEBTN button );
+		void		( *on_mouse_release )	( MGuiElement* element, uint16 x, uint16 y, MOUSEBTN button );
+		void		( *on_mouse_drag )		( MGuiElement* element, uint16 x, uint16 y );
+		void		( *on_mouse_wheel )		( MGuiElement* element, float diff );
+		void		( *on_character )		( MGuiElement* element, char_t c );
+		void		( *on_key_press )		( MGuiElement* element, uint32 key, bool down );
+	} *callbacks;
 };
 
 // Generic element functions

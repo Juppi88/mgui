@@ -17,9 +17,28 @@
 extern vectorscreen_t draw_size;
 extern MGuiRenderer* renderer;
 
-static void		mgui_destroy_canvas			( MGuiElement* canvas );
-static void		mgui_canvas_render			( MGuiElement* canvas );
-static void		mgui_canvas_set_bounds		( MGuiElement* canvas, bool pos, bool size );
+// Canvas callback handlers
+static void		mgui_canvas_render				( MGuiElement* canvas );
+static void		mgui_canvas_on_bounds_change	( MGuiElement* canvas, bool pos, bool size );
+
+static struct MGuiCallbacks callbacks =
+{
+	NULL, /* destroy */
+	mgui_canvas_render,
+	NULL, /* process */
+	mgui_canvas_on_bounds_change,
+	NULL, /* on_flags_change */
+	NULL, /* on_colour_change */
+	NULL, /* on_text_change */
+	NULL, /* on_mouse_enter */
+	NULL, /* on_mouse_leave */
+	NULL, /* on_mouse_click */
+	NULL, /* on_mouse_release */
+	NULL, /* on_mouse_drag */
+	NULL, /* on_mouse_wheel */
+	NULL, /* on_character */
+	NULL  /* on_key_press */
+};
 
 MGuiCanvas* mgui_create_canvas( MGuiElement* parent )
 {
@@ -40,18 +59,10 @@ MGuiCanvas* mgui_create_canvas( MGuiElement* parent )
 	canvas->bounds.w = draw_size.x;
 	canvas->bounds.h = draw_size.y;
 
-	// Button callbacks
-	canvas->destroy			= mgui_destroy_canvas;
-	canvas->render			= mgui_canvas_render;
-	canvas->set_bounds		= mgui_canvas_set_bounds;
+	// Canvas callbacks
+	canvas->callbacks = &callbacks;
 
 	return cast_elem(canvas);
-}
-
-static void mgui_destroy_canvas( MGuiElement* canvas )
-{
-	// Nothing to do here.
-	UNREFERENCED_PARAM(canvas);
 }
 
 static void mgui_canvas_render( MGuiElement* canvas )
@@ -63,7 +74,7 @@ static void mgui_canvas_render( MGuiElement* canvas )
 	}
 }
 
-static void mgui_canvas_set_bounds( MGuiElement* canvas, bool pos, bool size )
+static void mgui_canvas_on_bounds_change( MGuiElement* canvas, bool pos, bool size )
 {
 	UNREFERENCED_PARAM( pos );
 	UNREFERENCED_PARAM( size );

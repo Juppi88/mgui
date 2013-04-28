@@ -16,10 +16,28 @@
 #include "Platform/Alloc.h"
 
 // Window titlebar callback handlers
-static void		mgui_destroy_titlebar			( MGuiElement* element );
-static void		mgui_titlebar_on_mouse_click	( MGuiElement* element, MOUSEBTN button, uint16 x, uint16 y );
+static void		mgui_titlebar_destroy			( MGuiElement* element );
+static void		mgui_titlebar_on_mouse_click	( MGuiElement* element, uint16 x, uint16 y, MOUSEBTN button );
 static void		mgui_titlebar_on_mouse_drag		( MGuiElement* element, uint16 x, uint16 y );
 
+static struct MGuiCallbacks callbacks =
+{
+	mgui_titlebar_destroy,
+	NULL, /* render */
+	NULL, /* process */
+	NULL, /* on_bounds_change */
+	NULL, /* on_flags_change */
+	NULL, /* on_colour_change */
+	NULL, /* on_text_change */
+	NULL, /* on_mouse_enter */
+	NULL, /* on_mouse_leave */
+	mgui_titlebar_on_mouse_click,
+	NULL, /* on_mouse_release */
+	mgui_titlebar_on_mouse_drag,
+	NULL, /* on_mouse_wheel */
+	NULL, /* on_character */
+	NULL  /* on_key_press */
+};
 
 MGuiTitlebar* mgui_create_titlebar( MGuiWindow* parent )
 {
@@ -45,21 +63,20 @@ MGuiTitlebar* mgui_create_titlebar( MGuiWindow* parent )
 	titlebar->colour.a = parent->colour.a;
 	titlebar->bounds.w = parent->bounds.w;
 
-	titlebar->destroy = mgui_destroy_titlebar;
-	titlebar->on_mouse_click = mgui_titlebar_on_mouse_click;
-	titlebar->on_mouse_drag = mgui_titlebar_on_mouse_drag;
+	// Titlebar callbacks
+	titlebar->callbacks = &callbacks;
 
 	return titlebar;
 }
 
-static void mgui_destroy_titlebar( MGuiElement* element )
+static void mgui_titlebar_destroy( MGuiElement* element )
 {
 	// Let the parent window clean up text
 	element->text = NULL;
 	element->font = NULL;
 }
 
-static void mgui_titlebar_on_mouse_click( MGuiElement* element, MOUSEBTN button, uint16 x, uint16 y )
+static void mgui_titlebar_on_mouse_click( MGuiElement* element, uint16 x, uint16 y, MOUSEBTN button )
 {
 	MGuiTitlebar* titlebar;
 	titlebar = (MGuiTitlebar*)element;
@@ -68,7 +85,10 @@ static void mgui_titlebar_on_mouse_click( MGuiElement* element, MOUSEBTN button,
 
 	if ( titlebar->window == NULL ) return;
 
-	titlebar->window->on_mouse_click( titlebar->window, button, x - titlebar->bounds.x, y - titlebar->bounds.y );
+	if ( titlebar->window->callbacks->on_mouse_click )
+	{
+		titlebar->window->callbacks->on_mouse_click( titlebar->window, x - titlebar->bounds.x, y - titlebar->bounds.y, button );
+	}
 }
 
 static void mgui_titlebar_on_mouse_drag( MGuiElement* element, uint16 x, uint16 y )
@@ -78,5 +98,8 @@ static void mgui_titlebar_on_mouse_drag( MGuiElement* element, uint16 x, uint16 
 
 	if ( titlebar->window == NULL ) return;
 
-	titlebar->window->on_mouse_drag( titlebar->window, x, y );
+	if ( titlebar->window->callbacks->on_mouse_drag )
+	{
+		titlebar->window->callbacks->on_mouse_drag( titlebar->window, x, y );
+	}
 }

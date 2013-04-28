@@ -14,8 +14,26 @@
 #include "Platform/Alloc.h"
 
 // Label callback handlers
-static void			mgui_destroy_label			( MGuiElement* label );
 static void			mgui_label_render			( MGuiElement* label );
+
+static struct MGuiCallbacks callbacks =
+{
+	NULL, /* destroy */
+	mgui_label_render,
+	NULL, /* process */
+	NULL, /* on_bounds_change */
+	NULL, /* on_flags_change */
+	NULL, /* on_colour_change */
+	NULL, /* on_text_change */
+	NULL, /* on_mouse_enter */
+	NULL, /* on_mouse_leave */
+	NULL, /* on_mouse_click */
+	NULL, /* on_mouse_release */
+	NULL, /* on_mouse_drag */
+	NULL, /* on_mouse_wheel */
+	NULL, /* on_character */
+	NULL  /* on_key_press */
+};
 
 MGuiLabel* mgui_create_label( MGuiElement* parent )
 {
@@ -31,8 +49,7 @@ MGuiLabel* mgui_create_label( MGuiElement* parent )
 	label->text->font = label->font;
 
 	// Label callbacks
-	label->destroy = mgui_destroy_label;
-	label->render = mgui_label_render;
+	label->callbacks = &callbacks;
 
 	return cast_elem(label);
 }
@@ -50,11 +67,6 @@ MGuiLabel* mgui_create_label_ex( MGuiElement* parent, uint16 x, uint16 y, uint16
 	mgui_set_text_s( label, text );
 
 	return label;
-}
-
-static void mgui_destroy_label( MGuiElement* label )
-{
-	UNREFERENCED_PARAM( label );
 }
 
 static void mgui_label_render( MGuiElement* label )
@@ -81,6 +93,5 @@ void mgui_label_make_text_fit( MGuiLabel* label )
 	label->bounds.w = math_max( w, label->bounds.w );
 	label->bounds.h = math_max( h, label->bounds.h );
 
-	label->set_bounds( label, false, true );
 	mgui_text_update_position( label->text );
 }

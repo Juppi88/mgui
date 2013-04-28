@@ -17,14 +17,31 @@
 #include "Platform/Alloc.h"
 
 // Window callback handlers
-static void		mgui_destroy_window				( MGuiElement* window );
 static void		mgui_window_render				( MGuiElement* window );
-static void		mgui_window_set_bounds			( MGuiElement* window, bool pos, bool size );
-static void		mgui_window_set_flags			( MGuiElement* window, uint32 old );
-static void		mgui_window_set_colour			( MGuiElement* window );
-static void		mgui_window_on_mouse_click		( MGuiElement* window, MOUSEBTN button, uint16 x, uint16 y );
+static void		mgui_window_on_bounds_change	( MGuiElement* window, bool pos, bool size );
+static void		mgui_window_on_flags_change		( MGuiElement* window, uint32 old );
+static void		mgui_window_on_colour_change	( MGuiElement* window );
+static void		mgui_window_on_mouse_click		( MGuiElement* window, uint16 x, uint16 y, MOUSEBTN button );
 static void		mgui_window_on_mouse_drag		( MGuiElement* window, uint16 x, uint16 y );
 
+static struct MGuiCallbacks callbacks =
+{
+	NULL, /* destroy */
+	mgui_window_render,
+	NULL, /* process */
+	mgui_window_on_bounds_change,
+	mgui_window_on_flags_change,
+	mgui_window_on_colour_change,
+	NULL, /* on_text_change */
+	NULL, /* on_mouse_enter */
+	NULL, /* on_mouse_leave */
+	mgui_window_on_mouse_click,
+	NULL, /* on_mouse_release */
+	mgui_window_on_mouse_drag,
+	NULL, /* on_mouse_wheel */
+	NULL, /* on_character */
+	NULL  /* on_key_press */
+};
 
 MGuiWindow* mgui_create_window( MGuiElement* parent )
 {
@@ -38,17 +55,11 @@ MGuiWindow* mgui_create_window( MGuiElement* parent )
 	window->font = mgui_font_create( DEFAULT_FONT, 10, FFLAG_BOLD, ANSI_CHARSET );
 	window->text->font = window->font;
 
-	// Window callbacks
-	window->destroy			= mgui_destroy_window;
-	window->render			= mgui_window_render;
-	window->set_bounds		= mgui_window_set_bounds;
-	window->set_flags		= mgui_window_set_flags;
-	window->set_colour		= mgui_window_set_colour;
-	window->on_mouse_click	= mgui_window_on_mouse_click;
-	window->on_mouse_drag	= mgui_window_on_mouse_drag;
+	// We want to have the titlebar enabled by default, so let's add it
+	mgui_window_on_flags_change( cast_elem(window), 0 );
 
-	// We want to have the titlebar by default, so let's add it
-	window->set_flags( cast_elem(window), 0 );
+	// Window callbacks
+	window->callbacks = &callbacks;
 
 	return cast_elem(window);
 }
@@ -68,17 +79,12 @@ MGuiWindow* mgui_create_window_ex( MGuiElement* parent, uint16 x, uint16 y, uint
 	return window;
 }
 
-static void mgui_destroy_window( MGuiElement* window )
-{
-	UNREFERENCED_PARAM( window );
-}
-
 static void mgui_window_render( MGuiElement* window )
 {
 	window->skin->draw_window( window );
 }
 
-static void mgui_window_set_bounds( MGuiElement* window, bool pos, bool size )
+static void mgui_window_on_bounds_change( MGuiElement* window, bool pos, bool size )
 {
 	struct MGuiWindow* wnd;
 	wnd = (struct MGuiWindow*)window;
@@ -114,13 +120,13 @@ static void mgui_window_set_bounds( MGuiElement* window, bool pos, bool size )
 		wnd->window_bounds = window->bounds;
 	}
 
-	if ( wnd->closebtn )
+	if ( wnd->closebtn && wnd->closebtn->callbacks->on_bounds_change )
 	{
-		wnd->closebtn->set_bounds( cast_elem(wnd->closebtn), pos, size );
+		wnd->closebtn->callbacks->on_bounds_change( cast_elem(wnd->closebtn), pos, size );
 	}
 }
 
-static void mgui_window_set_flags( MGuiElement* window, uint32 old )
+static void mgui_window_on_flags_change( MGuiElement* window, uint32 old )
 {
 	struct MGuiWindow* wnd;
 	wnd = (struct MGuiWindow*)window;
@@ -167,9 +173,10 @@ static void mgui_window_set_flags( MGuiElement* window, uint32 old )
 			if ( !wnd->closebtn )
 				wnd->closebtn = mgui_create_windowbutton( window );
 
-			wnd->closebtn->set_bounds( cast_elem(wnd->closebtn), true, true );	
+			wnd->closebtn->callbacks->on_bounds_change( cast_elem(wnd->closebtn), true, true );	
 		}
 	}
+
 	// Disable and destroy the closebutton
 	else if ( BIT_DISABLED( window->flags, old, FLAG_WINDOW_CLOSEBTN ) )
 	{
@@ -181,7 +188,7 @@ static void mgui_window_set_flags( MGuiElement* window, uint32 old )
 	}
 }
 
-static void mgui_window_set_colour( MGuiElement* window )
+static void mgui_window_on_colour_change( MGuiElement* window )
 {
 	struct MGuiWindow* wnd;
 	wnd = (struct MGuiWindow*)window;
@@ -192,11 +199,13 @@ static void mgui_window_set_colour( MGuiElement* window )
 		window->text->colour.a = wnd->colour.a;
 
 		if ( wnd->closebtn )
+		{
 			wnd->closebtn->colour = wnd->titlebar->colour;
+		}
 	}
 }
 
-static void mgui_window_on_mouse_click( MGuiElement* window, MOUSEBTN button, uint16 x, uint16 y )
+static void mgui_window_on_mouse_click( MGuiElement* window, uint16 x, uint16 y, MOUSEBTN button )
 {
 	struct MGuiWindow* wnd;
 	extern rectangle_t draw_rect;
@@ -220,7 +229,7 @@ static void mgui_window_on_mouse_drag( MGuiElement* window, uint16 x, uint16 y )
 	wnd->bounds.x = (uint16)math_clamp( (int16)x - wnd->click_offset.x, 0, draw_size.x - wnd->window_bounds.w );
 	wnd->bounds.y = (uint16)math_clamp( (int16)y - wnd->click_offset.y, 0, draw_size.y - wnd->window_bounds.h );
 
-	mgui_window_set_bounds( window, true, false );
+	mgui_window_on_bounds_change( window, true, false );
 
 	if ( window->children == NULL ) return;
 
@@ -265,9 +274,9 @@ void mgui_window_set_title_col( MGuiWindow* window, const colour_t* col )
 	wnd->titlebar->colour = *col;
 	wnd->titlebar->colour.a = window->colour.a;
 
-	if ( wnd->closebtn )
+	if ( wnd->closebtn && wnd->closebtn->callbacks->on_colour_change )
 	{
-		wnd->closebtn->set_colour( cast_elem(wnd->closebtn) );
+		wnd->closebtn->callbacks->on_colour_change( cast_elem(wnd->closebtn) );
 	}
 }
 
@@ -294,9 +303,9 @@ void mgui_window_set_title_col_i( MGuiWindow* window, uint32 hex )
 	wnd->titlebar->colour.hex = hex;
 	wnd->titlebar->colour.a = window->colour.a;
 
-	if ( wnd->closebtn )
+	if ( wnd->closebtn && wnd->closebtn->callbacks->on_colour_change )
 	{
-		wnd->closebtn->set_colour( cast_elem(wnd->closebtn) );
+		wnd->closebtn->callbacks->on_colour_change( cast_elem(wnd->closebtn) );
 	}
 }
 

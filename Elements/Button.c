@@ -15,14 +15,28 @@
 #include "Input/Input.h"
 #include "Platform/Alloc.h"
 
-// Buton callbacks
-static void		mgui_destroy_button			( MGuiElement* button );
+// Button callback handlers
 static void		mgui_button_render			( MGuiElement* button );
-static void		mgui_button_set_bounds		( MGuiElement* button, bool pos, bool size );
-static void		mgui_button_on_mouse_enter	( MGuiElement* button );
-static void		mgui_button_on_mouse_leave	( MGuiElement* button );
-static void		mgui_button_on_key_press	( MGuiElement* button, uint key, bool down );
+static void		mgui_button_on_key_press	( MGuiElement* button, uint32 key, bool down );
 
+static struct MGuiCallbacks callbacks =
+{
+	NULL, /* destroy */
+	mgui_button_render,
+	NULL, /* process */
+	NULL, /* on_bounds_change */
+	NULL, /* on_flags_change */
+	NULL, /* on_colour_change */
+	NULL, /* on_text_change */
+	NULL, /* on_mouse_enter */
+	NULL, /* on_mouse_leave */
+	NULL, /* on_mouse_click */
+	NULL, /* on_mouse_release */
+	NULL, /* on_mouse_drag */
+	NULL, /* on_mouse_wheel */
+	NULL, /* on_character */
+	mgui_button_on_key_press
+};
 
 MGuiButton* mgui_create_button( MGuiElement* parent )
 {
@@ -35,16 +49,11 @@ MGuiButton* mgui_create_button( MGuiElement* parent )
 	button->type = GUI_BUTTON;
 
 	button->colour.hex = COL_ELEMENT_DARK;
-
 	button->font = mgui_font_create( DEFAULT_FONT, 11, FFLAG_NONE, ANSI_CHARSET );
 	button->text->font = button->font;
 
 	// Button callbacks
-	button->destroy			= mgui_destroy_button;
-	button->render			= mgui_button_render;
-	button->on_mouse_enter	= mgui_button_on_mouse_enter;
-	button->on_mouse_leave	= mgui_button_on_mouse_leave;
-	button->on_key_press	= mgui_button_on_key_press;
+	button->callbacks = &callbacks;
 
 	return cast_elem(button);
 }
@@ -64,28 +73,12 @@ MGuiButton* mgui_create_button_ex( MGuiElement* parent, uint16 x, uint16 y, uint
 	return button;
 }
 
-static void mgui_destroy_button( MGuiElement* button )
-{
-	// Nothing to do here.
-	UNREFERENCED_PARAM(button);
-}
-
 static void mgui_button_render( MGuiElement* button )
 {
 	button->skin->draw_button( button );
 }
 
-static void mgui_button_on_mouse_enter( MGuiElement* button )
-{
-	UNREFERENCED_PARAM( button );
-}
-
-static void mgui_button_on_mouse_leave( MGuiElement* button )
-{
-	UNREFERENCED_PARAM( button );
-}
-
-static void mgui_button_on_key_press( MGuiElement* button, uint key, bool down )
+static void mgui_button_on_key_press( MGuiElement* button, uint32 key, bool down )
 {
 	MGuiEvent guievent;
 	
@@ -94,7 +87,6 @@ static void mgui_button_on_key_press( MGuiElement* button, uint key, bool down )
 	if ( down )
 	{
 		button->flags_int |= INTFLAG_PRESSED;
-		button->on_mouse_click( button, MOUSE_LBUTTON, 0, 0 );
 
 		if ( button->event_handler )
 		{
@@ -110,7 +102,6 @@ static void mgui_button_on_key_press( MGuiElement* button, uint key, bool down )
 	else
 	{
 		button->flags_int &= ~INTFLAG_PRESSED;
-		button->on_mouse_release( button, MOUSE_LBUTTON, 0, 0 );
 
 		if ( button->event_handler )
 		{
