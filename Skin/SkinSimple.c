@@ -25,7 +25,7 @@ MGuiSkin* mgui_setup_skin_simple( void )
 {
 	MGuiSkin* skin;
 
-	skin = mem_alloc_clean( sizeof(*skin) );
+	skin = (MGuiSkin*)mem_alloc_clean( sizeof(*skin) );
 
 	skin->texture				= NULL;
 
