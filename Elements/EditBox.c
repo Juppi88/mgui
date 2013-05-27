@@ -37,6 +37,7 @@ static void			mgui_editbox_press_home				( struct MGuiEditbox* editbox );
 static void			mgui_editbox_press_end				( struct MGuiEditbox* editbox );
 
 // Editbox callback handlers
+static void			mgui_editbox_destroy				( MGuiElement* element );
 static void			mgui_editbox_render					( MGuiElement* element );
 static void			mgui_editbox_process				( MGuiElement* element );
 static void			mgui_editbox_on_bounds_change		( MGuiElement* element, bool pos, bool size );
@@ -49,7 +50,7 @@ static void			mgui_editbox_on_key_press			( MGuiElement* element, uint32 key, bo
 
 static struct MGuiCallbacks callbacks =
 {
-	NULL, /* destroy */
+	mgui_editbox_destroy, /* destroy */
 	mgui_editbox_render,
 	mgui_editbox_process,
 	mgui_editbox_on_bounds_change,
@@ -110,6 +111,17 @@ MGuiEditbox* mgui_create_editbox_ex( MGuiElement* parent, uint16 x, uint16 y, ui
 	mgui_set_text_s( editbox, text );
 
 	return editbox;
+}
+
+void mgui_editbox_destroy( MGuiElement* element )
+{
+	struct MGuiEditbox* editbox = (struct MGuiEditbox*)element;
+
+	if ( editbox->buffer )
+	{
+		mem_free( editbox->buffer );
+		editbox->buffer = 0;
+	}
 }
 
 static void mgui_editbox_render( MGuiElement* element )
