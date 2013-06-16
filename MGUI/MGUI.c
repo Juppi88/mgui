@@ -50,6 +50,7 @@ void mgui_initialize( void* wndhandle )
 void mgui_shutdown( void )
 {
 	node_t *node, *tmp;
+	extern MGuiFont* wndbutton_font;
 
 	if ( layers != NULL )
 	{
@@ -68,6 +69,7 @@ void mgui_shutdown( void )
 	{
 		mem_free( defskin );
 	}
+
 	defskin = NULL;
 
 	if ( skin )
@@ -75,6 +77,9 @@ void mgui_shutdown( void )
 		mem_free( skin );
 		skin = NULL;
 	}
+
+	mgui_font_destroy( wndbutton_font );
+	wndbutton_font = NULL;
 
 	mgui_input_shutdown_hooks();
 }
@@ -125,7 +130,14 @@ void mgui_redraw( void )
 
 void mgui_set_renderer( MGuiRenderer* rend )
 {
+	extern MGuiFont* wndbutton_font;
+
 	renderer = rend;
+
+	if ( wndbutton_font == NULL )
+	{
+		wndbutton_font = mgui_font_create_range( DEFAULT_FONT, 10, FFLAG_NONE, ANSI_CHARSET, 'X', 'X' );
+	}
 }
 
 void mgui_set_skin( const char_t* skinimg )

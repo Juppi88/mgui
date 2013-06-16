@@ -62,6 +62,7 @@ void mgui_element_create( MGuiElement* element, MGuiElement* parent )
 void mgui_element_destroy( MGuiElement* element )
 {
 	node_t *node, *tmp;
+	extern MGuiFont* wndbutton_font;
 
 	mgui_remove_child( element );
 
@@ -82,7 +83,7 @@ void mgui_element_destroy( MGuiElement* element )
 	if ( element->text )
 		mgui_text_destroy( element->text );
 
-	if ( element->font )
+	if ( element->font && element->font != wndbutton_font )
 		mgui_font_destroy( element->font );
 
 	mgui_input_cleanup_references( element );

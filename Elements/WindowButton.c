@@ -17,7 +17,7 @@
 #include "Input/Input.h"
 #include "Platform/Alloc.h"
 
-static MGuiFont* font = NULL;
+MGuiFont* wndbutton_font = NULL;
 
 // Window button callback handlers
 static void		mgui_windowbutton_on_bounds_change	( MGuiElement* button, bool pos, bool size );
@@ -57,10 +57,8 @@ MGuiWindowButton* mgui_create_windowbutton( MGuiWindow* parent )
 	// WindoButton callbacks
 	button->callbacks = &callbacks;
 
-	if ( !font ) font = mgui_font_create_range( DEFAULT_FONT, 10, FFLAG_NONE, ANSI_CHARSET, 'X', 'X' );
-
-	button->font = font;
-	button->text->font = font;
+	button->font = wndbutton_font;
+	button->text->font = wndbutton_font;
 
 	mgui_set_text_s( cast_elem(button), _MTEXT("X") );
 
