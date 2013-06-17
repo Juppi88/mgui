@@ -50,7 +50,7 @@ MGuiWindow* mgui_create_window( MGuiElement* parent )
 	window = mem_alloc_clean( sizeof(*window) );
 	mgui_element_create( cast_elem(window), parent );
 
-	window->flags |= (FLAG_BORDER|FLAG_SHADOW|FLAG_WINDOW_TITLEBAR|FLAG_WINDOW_CLOSEBTN);
+	window->flags |= (FLAG_BORDER|FLAG_SHADOW|FLAG_BACKGROUND|FLAG_WINDOW_TITLEBAR|FLAG_WINDOW_CLOSEBTN);
 	window->type = GUI_WINDOW;
 	window->font = mgui_font_create( DEFAULT_FONT, 10, FFLAG_BOLD, ANSI_CHARSET );
 	window->text->font = window->font;

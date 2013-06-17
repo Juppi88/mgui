@@ -13,6 +13,7 @@
 #include "Skin.h"
 #include "InputHook.h"
 #include "Window.h"
+#include "Renderer.h"
 #include "Platform/Alloc.h"
 #include "Stringy/Stringy.h"
 #include <stdio.h>
@@ -20,6 +21,7 @@
 
 extern vectorscreen_t draw_size;
 extern list_t* layers;
+extern MGuiRenderer* renderer;
 
 static MYLLY_INLINE MGuiElement*	mgui_get_element_at_test_self		( MGuiElement* element, int16 x, int16 y );
 static MYLLY_INLINE MGuiElement*	mgui_get_element_at_test_bounds		( MGuiElement* element, int16 x, int16 y );
@@ -95,10 +97,17 @@ void mgui_element_destroy( MGuiElement* element )
 void mgui_element_render( MGuiElement* element )
 {
 	node_t* node;
+	rectangle_t* r;
 	MGuiElement* child;
 
 	if ( element == NULL ) return;
 	if ( BIT_OFF( element->flags, FLAG_VISIBLE ) ) return;
+
+	if ( BIT_ON( element->flags, FLAG_CLIP ) )
+	{
+		r = &element->bounds;
+		renderer->start_clip( r->x, r->y, r->w, r->h );
+	}
 
 	if ( element->callbacks->render )
 	{
@@ -111,6 +120,18 @@ void mgui_element_render( MGuiElement* element )
 	{
 		child = cast_elem(node);
 		mgui_element_render( child );
+	}
+
+	if ( BIT_ON( element->flags, FLAG_CLIP ) )
+	{
+		renderer->end_clip();
+	}
+
+	if ( element->parent && BIT_ON( element->parent->flags, FLAG_CLIP ) )
+	{
+		// Re-enable parent clipping
+		r = &element->parent->bounds;
+		renderer->start_clip( r->x, r->y, r->w, r->h );
 	}
 }
 

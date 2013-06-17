@@ -144,7 +144,6 @@ static void skin_simple_draw_button( MGuiElement* element )
 
 	if ( ( text = element->text ) != NULL )
 	{
-		renderer->start_clip( text->bounds->x, text->bounds->y, text->bounds->w, text->bounds->h );
 		renderer->set_draw_colour( &text->colour );
 
 		if ( element->flags & INTFLAG_PRESSED )
@@ -155,8 +154,6 @@ static void skin_simple_draw_button( MGuiElement* element )
 		{
 			renderer->draw_text( text->font->data, text->buffer, text->pos.x, text->pos.y, text->font->flags );
 		}
-
-		renderer->end_clip();
 	}
 
 	// Borders
@@ -229,17 +226,7 @@ static void skin_simple_draw_editbox( MGuiElement* element )
 		element->text->buffer = editbox->buffer;
 
 		renderer->set_draw_colour( &text->colour );
-
-		if ( BIT_ON( element->flags, FLAG_CLIP ) )
-		{
-			renderer->start_clip( text->bounds->x, text->bounds->y, text->bounds->w, text->bounds->h );
-			renderer->draw_text( text->font->data, text->buffer, text->pos.x, text->pos.y, text->font->flags );
-			renderer->end_clip();
-		}
-		else
-		{
-			renderer->draw_text( text->font->data, text->buffer, text->pos.x, text->pos.y, text->font->flags );
-		}
+		renderer->draw_text( text->font->data, text->buffer, text->pos.x, text->pos.y, text->font->flags );
 
 		// Really ugly hack cleanup
 		element->text->buffer = tmp;
@@ -271,17 +258,7 @@ static void skin_simple_draw_label( MGuiElement* element )
 	if ( ( text = element->text ) != NULL )
 	{
 		renderer->set_draw_colour( &text->colour );
-
-		if ( BIT_ON( element->flags, FLAG_CLIP ) )
-		{
-			renderer->start_clip( text->bounds->x, text->bounds->y, text->bounds->w, text->bounds->h );
-			renderer->draw_text( text->font->data, text->buffer, text->pos.x, text->pos.y, text->font->flags );
-			renderer->end_clip();
-		}
-		else
-		{
-			renderer->draw_text( text->font->data, text->buffer, text->pos.x, text->pos.y, text->font->flags );
-		}
+		renderer->draw_text( text->font->data, text->buffer, text->pos.x, text->pos.y, text->font->flags );
 	}
 }
 
@@ -323,11 +300,6 @@ static void skin_simple_draw_memobox( MGuiElement* element )
 	count = memo->visible_lines;
 	if ( count == 0 ) count = 0xFFFFFFFF;
 
-	if ( BIT_ON( memo->flags, FLAG_CLIP ) )
-	{
-		renderer->start_clip( r->x, r->y, r->w, r->h );
-	}
-
 	for ( node = memo->first_line, i = 0;
 		  node != list_end(memo->lines) && i < count;
 		  node = node->prev, i++ )
@@ -336,11 +308,6 @@ static void skin_simple_draw_memobox( MGuiElement* element )
 
 		renderer->set_draw_colour( &line->colour );
 		renderer->draw_text( line->font->data, line->text, line->pos.x, line->pos.y, line->font->flags );
-	}
-
-	if ( BIT_ON( memo->flags, FLAG_CLIP ) )
-	{
-		renderer->end_clip();
 	}
 }
 
@@ -421,17 +388,29 @@ static void skin_simple_draw_window( MGuiElement* element )
 
 	if ( ( element->flags & FLAG_WINDOW_TITLEBAR ) && window->titlebar != NULL )
 	{
-		skin_simple_draw_window_titlebar( cast_elem(window->titlebar) );
-
 		if ( element->flags & FLAG_BACKGROUND )
 		{
 			renderer->set_draw_colour( &element->colour );
 			renderer->draw_rect( r->x, r->y, r->w, r->h );
 		}
 
+		if ( element->flags & FLAG_CLIP )
+		{
+			// Disable clipping temporarily to draw the titlebar and close button
+			renderer->end_clip();
+		}
+
+		skin_simple_draw_window_titlebar( cast_elem(window->titlebar) );
+
 		if ( ( element->flags & FLAG_WINDOW_CLOSEBTN ) && window->closebtn != NULL )
 		{
 			skin->draw_button( cast_elem(window->closebtn) );
+		}
+
+		if ( element->flags & FLAG_CLIP )
+		{
+			// Re-enable clipping after titlebar and close button
+			renderer->start_clip( r->x, r->y, r->w, r->h );
 		}
 
 		if ( element->flags & FLAG_BORDER )
@@ -491,8 +470,6 @@ static void skin_simple_draw_window_titlebar( MGuiElement* element )
 	if ( text )
 	{
 		renderer->set_draw_colour( &text->colour );
-		renderer->start_clip( text->bounds->x, text->bounds->y, text->bounds->w, text->bounds->h );
 		renderer->draw_text( text->font->data, text->buffer, text->pos.x, text->pos.y, text->font->flags );
-		renderer->end_clip();
 	}
 }
