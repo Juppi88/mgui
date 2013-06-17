@@ -414,24 +414,27 @@ static void skin_simple_draw_window( MGuiElement* element )
 
 	r = &element->bounds;
 
-	if ( BIT_ON( element->flags, FLAG_SHADOW ) )
+	if ( element->flags & FLAG_SHADOW )
 	{
 		skin_simple_draw_shadow( &window->window_bounds, 3 );
 	}
 
-	if ( BIT_ON( element->flags, FLAG_WINDOW_TITLEBAR ) && window->titlebar != NULL )
+	if ( ( element->flags & FLAG_WINDOW_TITLEBAR ) && window->titlebar != NULL )
 	{
 		skin_simple_draw_window_titlebar( cast_elem(window->titlebar) );
 
-		renderer->set_draw_colour( &element->colour );
-		renderer->draw_rect( r->x, r->y, r->w, r->h );
+		if ( element->flags & FLAG_BACKGROUND )
+		{
+			renderer->set_draw_colour( &element->colour );
+			renderer->draw_rect( r->x, r->y, r->w, r->h );
+		}
 
-		if ( BIT_ON( element->flags, FLAG_WINDOW_CLOSEBTN ) && window->closebtn != NULL )
+		if ( ( element->flags & FLAG_WINDOW_CLOSEBTN ) && window->closebtn != NULL )
 		{
 			skin->draw_button( cast_elem(window->closebtn) );
 		}
 
-		if ( BIT_ON( element->flags, FLAG_BORDER ) )
+		if ( element->flags & FLAG_BORDER )
 		{
 			border.x = r->x + 1;
 			border.y = r->y;
@@ -447,8 +450,11 @@ static void skin_simple_draw_window( MGuiElement* element )
 	}
 	else
 	{
-		renderer->set_draw_colour( &element->colour );
-		renderer->draw_rect( r->x, r->y, r->w, r->h );
+		if ( element->flags & FLAG_BACKGROUND )
+		{
+			renderer->set_draw_colour( &element->colour );
+			renderer->draw_rect( r->x, r->y, r->w, r->h );
+		}
 
 		if ( element->flags & FLAG_BORDER )
 		{
