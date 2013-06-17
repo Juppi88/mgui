@@ -46,7 +46,7 @@ struct MGuiMemobox
 };
 
 MGuiMemobox*	mgui_create_memobox				( MGuiElement* parent );
-MGuiMemobox*	mgui_create_memobox_ex			( MGuiElement* parent, uint16 x, uint16 y, uint16 w, uint16 h, uint32 flags, uint32 col );
+MGuiMemobox*	mgui_create_memobox_ex			( MGuiElement* parent, int16 x, int16 y, uint16 w, uint16 h, uint32 flags, uint32 col );
 
 void			mgui_memobox_add_line			( MGuiMemobox* memobox, const char* fmt, ... );
 void			mgui_memobox_add_line_col		( MGuiMemobox* memobox, const char* fmt, const colour_t*, ... );

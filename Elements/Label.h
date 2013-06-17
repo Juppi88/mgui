@@ -21,7 +21,7 @@ struct MGuiLabel
 };
 
 MGuiLabel*			mgui_create_label			( MGuiElement* parent );
-MGuiLabel*			mgui_create_label_ex		( MGuiElement* parent, uint16 x, uint16 y, uint16 w, uint16 h, uint32 flags, uint32 col, const char_t* text );
+MGuiLabel*			mgui_create_label_ex		( MGuiElement* parent, int16 x, int16 y, uint16 w, uint16 h, uint32 flags, uint32 col, const char_t* text );
 
 void				mgui_label_make_text_fit	( MGuiLabel* label );
 

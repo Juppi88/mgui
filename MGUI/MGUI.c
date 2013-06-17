@@ -32,10 +32,12 @@ uint32			tick_count		= 0;		// Current tick count
 void mgui_initialize( void* wndhandle )
 {
 	mgui_input_initialize_hooks();
+	mgui_fontmgr_initialize();
 
 	system_window = wndhandle;
 
-	get_window_size( wndhandle, &draw_size.x, &draw_size.y );
+	get_window_size( wndhandle, &draw_size.w, &draw_size.h );
+
 	draw_rect.x = 0;
 	draw_rect.y = 0;
 	draw_rect.w = draw_size.x;
@@ -50,7 +52,6 @@ void mgui_initialize( void* wndhandle )
 void mgui_shutdown( void )
 {
 	node_t *node, *tmp;
-	extern MGuiFont* wndbutton_font;
 
 	if ( layers != NULL )
 	{
@@ -78,9 +79,7 @@ void mgui_shutdown( void )
 		skin = NULL;
 	}
 
-	mgui_font_destroy( wndbutton_font );
-	wndbutton_font = NULL;
-
+	mgui_fontmgr_shutdown();
 	mgui_input_shutdown_hooks();
 }
 
@@ -130,14 +129,11 @@ void mgui_redraw( void )
 
 void mgui_set_renderer( MGuiRenderer* rend )
 {
-	extern MGuiFont* wndbutton_font;
+	if ( renderer ) mgui_fontmgr_invalidate_all();
 
 	renderer = rend;
 
-	if ( wndbutton_font == NULL )
-	{
-		wndbutton_font = mgui_font_create_range( DEFAULT_FONT, 10, FFLAG_NONE, ANSI_CHARSET, 'X', 'X' );
-	}
+	if ( renderer ) mgui_fontmgr_initialize_all();
 }
 
 void mgui_set_skin( const char_t* skinimg )

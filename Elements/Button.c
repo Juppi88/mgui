@@ -58,7 +58,7 @@ MGuiButton* mgui_create_button( MGuiElement* parent )
 	return cast_elem(button);
 }
 
-MGuiButton* mgui_create_button_ex( MGuiElement* parent, uint16 x, uint16 y, uint16 w, uint16 h, uint32 flags, uint32 col, const char_t* text )
+MGuiButton* mgui_create_button_ex( MGuiElement* parent, int16 x, int16 y, uint16 w, uint16 h, uint32 flags, uint32 col, const char_t* text )
 {
 	MGuiButton* button;
 

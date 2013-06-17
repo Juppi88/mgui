@@ -16,7 +16,6 @@ static MGuiRenderer		renderer;
 
 MGuiRenderer* mgui_opengl_initialize( void* syswindow )
 {
-	renderer.type = GUIREND_OPENGL;
 	renderer.device_context = mgui_opengl_create_context( syswindow );
 
 	renderer.begin				= mgui_opengl_begin;

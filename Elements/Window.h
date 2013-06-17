@@ -29,6 +29,7 @@ struct MGuiWindow
 };
 
 MGuiWindow*		mgui_create_window				( MGuiElement* parent );
+MGuiWindow*		mgui_create_window_ex			( MGuiElement* parent, int16 x, int16 y, uint16 w, uint16 h, uint32 flags, uint32 col, const char_t* text );
 
 void			mgui_window_get_title_col		( MGuiWindow* window, colour_t* col );
 void			mgui_window_set_title_col		( MGuiWindow* window, const colour_t* col );

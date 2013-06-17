@@ -98,7 +98,7 @@ MGuiEditbox* mgui_create_editbox( MGuiElement* parent )
 	return cast_elem(editbox);
 }
 
-MGuiEditbox* mgui_create_editbox_ex( MGuiElement* parent, uint16 x, uint16 y, uint16 w, uint16 h, uint32 flags, uint32 col, const char_t* text )
+MGuiEditbox* mgui_create_editbox_ex( MGuiElement* parent, int16 x, int16 y, uint16 w, uint16 h, uint32 flags, uint32 col, const char_t* text )
 {
 	MGuiEditbox* editbox;
 

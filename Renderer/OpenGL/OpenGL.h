@@ -13,7 +13,7 @@
 #ifndef __MYLLY_GUI_OPENGL_RENDERER_H
 #define __MYLLY_GUI_OPENGL_RENDERER_H
 
-#include "Renderer.h"
+#include "MGUI/Renderer/Renderer.h"
 #include <gl/gl.h>
 #include <gl/glu.h>
 

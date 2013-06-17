@@ -79,7 +79,7 @@ MGuiMemobox* mgui_create_memobox( MGuiElement* parent )
 	return cast_elem(memobox);
 }
 
-MGuiMemobox* mgui_create_memobox_ex( MGuiElement* parent, uint16 x, uint16 y, uint16 w, uint16 h, uint32 flags, uint32 col )
+MGuiMemobox* mgui_create_memobox_ex( MGuiElement* parent, int16 x, int16 y, uint16 w, uint16 h, uint32 flags, uint32 col )
 {
 	MGuiMemobox* memobox;
 

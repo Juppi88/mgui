@@ -67,7 +67,7 @@ void mgui_opengl_end( void )
 	mgui_opengl_swap_buffers();
 }
 
-void mgui_opengl_resize( uint w, uint h )
+void mgui_opengl_resize( uint32 w, uint32 h )
 {
 	if ( h == 0 ) h = 1;
 
@@ -87,7 +87,7 @@ void mgui_opengl_set_draw_colour( const colour_t* col )
 	colour = *col;
 }
 
-void mgui_opengl_start_clip( uint x, uint y, uint w, uint h )
+void mgui_opengl_start_clip( int32 x, int32 y, uint32 w, uint32 h )
 {
 	GLint view[4];
 	
@@ -108,7 +108,7 @@ void mgui_opengl_end_clip( void )
 	glDisable( GL_SCISSOR_TEST );
 }
 
-static __inline void __add_vertex2( uint x, uint y, float u, float v )
+static __inline void __add_vertex2( int32 x, int32 y, float u, float v )
 {
 	if ( num_vertices >= MYLLY_GUI_MAX_VERT-1 ) __flush();
 
@@ -124,12 +124,12 @@ static __inline void __add_vertex2( uint x, uint y, float u, float v )
 	num_vertices++;
 }
 
-static __inline void __add_vertex( uint x, uint y )
+static __inline void __add_vertex( int32 x, int32 y )
 {
 	__add_vertex2( x, y, 0.0f, 0.0f );
 }
 
-void mgui_opengl_draw_rect( uint x, uint y, uint w, uint h )
+void mgui_opengl_draw_rect( int32 x, int32 y, uint32 w, uint32 h )
 {
 	__add_vertex( x, y );
 	__add_vertex( x+w, y );
@@ -140,7 +140,7 @@ void mgui_opengl_draw_rect( uint x, uint y, uint w, uint h )
 	__add_vertex( x, y+h );
 }
 
-void mgui_opengl_draw_triangle( uint x1, uint y1, uint x2, uint y2, uint x3, uint y3 )
+void mgui_opengl_draw_triangle( int32 x1, int32 y1, int32 x2, int32 y2, int32 x3, int32 y3 )
 {
 	__add_vertex( x1, y1 );
 	__add_vertex( x2, y2 );
@@ -158,7 +158,7 @@ void mgui_opengl_destroy_texture( void* texture )
 	UNREFERENCED_PARAM(texture);
 }
 
-void mgui_opengl_draw_textured_rect( void* texture, uint x, uint y, uint w, uint h )
+void mgui_opengl_draw_textured_rect( void* texture, int32 x, int32 y, uint32 w, uint32 h )
 {
 	UNREFERENCED_PARAM(texture);
 	UNREFERENCED_PARAM(x);
@@ -170,7 +170,7 @@ void mgui_opengl_draw_textured_rect( void* texture, uint x, uint y, uint w, uint
 // Font loading related functions are platform dependent,
 // hence they're located in OpenGLWin/X11.c
 
-static __inline uint32 __render_char( MGuiGLFont* font, uint32 c, uint32 x, uint32 y, uint32 flags )
+static __inline uint32 __render_char( MGuiGLFont* font, uint32 c, int32 x, int32 y, uint32 flags )
 {
 	float x1, y1, x2, y2;
 	float space, offset;
@@ -222,9 +222,10 @@ static __inline uint32 __render_char( MGuiGLFont* font, uint32 c, uint32 x, uint
 	return (uint32)( w - offset );
 }
 
-void mgui_opengl_draw_text( void* font, const char_t* text, uint x, uint y, uint flags )
+void mgui_opengl_draw_text( void* font, const char_t* text, int32 x, int32 y, uint32 flags )
 {
-	uint32 dx, dy, c;
+	int32 dx, dy;
+	uint32 c;
 	register const char_t* s;
 	MGuiGLFont* fnt = font;
 
@@ -261,7 +262,7 @@ void mgui_opengl_draw_text( void* font, const char_t* text, uint x, uint y, uint
 	glDisable( GL_TEXTURE_2D );
 }
 
-void mgui_opengl_measure_text( void* font, const char_t* text, uint* x_out, uint* y_out )
+void mgui_opengl_measure_text( void* font, const char_t* text, uint32* x_out, uint32* y_out )
 {
 	float x, y, xout;
 	float tmp1, tmp2;

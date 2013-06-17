@@ -1,6 +1,6 @@
 -- Mylly GUI renderer
 
-project "Lib-MGUI Renderer OpenGL"
+project "Lib-MGUI-Renderer-OpenGL"
 	kind "StaticLib"
 	language "C"
 	files { "*.h", "*.c", "premake4.lua" }

@@ -140,17 +140,17 @@ MYLLY_API bool				mgui_is_child_of				( MGuiElement* parent, MGuiElement* child 
 
 /* Element constructors */
 MYLLY_API MGuiButton*		mgui_create_button				( MGuiElement* parent );
-MYLLY_API MGuiButton*		mgui_create_button_ex			( MGuiElement* parent, uint16 x, uint16 y, uint16 w, uint16 h, uint32 flags, uint32 col, const char_t* text );
+MYLLY_API MGuiButton*		mgui_create_button_ex			( MGuiElement* parent, int16 x, int16 y, uint16 w, uint16 h, uint32 flags, uint32 col, const char_t* text );
 MYLLY_API MGuiEditbox*		mgui_create_canvas				( MGuiElement* parent );
 MYLLY_API MGuiEditbox*		mgui_create_editbox				( MGuiElement* parent );
-MYLLY_API MGuiEditbox*		mgui_create_editbox_ex			( MGuiElement* parent, uint16 x, uint16 y, uint16 w, uint16 h, uint32 flags, uint32 col, const char_t* text );
+MYLLY_API MGuiEditbox*		mgui_create_editbox_ex			( MGuiElement* parent, int16 x, int16 y, uint16 w, uint16 h, uint32 flags, uint32 col, const char_t* text );
 MYLLY_API MGuiLabel*		mgui_create_label				( MGuiElement* parent );
-MYLLY_API MGuiLabel*		mgui_create_label_ex			( MGuiElement* parent, uint16 x, uint16 y, uint16 w, uint16 h, uint32 flags, uint32 col, const char_t* text );
+MYLLY_API MGuiLabel*		mgui_create_label_ex			( MGuiElement* parent, int16 x, int16 y, uint16 w, uint16 h, uint32 flags, uint32 col, const char_t* text );
 MYLLY_API MGuiMemobox*		mgui_create_memobox				( MGuiElement* parent );
-MYLLY_API MGuiMemobox*		mgui_create_memobox_ex			( MGuiElement* parent, uint16 x, uint16 y, uint16 w, uint16 h, uint32 flags, uint32 col );
+MYLLY_API MGuiMemobox*		mgui_create_memobox_ex			( MGuiElement* parent, int16 x, int16 y, uint16 w, uint16 h, uint32 flags, uint32 col );
 MYLLY_API MGuiScrollbar*	mgui_create_scrollbar			( MGuiElement* parent );
 MYLLY_API MGuiWindow*		mgui_create_window				( MGuiElement* parent );
-MYLLY_API MGuiWindow*		mgui_create_window_ex			( MGuiElement* parent, uint16 x, uint16 y, uint16 w, uint16 h, uint32 flags, uint32 col, const char_t* text );
+MYLLY_API MGuiWindow*		mgui_create_window_ex			( MGuiElement* parent, int16 x, int16 y, uint16 w, uint16 h, uint32 flags, uint32 col, const char_t* text );
 
 MYLLY_API void				mgui_element_destroy			( MGuiElement* element );
 
@@ -167,9 +167,9 @@ MYLLY_API void				mgui_get_pos_f					( MGuiElement* element, float* x, float* y 
 MYLLY_API void				mgui_get_size_f					( MGuiElement* element, float* w, float* h );
 MYLLY_API void				mgui_set_pos_f					( MGuiElement* element, float x, float y );
 MYLLY_API void				mgui_set_size_f					( MGuiElement* element, float w, float h );
-MYLLY_API void				mgui_get_abs_pos_i				( MGuiElement* element, uint16* x, uint16* y );
+MYLLY_API void				mgui_get_abs_pos_i				( MGuiElement* element, int16* x, int16* y );
 MYLLY_API void				mgui_get_abs_size_i				( MGuiElement* element, uint16* w, uint16* h );
-MYLLY_API void				mgui_set_abs_pos_i				( MGuiElement* element, uint16 x, uint16 y );
+MYLLY_API void				mgui_set_abs_pos_i				( MGuiElement* element, int16 x, int16 y );
 MYLLY_API void				mgui_set_abs_size_i				( MGuiElement* element, uint16 w, uint16 h );
 
 MYLLY_API void				mgui_get_colour					( MGuiElement* element, colour_t* col );

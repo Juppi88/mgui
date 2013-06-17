@@ -99,7 +99,7 @@ void			mgui_element_destroy			( MGuiElement* element );
 void			mgui_element_render				( MGuiElement* element );
 void			mgui_element_process			( MGuiElement* element );
 
-MGuiElement*	mgui_get_element_at				( uint16 x, uint16 y );
+MGuiElement*	mgui_get_element_at				( int16 x, int16 y );
 
 void			mgui_add_child					( MGuiElement* parent, MGuiElement* child );
 void			mgui_remove_child				( MGuiElement* child );
@@ -127,9 +127,9 @@ void			mgui_get_pos_f					( MGuiElement* element, float* x, float* y );
 void			mgui_get_size_f					( MGuiElement* element, float* w, float* h );
 void			mgui_set_pos_f					( MGuiElement* element, float x, float y );
 void			mgui_set_size_f					( MGuiElement* element, float w, float h );
-void			mgui_get_abs_pos_i				( MGuiElement* element, uint16* x, uint16* y );
+void			mgui_get_abs_pos_i				( MGuiElement* element, int16* x, int16* y );
 void			mgui_get_abs_size_i				( MGuiElement* element, uint16* w, uint16* h );
-void			mgui_set_abs_pos_i				( MGuiElement* element, uint16 x, uint16 y );
+void			mgui_set_abs_pos_i				( MGuiElement* element, int16 x, int16 y );
 void			mgui_set_abs_size_i				( MGuiElement* element, uint16 w, uint16 h );
 
 void			mgui_get_colour					( MGuiElement* element, colour_t* col );

@@ -17,7 +17,7 @@
 #include "Input/Input.h"
 #include "Platform/Alloc.h"
 
-MGuiFont* wndbutton_font = NULL;
+extern MGuiFont* wndbutton_font; // Font used for the close button X
 
 // Window button callback handlers
 static void		mgui_windowbutton_on_bounds_change	( MGuiElement* button, bool pos, bool size );

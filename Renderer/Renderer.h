@@ -21,23 +21,23 @@ struct MGuiRenderer
 
 	void		( *begin )				( void );
 	void		( *end )				( void );
-	void		( *resize )				( uint w, uint h );
+	void		( *resize )				( uint32 w, uint32 h );
 
 	void		( *set_draw_colour )	( const colour_t* col );
-	void		( *start_clip )			( uint x, uint y, uint w, uint h );
+	void		( *start_clip )			( int32 x, int32 y, uint32 w, uint32 h );
 	void		( *end_clip )			( void );
 
-	void		( *draw_rect )			( uint x, uint y, uint w, uint h );
-	void		( *draw_triangle )		( uint x1, uint y1, uint x2, uint y2, uint x3, uint y3 );
+	void		( *draw_rect )			( int32 x, int32 y, uint32 w, uint32 h );
+	void		( *draw_triangle )		( int32 x1, int32 y1, int32 x2, int32 y2, int32 x3, int32 y3 );
 
 	void*		( *load_texture )		( const char_t* path );
 	void		( *destroy_texture )	( void* texture );
-	void		( *draw_textured_rect )	( void* texture, uint x, uint y, uint w, uint h );
+	void		( *draw_textured_rect )	( void* texture, int32 x, int32 y, uint32 w, uint32 h );
 
-	void*		( *load_font )			( const char_t* font, uint size, uint flags, uint charset, uint firstc, uint lastc );
+	void*		( *load_font )			( const char_t* font, uint32 size, uint32 flags, uint32 charset, uint32 firstc, uint32 lastc );
 	void		( *destroy_font )		( void* font );
-	void		( *draw_text )			( void* font, const char_t* text, uint x, uint y, uint flags );
-	void		( *measure_text )		( void* font, const char_t* text, uint* w, uint* h );
+	void		( *draw_text )			( void* font, const char_t* text, int32 x, int32 y, uint32 flags );
+	void		( *measure_text )		( void* font, const char_t* text, uint32* w, uint32* h );
 };
 
 

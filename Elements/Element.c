@@ -21,8 +21,8 @@
 extern vectorscreen_t draw_size;
 extern list_t* layers;
 
-static MYLLY_INLINE MGuiElement*	mgui_get_element_at_test_self		( MGuiElement* element, uint16 x, uint16 y );
-static MYLLY_INLINE MGuiElement*	mgui_get_element_at_test_bounds		( MGuiElement* element, uint16 x, uint16 y );
+static MYLLY_INLINE MGuiElement*	mgui_get_element_at_test_self		( MGuiElement* element, int16 x, int16 y );
+static MYLLY_INLINE MGuiElement*	mgui_get_element_at_test_bounds		( MGuiElement* element, int16 x, int16 y );
 
 void mgui_element_create( MGuiElement* element, MGuiElement* parent )
 {
@@ -136,7 +136,7 @@ void mgui_element_process( MGuiElement* element )
 	}
 }
 
-MGuiElement* mgui_get_element_at( uint16 x, uint16 y )
+MGuiElement* mgui_get_element_at( int16 x, int16 y )
 {
 	node_t* node;
 	MGuiElement *ret = NULL;
@@ -158,7 +158,7 @@ MGuiElement* mgui_get_element_at( uint16 x, uint16 y )
 	return ret;
 }
 
-MYLLY_INLINE MGuiElement* mgui_get_element_at_test_self( MGuiElement* element, uint16 x, uint16 y )
+MYLLY_INLINE MGuiElement* mgui_get_element_at_test_self( MGuiElement* element, int16 x, int16 y )
 {
 	node_t* node;
 	MGuiElement *ret, *tmp = NULL;
@@ -197,7 +197,7 @@ MYLLY_INLINE MGuiElement* mgui_get_element_at_test_self( MGuiElement* element, u
 	return ret;
 }
 
-static MYLLY_INLINE MGuiElement* mgui_get_element_at_test_bounds( MGuiElement* element, uint16 x, uint16 y )
+static MYLLY_INLINE MGuiElement* mgui_get_element_at_test_bounds( MGuiElement* element, int16 x, int16 y )
 {
 	struct MGuiWindow* window;
 	MGuiElement* tmp;
@@ -353,13 +353,13 @@ void mgui_element_update_abs_pos( MGuiElement* elem )
 	{
 		r = &elem->parent->bounds;
 
-		elem->bounds.x = r->x + (uint16)( elem->pos.x * r->w );
-		elem->bounds.y = r->y + (uint16)( elem->pos.y * r->h );
+		elem->bounds.x = r->x + (int16)( elem->pos.x * r->w );
+		elem->bounds.y = r->y + (int16)( elem->pos.y * r->h );
 	}
 	else
 	{
-		elem->bounds.x = (uint16)( elem->pos.x * draw_size.x );
-		elem->bounds.y = (uint16)( elem->pos.y * draw_size.y );
+		elem->bounds.x = (int16)( elem->pos.x * draw_size.x );
+		elem->bounds.y = (int16)( elem->pos.y * draw_size.y );
 	}
 
 	if ( elem->text )
@@ -501,8 +501,8 @@ void mgui_element_update_child_pos( MGuiElement* elem )
 
 	r = &elem->parent->bounds;
 
-	elem->bounds.x = r->x + (uint16)( elem->pos.x * r->w );
-	elem->bounds.y = r->y + (uint16)( elem->pos.y * r->h );
+	elem->bounds.x = r->x + (int16)( elem->pos.x * r->w );
+	elem->bounds.y = r->y + (int16)( elem->pos.y * r->h );
 
 	if ( BIT_ON( elem->flags, FLAG_AUTO_RESIZE ) )
 	{
@@ -653,7 +653,7 @@ void mgui_set_size_f( MGuiElement* elem, float w, float h )
 	mgui_element_update_abs_size( elem );
 }
 
-void mgui_get_abs_pos_i( MGuiElement* elem, uint16* x, uint16* y )
+void mgui_get_abs_pos_i( MGuiElement* elem, int16* x, int16* y )
 {
 	if ( elem == NULL || x == NULL || y == NULL ) return;
 
@@ -669,7 +669,7 @@ void mgui_get_abs_pos_i( MGuiElement* elem, uint16* x, uint16* y )
 	}
 }
 
-void mgui_set_abs_pos_i( MGuiElement* elem, uint16 x, uint16 y )
+void mgui_set_abs_pos_i( MGuiElement* elem, int16 x, int16 y )
 {
 	if ( elem == NULL ) return;
 
@@ -919,7 +919,7 @@ void mgui_set_font_name( MGuiElement* element, const char_t* font )
 	if ( element == NULL || font == NULL ) return;
 	if ( element->font == NULL ) return;
 
-	mgui_font_set_font( element->font, font );
+	element->font = mgui_font_set_font( element->font, font );
 
 	if ( element->text && element->text->buffer )
 		mgui_text_update_dimensions( element->text );
@@ -930,7 +930,7 @@ void mgui_set_font_size( MGuiElement* element, uint8 size )
 	if ( element == NULL ) return;
 	if ( element->font == NULL ) return;
 
-	mgui_font_set_size( element->font, size );
+	element->font = mgui_font_set_size( element->font, size );
 
 	if ( element->text && element->text->buffer )
 		mgui_text_update_dimensions( element->text );
@@ -941,7 +941,7 @@ void mgui_set_font_flags( MGuiElement* element, uint8 flags )
 	if ( element == NULL ) return;
 	if ( element->font == NULL ) return;
 
-	mgui_font_set_flags( element->font, flags );
+	element->font = mgui_font_set_flags( element->font, flags );
 
 	if ( element->text && element->text->buffer )
 		mgui_text_update_dimensions( element->text );
@@ -957,7 +957,7 @@ void mgui_set_font( MGuiElement* element, const char_t* font, uint8 size, uint8 
 	if ( charset == 0 )
 		charset = CHARSET_ANSI;
 
-	element->font = mgui_font_create( font, size, flags, charset );
+	element->font = element->font = mgui_font_create( font, size, flags, charset );
 
 	if ( element->text )
 	{

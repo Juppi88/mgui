@@ -64,7 +64,7 @@ MGuiWindow* mgui_create_window( MGuiElement* parent )
 	return cast_elem(window);
 }
 
-MGuiWindow* mgui_create_window_ex( MGuiElement* parent, uint16 x, uint16 y, uint16 w, uint16 h, uint32 flags, uint32 col, const char_t* text )
+MGuiWindow* mgui_create_window_ex( MGuiElement* parent, int16 x, int16 y, uint16 w, uint16 h, uint32 flags, uint32 col, const char_t* text )
 {
 	MGuiWindow* window;
 
@@ -226,8 +226,8 @@ static void mgui_window_on_mouse_drag( MGuiElement* window, uint16 x, uint16 y )
 	extern vectorscreen_t draw_size;
 	struct MGuiWindow* wnd = (struct MGuiWindow*)window;
 
-	wnd->bounds.x = (uint16)math_clamp( (int16)x - wnd->click_offset.x, 0, draw_size.x - wnd->window_bounds.w );
-	wnd->bounds.y = (uint16)math_clamp( (int16)y - wnd->click_offset.y, 0, draw_size.y - wnd->window_bounds.h );
+	wnd->bounds.x = (int16)x - wnd->click_offset.x;
+	wnd->bounds.y = (int16)y - wnd->click_offset.y;
 
 	mgui_window_on_bounds_change( window, true, false );
 
