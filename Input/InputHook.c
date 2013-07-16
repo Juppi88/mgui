@@ -100,7 +100,7 @@ void mgui_set_focus( MGuiElement* element )
 		}
 	}
 
-	mgui_force_redraw();
+	mgui_element_request_redraw();
 }
 
 static bool mgui_input_handle_char( input_event_t* event )
@@ -144,7 +144,7 @@ static bool mgui_input_handle_mouse_move( input_event_t* event )
 
 	if ( dragged )
 	{
-		mgui_force_redraw();
+		mgui_element_request_redraw();
 
 		if ( dragged->callbacks->on_mouse_drag )
 		{
@@ -197,7 +197,7 @@ static bool mgui_input_handle_mouse_move( input_event_t* event )
 		}
 	}
 
-	mgui_force_redraw();
+	mgui_element_request_redraw();
 
 	return true;
 }
@@ -244,7 +244,7 @@ static bool mgui_input_handle_lmb_up( input_event_t* event )
 
 		pressed = NULL;
 
-		mgui_force_redraw();
+		mgui_element_request_redraw();
 	}
 
 	return true;
@@ -277,7 +277,7 @@ static bool mgui_input_handle_lmb_down( input_event_t* event )
 		kbfocus->flags_int &= ~INTFLAG_FOCUS;
 		kbfocus = NULL;
 
-		mgui_force_redraw();
+		mgui_element_request_redraw();
 	}
 
 	// Remove old pressed focus
@@ -301,7 +301,7 @@ static bool mgui_input_handle_lmb_down( input_event_t* event )
 			pressed->event_handler( &guievent );
 		}
 
-		mgui_force_redraw();
+		mgui_element_request_redraw();
 	}
 
 	// If a new element is being pressed handle focus/event stuff
@@ -345,7 +345,7 @@ static bool mgui_input_handle_lmb_down( input_event_t* event )
 			}
 		}
 
-		mgui_force_redraw();
+		mgui_element_request_redraw();
 	}
 
 	return true;

@@ -35,15 +35,21 @@ MGUI_ELEMENT_DECL( MGuiWindow );
 #define cast_elem(x) ((MGuiElement*)x)
 #define cast_node(x) ((node_t*)x)
 
+enum MGUI_PARAMETERS
+{
+	MGUI_NO_PARAMS			= 0x0,	/* Don't use any special parameters */
+	MGUI_USE_DRAW_EVENT		= 0x1,	/* MGUI will refresh only when the user calls mgui_force_redraw */
+	MGUI_USE_WITHOUT_INPUT	= 0x2,	/* Disable user input hooks, use the library for drawing only */
+};
+
 enum MGUI_ALIGNMENT
 {
-	ALIGN_NONE		= 0x00,
-	ALIGN_LEFT		= 0x01,
-	ALIGN_RIGHT		= 0x02,
-	ALIGN_TOP		= 0x04,
-	ALIGN_BOTTOM	= 0x08,
-	ALIGN_CENTERV	= 0x10,
-	ALIGN_CENTERH	= 0x20,
+	ALIGN_LEFT		= 1 << 0,
+	ALIGN_RIGHT		= 1 << 1,
+	ALIGN_TOP		= 1 << 2,
+	ALIGN_BOTTOM	= 1 << 3,
+	ALIGN_CENTERV	= 1 << 4,
+	ALIGN_CENTERH	= 1 << 5,
 	ALIGN_CENTER	= (ALIGN_CENTERV|ALIGN_CENTERH),
 };
 
@@ -65,7 +71,7 @@ enum MGUI_FLAGS
 	FLAG_MOUSECTRL			= 1 << 12,	/* Element triggers mouse input events */
 	FLAG_KBCTRL				= 1 << 13,	/* Element triggers keyboard input events and accepts keyboard focus */
 	
-	// Flags tied to certain element type
+	// Element specific flags
 	FLAG_WINDOW_TITLEBAR	= 1 << 20,	/* Enable window titlebar */
 	FLAG_WINDOW_CLOSEBTN	= 1 << 21,	/* Enable window close button */
 	FLAG_EDIT_MASKINPUT		= 1 << 20,	/* Mask user input in editbox */
@@ -74,14 +80,14 @@ enum MGUI_FLAGS
 
 enum MGUI_FONT_FLAGS
 {
-	FFLAG_NONE		= 0x00, /* All flags disabled */
-	FFLAG_BOLD		= 0x01,	/* Bold font */
-	FFLAG_ITALIC	= 0x02,	/* Italic font */
-	FFLAG_ULINE		= 0x04,	/* Underlined font */
-	FFLAG_STRIKE	= 0x08,	/* Strike out */
-	FFLAG_SHADOW	= 0x10,	/* Cast a shadow */
-	FFLAG_COLOUR	= 0x20,	/* Accept colour tags */
-	FFLAG_NOAA		= 0x40,	/* Disable edge smoothing (if possible) */
+	FFLAG_NONE		= 0,		/* All flags disabled */
+	FFLAG_BOLD		= 1 << 0,	/* Bold font */
+	FFLAG_ITALIC	= 1 << 1,	/* Italic font */
+	FFLAG_ULINE		= 1 << 2,	/* Underlined font */
+	FFLAG_STRIKE	= 1 << 3,	/* Strike out */
+	FFLAG_SHADOW	= 1 << 4,	/* Cast a shadow */
+	FFLAG_COLOUR	= 1 << 5,	/* Accept colour tags */
+	FFLAG_NOAA		= 1 << 6,	/* Disable edge smoothing (if possible) */
 };
 
 enum MGUI_FONT_CHARSET
@@ -137,10 +143,10 @@ typedef void ( *mgui_event_handler_t )( MGuiEvent* event );
 __BEGIN_DECLS
 
 /* Library initialization and processing */
-MYLLY_API void				mgui_initialize					( void* wndhandle );
+MYLLY_API void				mgui_initialize					( void* wndhandle, uint32 params );
 MYLLY_API void				mgui_shutdown					( void );
 MYLLY_API void				mgui_process					( void );
-MYLLY_API void				mgui_redraw						( void );
+MYLLY_API void				mgui_force_redraw				( void );
 
 MYLLY_API void				mgui_set_renderer				( MGuiRenderer* renderer );
 MYLLY_API void				mgui_set_skin					( const char_t* skinimg );

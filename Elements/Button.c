@@ -115,5 +115,5 @@ static void mgui_button_on_key_press( MGuiElement* button, uint32 key, bool down
 		}
 	}
 
-	mgui_force_redraw();
+	mgui_element_request_redraw();
 }

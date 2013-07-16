@@ -99,6 +99,8 @@ void			mgui_element_destroy			( MGuiElement* element );
 void			mgui_element_render				( MGuiElement* element );
 void			mgui_element_process			( MGuiElement* element );
 
+void			mgui_element_request_redraw		( void );
+
 MGuiElement*	mgui_get_element_at				( int16 x, int16 y );
 
 void			mgui_add_child					( MGuiElement* parent, MGuiElement* child );

@@ -18,23 +18,26 @@
 #include "Platform/Window.h"
 #include "InputHook.h"
 
-vectorscreen_t	draw_size;					// System window size
-rectangle_t		draw_rect;					// System window size as a rectangle
+vectorscreen_t		draw_size;					// System window size
+rectangle_t			draw_rect;					// System window size as a rectangle
 
-static void*	system_window	= NULL;		// Pointer to the system window
-MGuiSkin*		defskin			= NULL;		// Pointer to the default (basic) skin
-MGuiSkin*		skin			= NULL;		// Current skin
-MGuiRenderer*	renderer		= NULL;		// Pointer to the renderer interface
-bool			redraw			= true;		// Force a scene redraw (use only with a standalone app)
-list_t*			layers			= NULL;		// A list of rendered layers
-uint32			tick_count		= 0;		// Current tick count
+static syswindow_t*	system_window	= NULL;		// Pointer to the system window
+MGuiSkin*			defskin			= NULL;		// Pointer to the default (basic) skin
+MGuiSkin*			skin			= NULL;		// Current skin
+MGuiRenderer*		renderer		= NULL;		// Pointer to the renderer interface
+bool				redraw_all		= true;		// Force a scene redraw (use only with a standalone app)
+bool				refresh_all		= false;	// An element has requested a scene redraw
+list_t*				layers			= NULL;		// A list of rendered layers
+uint32				tick_count		= 0;		// Current tick count
+uint32				params			= 0;		// The parameters MGUI was initialized with
 
-void mgui_initialize( void* wndhandle )
+void mgui_initialize( void* wndhandle, uint32 parameters )
 {
 	mgui_input_initialize_hooks();
 	mgui_fontmgr_initialize();
 
 	system_window = wndhandle;
+	params = parameters;
 
 	get_window_size( wndhandle, &draw_size.w, &draw_size.h );
 
@@ -90,51 +93,78 @@ void mgui_process( void )
 
 	tick_count = get_tick_count();
 
-#ifdef MGUI_USE_REDRAW
-	static uint32 last_ticks = 0;
-
-	if ( tick_count - last_ticks >= 1000 )
-	{
-		last_ticks = tick_count;
-		mgui_redraw();
-	}
-
-	if ( !redraw ) return;
-	redraw = false;
-#endif
-
 	if ( renderer == NULL ) return;
 	if ( layers == NULL ) return;
 
-	renderer->begin();
-
-	// Render all elements on every visible parent control
-	list_foreach( layers, node )
+	if ( redraw_all )
 	{
-		element = cast_elem(node);
+		// Process and render all visible elements
+		renderer->begin();
 
-		if ( BIT_ON(element->flags, FLAG_VISIBLE) )
+		list_foreach( layers, node )
 		{
-			mgui_element_process( element );
-			mgui_element_render( element );
+			element = cast_elem(node);
+
+			if ( element->flags & FLAG_VISIBLE )
+			{
+				mgui_element_process( element );
+				mgui_element_render( element );
+			}
+		}
+
+		renderer->end();
+	}
+	else
+	{
+		// Do processing only, don't render anything
+		list_foreach( layers, node )
+		{
+			element = cast_elem(node);
+			if ( element->flags & FLAG_VISIBLE )
+			{
+				mgui_element_process( element );
+			}
 		}
 	}
 
-	renderer->end();
+	if ( params & MGUI_USE_DRAW_EVENT )
+	{
+		if ( redraw_all )
+		{
+			// Make sure we don't draw the same window over and over.
+			redraw_all = false;
+		}
+
+		if ( refresh_all )
+		{
+			// Make sure that the window is repainted after this frame.
+			redraw_window( system_window );
+
+			refresh_all = false;
+		}
+	}
 }
 
-void mgui_redraw( void )
+void mgui_force_redraw( void )
 {
-	redraw = true;
+	redraw_all = true;
 }
 
 void mgui_set_renderer( MGuiRenderer* rend )
 {
-	if ( renderer ) mgui_fontmgr_invalidate_all();
+	if ( renderer )
+	{
+		// If the old renderer still exists, invalidate everything related to it.
+		mgui_fontmgr_invalidate_all();
+	}
 
 	renderer = rend;
 
-	if ( renderer ) mgui_fontmgr_initialize_all();
+	if ( renderer )
+	{
+		// Initialize everything with the new renderer.
+		mgui_fontmgr_initialize_all();
+	}
 }
 
 void mgui_set_skin( const char_t* skinimg )

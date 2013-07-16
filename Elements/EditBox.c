@@ -170,7 +170,7 @@ static void mgui_editbox_process( MGuiElement* element )
 		editbox->last_update = tick_count;
 
 		editbox->cursor_visible = !editbox->cursor_visible;
-		mgui_force_redraw();
+		mgui_element_request_redraw();
 	}
 }
 
@@ -429,7 +429,7 @@ void mgui_editbox_set_cursor_pos( MGuiEditbox* editbox, uint32 pos )
 	edit->cursor_pos = pos;
 	edit->cursor_end = pos;
 
-	mgui_force_redraw();
+	mgui_element_request_redraw();
 }
 
 static void mgui_editbox_refresh_cursor_bounds( struct MGuiEditbox* editbox )
@@ -463,7 +463,7 @@ static void mgui_editbox_refresh_cursor_bounds( struct MGuiEditbox* editbox )
 
 	editbox->selection.w = x1 + w1 < x2 + w2 ? w1 : w1 - ( (x1+w1) - (x2+w2) );
 
-	mgui_force_redraw();
+	mgui_element_request_redraw();
 }
 
 static void mgui_editbox_erase_text( struct MGuiEditbox* editbox, uint32 begin, uint32 end )
@@ -686,7 +686,7 @@ static void mgui_editbox_move_left( struct MGuiEditbox* editbox )
 	editbox->last_update = get_tick_count();
 	editbox->cursor_visible = true;
 
-	mgui_force_redraw();
+	mgui_element_request_redraw();
 }
 
 static void mgui_editbox_move_right( struct MGuiEditbox* editbox )
@@ -701,7 +701,7 @@ static void mgui_editbox_move_right( struct MGuiEditbox* editbox )
 	editbox->last_update = get_tick_count();
 	editbox->cursor_visible = true;
 
-	mgui_force_redraw();
+	mgui_element_request_redraw();
 }
 
 static void mgui_editbox_press_home( struct MGuiEditbox* editbox )
@@ -716,7 +716,7 @@ static void mgui_editbox_press_home( struct MGuiEditbox* editbox )
 	editbox->last_update = get_tick_count();
 	editbox->cursor_visible = true;
 
-	mgui_force_redraw();
+	mgui_element_request_redraw();
 }
 
 static void mgui_editbox_press_end( struct MGuiEditbox* editbox )
@@ -731,5 +731,5 @@ static void mgui_editbox_press_end( struct MGuiEditbox* editbox )
 	editbox->last_update = get_tick_count();
 	editbox->cursor_visible = true;
 
-	mgui_force_redraw();
+	mgui_element_request_redraw();
 }

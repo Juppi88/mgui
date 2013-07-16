@@ -157,6 +157,12 @@ void mgui_element_process( MGuiElement* element )
 	}
 }
 
+void mgui_element_request_redraw( void )
+{
+	extern bool refresh_all;
+	refresh_all = true;
+}
+
 MGuiElement* mgui_get_element_at( int16 x, int16 y )
 {
 	node_t* node;

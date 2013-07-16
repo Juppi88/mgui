@@ -40,16 +40,4 @@ struct MGuiRenderer
 	void		( *measure_text )		( void* font, const char_t* text, uint32* w, uint32* h );
 };
 
-
-// Redraw system
-// TODO: Move this the hell out of here
-//#define MGUI_USE_REDRAW
-
-#ifdef MGUI_USE_REDRAW
-	#define mgui_force_redraw mgui_redraw
-	extern	bool redraw;
-#else
-	#define mgui_force_redraw()
-#endif
-
 #endif /* __MYLLY_GUI_RENDERER_H */

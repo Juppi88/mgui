@@ -237,7 +237,7 @@ void mgui_memobox_clear( MGuiMemobox* memobox )
 		mem_free( line );
 	}
 
-	mgui_force_redraw();
+	mgui_element_request_redraw();
 }
 
 float mgui_memobox_get_display_pos( MGuiMemobox* memobox )
@@ -471,7 +471,7 @@ static void mgui_memobox_process_new_line( struct MGuiMemobox* memobox, struct M
 
 	mgui_memobox_update_display_positions( memobox );
 
-	mgui_force_redraw();
+	mgui_element_request_redraw();
 }
 
 static void mgui_memobox_wrap_line( struct MGuiMemobox* memobox, struct MGuiMemoRaw* raw )
