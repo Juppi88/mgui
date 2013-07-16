@@ -84,6 +84,25 @@ enum MGUI_FONT_FLAGS
 	FFLAG_NOAA		= 0x40,	/* Disable edge smoothing (if possible) */
 };
 
+enum MGUI_FONT_CHARSET
+{
+	CHARSET_ANSI,
+	CHARSET_BALTIC,
+	CHARSET_CHINESE_TRAD,
+	CHARSET_DEFAULT,
+	CHARSET_EASTEUR,
+	CHARSET_CHINESE_SIMPLE,
+	CHARSET_GREEK,
+	CHARSET_HANGUL_KOREAN,
+	CHARSET_APPLE,
+	CHARSET_OEM,
+	CHARSET_CYRILLIC,
+	CHARSET_JAPANESE,
+	CHARSET_SYMBOL,
+	CHARSET_TURKISH,
+	CHARSET_VIETNAMESE,
+};
+
 typedef enum
 {
 	EVENT_HOVER_ENTER,	/* Mouse enters the element boundaries */
@@ -113,6 +132,7 @@ typedef struct MGuiEvent
 
 // GUI event hook type
 typedef void ( *mgui_event_handler_t )( MGuiEvent* event );
+
 
 __BEGIN_DECLS
 

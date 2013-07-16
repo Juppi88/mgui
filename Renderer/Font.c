@@ -22,7 +22,8 @@ static list_t* fonts;
 MGuiFont*	default_font = NULL;	// Default font for all elements
 MGuiFont*	wndbutton_font = NULL;	// Font used for the close button X
 
-static MGuiFont* mgui_font_find( const char_t* name, uint8 size, uint8 flags, uint8 charset, char_t firstc, char_t lastc );
+static MGuiFont*	mgui_font_find			( const char_t* name, uint8 size, uint8 flags, uint8 charset, char_t firstc, char_t lastc );
+static uint32		mgui_font_get_charset	( uint32 charset );
 
 void mgui_fontmgr_initialize( void )
 {
@@ -62,7 +63,7 @@ void mgui_fontmgr_initialize_all( void )
 		font = (MGuiFont*)node;
 
 		if ( font->data == NULL )
-			font->data = renderer->load_font( font->name, font->size, font->flags, font->charset, font->first_char, font->last_char );
+			font->data = renderer->load_font( font->name, font->size, font->flags, mgui_font_get_charset( font->charset ), font->first_char, font->last_char );
 	}
 }
 
@@ -118,7 +119,7 @@ MGuiFont* mgui_font_create_range( const char_t* name, uint8 size, uint8 flags, u
 		mstrcpy( font->name, name, len );
 
 		if ( renderer )
-			font->data = renderer->load_font( name, size, flags, charset, firstc, lastc );
+			font->data = renderer->load_font( name, size, flags, mgui_font_get_charset( charset ), firstc, lastc );
 
 		list_push( fonts, &font->node );
 
@@ -298,4 +299,60 @@ void mgui_font_reinitialize( MGuiFont* font )
 		renderer->destroy_font( font->data );
 
 	font->data = renderer->load_font( font->name, font->size, font->flags, font->charset, font->first_char, font->last_char );
+}
+
+static uint32 mgui_font_get_charset( uint32 charset )
+{
+	switch ( charset )
+	{
+#ifdef _WIN32
+		case CHARSET_ANSI:
+			return ANSI_CHARSET;
+
+		case CHARSET_BALTIC:
+			return BALTIC_CHARSET;
+
+		case CHARSET_CHINESE_TRAD:
+			return CHINESEBIG5_CHARSET;
+
+		case CHARSET_DEFAULT:
+			return DEFAULT_CHARSET;
+
+		case CHARSET_EASTEUR:
+			return EASTEUROPE_CHARSET;
+
+		case CHARSET_CHINESE_SIMPLE:
+			return GB2312_CHARSET;
+
+		case CHARSET_GREEK:
+			return GREEK_CHARSET;
+
+		case CHARSET_HANGUL_KOREAN:
+			return HANGUL_CHARSET;
+
+		case CHARSET_APPLE:
+			return MAC_CHARSET;
+
+		case CHARSET_OEM:
+			return OEM_CHARSET;
+
+		case CHARSET_CYRILLIC:
+			return RUSSIAN_CHARSET;
+
+		case CHARSET_JAPANESE:
+			return SHIFTJIS_CHARSET;
+
+		case CHARSET_SYMBOL:
+			return SYMBOL_CHARSET;
+
+		case CHARSET_TURKISH:
+			return TURKISH_CHARSET;
+
+		case CHARSET_VIETNAMESE:
+			return VIETNAMESE_CHARSET;
+#else
+#endif /* _WIN32 */
+		default:
+			return 0;
+	}
 }
