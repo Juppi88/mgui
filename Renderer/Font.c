@@ -29,7 +29,7 @@ void mgui_fontmgr_initialize( void )
 	fonts = list_create();
 
 	default_font = mgui_font_create_range( DEFAULT_FONT, 10, FFLAG_NONE, CHARSET_ANSI, 0, 0 );
-	wndbutton_font = mgui_font_create_range( DEFAULT_FONT, 10, FFLAG_NONE, ANSI_CHARSET, 'X', 'X' );
+	wndbutton_font = mgui_font_create_range( DEFAULT_FONT, 10, FFLAG_NONE, CHARSET_ANSI, 'X', 'X' );
 }
 
 void mgui_fontmgr_shutdown( void )
@@ -293,7 +293,7 @@ MGuiFont* mgui_font_set_charset( MGuiFont* font, uint8 charset )
 void mgui_font_reinitialize( MGuiFont* font )
 {
 	if ( font == NULL || renderer == NULL ) return;
-	
+
 	if ( font->data )
 		renderer->destroy_font( font->data );
 

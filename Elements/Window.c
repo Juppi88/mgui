@@ -52,7 +52,7 @@ MGuiWindow* mgui_create_window( MGuiElement* parent )
 
 	window->flags |= (FLAG_BORDER|FLAG_SHADOW|FLAG_BACKGROUND|FLAG_WINDOW_TITLEBAR|FLAG_WINDOW_CLOSEBTN);
 	window->type = GUI_WINDOW;
-	window->font = mgui_font_create( DEFAULT_FONT, 10, FFLAG_BOLD, ANSI_CHARSET );
+	window->font = mgui_font_create( DEFAULT_FONT, 10, FFLAG_BOLD, CHARSET_ANSI );
 	window->text->font = window->font;
 
 	// We want to have the titlebar enabled by default, so let's add it
@@ -173,7 +173,7 @@ static void mgui_window_on_flags_change( MGuiElement* window, uint32 old )
 			if ( !wnd->closebtn )
 				wnd->closebtn = mgui_create_windowbutton( window );
 
-			wnd->closebtn->callbacks->on_bounds_change( cast_elem(wnd->closebtn), true, true );	
+			wnd->closebtn->callbacks->on_bounds_change( cast_elem(wnd->closebtn), true, true );
 		}
 	}
 
@@ -208,7 +208,6 @@ static void mgui_window_on_colour_change( MGuiElement* window )
 static void mgui_window_on_mouse_click( MGuiElement* window, uint16 x, uint16 y, MOUSEBTN button )
 {
 	struct MGuiWindow* wnd;
-	extern rectangle_t draw_rect;
 
 	UNREFERENCED_PARAM( button );
 
@@ -223,7 +222,6 @@ static void mgui_window_on_mouse_drag( MGuiElement* window, uint16 x, uint16 y )
 	node_t* node;
 	MGuiElement* child;
 	MGuiEvent guievent;
-	extern vectorscreen_t draw_size;
 	struct MGuiWindow* wnd = (struct MGuiWindow*)window;
 
 	wnd->bounds.x = (int16)x - wnd->click_offset.x;
@@ -236,7 +234,7 @@ static void mgui_window_on_mouse_drag( MGuiElement* window, uint16 x, uint16 y )
 	list_foreach( window->children, node )
 	{
 		child = cast_elem(node);
-		mgui_element_update_abs_pos( child ); 
+		mgui_element_update_abs_pos( child );
 	}
 
 	if ( window->event_handler )

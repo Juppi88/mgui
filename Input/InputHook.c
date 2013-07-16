@@ -13,6 +13,14 @@
 #include "Element.h"
 #include "Renderer.h"
 
+static bool		mgui_input_handle_char			( input_event_t* event );
+static bool		mgui_input_handle_key_up		( input_event_t* event );
+static bool		mgui_input_handle_key_down		( input_event_t* event );
+static bool		mgui_input_handle_mouse_move	( input_event_t* event );
+static bool		mgui_input_handle_mouse_wheel	( input_event_t* event );
+static bool		mgui_input_handle_lmb_up		( input_event_t* event );
+static bool		mgui_input_handle_lmb_down		( input_event_t* event );
+
 static MGuiElement*	hovered			= NULL; // Element being hovered currently
 static MGuiElement*	pressed			= NULL; // Element being pressed down currently
 static MGuiElement*	dragged			= NULL;	// Element that is being dragged
@@ -150,7 +158,7 @@ static bool mgui_input_handle_mouse_move( input_event_t* event )
 	if ( hovered )
 	{
 		hovered->flags_int &= ~INTFLAG_HOVER;
-		
+
 		if ( hovered->callbacks->on_mouse_leave )
 		{
 			hovered->callbacks->on_mouse_leave( hovered );
@@ -171,7 +179,7 @@ static bool mgui_input_handle_mouse_move( input_event_t* event )
 	if ( ( hovered = element ) != NULL )
 	{
 		hovered->flags_int |= INTFLAG_HOVER;
-		
+
 		if ( hovered->callbacks->on_mouse_enter )
 		{
 			hovered->callbacks->on_mouse_enter( hovered );
@@ -212,6 +220,7 @@ static bool mgui_input_handle_lmb_up( input_event_t* event )
 	dragged = NULL;
 
 	element = mgui_get_element_at( x, y );
+	(void)element;
 
 	if ( pressed )
 	{

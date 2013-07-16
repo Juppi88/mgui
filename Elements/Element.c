@@ -302,7 +302,7 @@ void mgui_remove_child( MGuiElement* child )
 void mgui_move_forward( MGuiElement* child )
 {
 	if ( child == NULL ) return;
-	
+
 	if ( child->parent && child->parent->children )
 	{
 		// Yes, this is a bit backwards (no pun intended), but the list is rendered from front to back.
@@ -473,7 +473,7 @@ void mgui_element_update_rel_pos( MGuiElement* elem )
 
 	list_foreach( elem->children, node )
 	{
-		mgui_element_update_child_pos( cast_elem(node) ); 
+		mgui_element_update_child_pos( cast_elem(node) );
 	}
 }
 
@@ -860,7 +860,7 @@ void mgui_set_text_s( MGuiElement* element, const char_t* text )
 	if ( element->text == NULL ) return;
 
 	mgui_text_set_buffer_s( element->text, text );
-	
+
 	if ( element->callbacks->on_text_change )
 	{
 		element->callbacks->on_text_change( element );
@@ -978,7 +978,7 @@ void mgui_set_font( MGuiElement* element, const char_t* font, uint8 size, uint8 
 	if ( charset == 0 )
 		charset = CHARSET_ANSI;
 
-	element->font = element->font = mgui_font_create( font, size, flags, charset );
+	element->font = mgui_font_create( font, size, flags, charset );
 
 	if ( element->text )
 	{
@@ -992,7 +992,7 @@ void mgui_set_font( MGuiElement* element, const char_t* font, uint8 size, uint8 
 uint32 mgui_get_flags( MGuiElement* element )
 {
 	if ( element == NULL ) return 0;
-	
+
 	return element->flags;
 }
 

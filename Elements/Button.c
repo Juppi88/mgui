@@ -49,7 +49,7 @@ MGuiButton* mgui_create_button( MGuiElement* parent )
 	button->type = GUI_BUTTON;
 
 	button->colour.hex = COL_ELEMENT_DARK;
-	button->font = mgui_font_create( DEFAULT_FONT, 11, FFLAG_NONE, ANSI_CHARSET );
+	button->font = mgui_font_create( DEFAULT_FONT, 11, FFLAG_NONE, CHARSET_ANSI );
 	button->text->font = button->font;
 
 	// Button callbacks
@@ -81,7 +81,7 @@ static void mgui_button_render( MGuiElement* button )
 static void mgui_button_on_key_press( MGuiElement* button, uint32 key, bool down )
 {
 	MGuiEvent guievent;
-	
+
 	if ( key != MKEY_RETURN && key != MKEY_SPACE ) return;
 
 	if ( down )

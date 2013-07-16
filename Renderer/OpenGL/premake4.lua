@@ -12,8 +12,8 @@ project "Lib-MGUI-Renderer-OpenGL"
 	configuration "linux"
 		targetextension ".a"
 		buildoptions { "-fms-extensions" } -- Unnamed struct/union fields within structs/unions
-		configuration "Debug" targetname "libmguiopengld"
-		configuration "Release" targetname "libmguiopengl"
+		configuration "Debug" targetname "mguiopengld"
+		configuration "Release" targetname "mguiopengl"
 	
 	-- Windows specific stuff
 	configuration "windows"

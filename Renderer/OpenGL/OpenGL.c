@@ -12,7 +12,7 @@
 #include "OpenGL.h"
 #include "Drawing.h"
 
-static MGuiRenderer		renderer;
+static MGuiRenderer renderer;
 
 MGuiRenderer* mgui_opengl_initialize( void* syswindow )
 {

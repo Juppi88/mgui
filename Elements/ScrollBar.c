@@ -6,10 +6,10 @@
  * PURPOSE:		GUI scrollbar related functions.
  *
  *				(c) Tuomo Jauhiainen 2012-13
- * 
+ *
  **********************************************************************/
 
-#include "Scrollbar.h"
+#include "ScrollBar.h"
 #include "Skin.h"
 #include "Renderer.h"
 #include "Platform/Alloc.h"

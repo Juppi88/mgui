@@ -55,7 +55,7 @@ void mgui_shutdown( void )
 
 	if ( layers != NULL )
 	{
-		list_foreach_safe( layers, node, tmp ) 
+		list_foreach_safe( layers, node, tmp )
 		{
 			mgui_element_destroy( cast_elem(node) );
 		}
@@ -87,11 +87,12 @@ void mgui_process( void )
 {
 	node_t* node;
 	MGuiElement* element;
-	static uint32 last_ticks = 0;
 
 	tick_count = get_tick_count();
 
 #ifdef MGUI_USE_REDRAW
+	static uint32 last_ticks = 0;
+
 	if ( tick_count - last_ticks >= 1000 )
 	{
 		last_ticks = tick_count;
@@ -106,7 +107,7 @@ void mgui_process( void )
 	if ( layers == NULL ) return;
 
 	renderer->begin();
-	
+
 	// Render all elements on every visible parent control
 	list_foreach( layers, node )
 	{

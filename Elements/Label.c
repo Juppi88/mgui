@@ -6,7 +6,7 @@
  * PURPOSE:		GUI label related functions.
  *
  *				(c) Tuomo Jauhiainen 2012-13
- * 
+ *
  **********************************************************************/
 
 #include "Label.h"
@@ -45,7 +45,7 @@ MGuiLabel* mgui_create_label( MGuiElement* parent )
 	label->type = GUI_LABEL;
 	label->flags |= FLAG_CLIP;
 
-	label->font = mgui_font_create( DEFAULT_FONT, 11, FFLAG_NONE, ANSI_CHARSET );
+	label->font = mgui_font_create( DEFAULT_FONT, 11, FFLAG_NONE, CHARSET_ANSI );
 	label->text->font = label->font;
 
 	// Label callbacks
@@ -77,7 +77,7 @@ static void mgui_label_render( MGuiElement* label )
 void mgui_label_make_text_fit( MGuiLabel* label )
 {
 	uint16 w, h;
-	
+
 	if ( label == NULL ) return;
 	if ( label->text == NULL ) return;
 

@@ -6,7 +6,7 @@
  * PURPOSE:		GUI memobox related functions.
  *
  *				(c) Tuomo Jauhiainen 2012-13
- * 
+ *
  **********************************************************************/
 
 #include "MemoBox.h"
@@ -64,7 +64,7 @@ MGuiMemobox* mgui_create_memobox( MGuiElement* parent )
 	memobox->lines = list_create();
 	memobox->raw_lines = list_create();
 
-	memobox->font = mgui_font_create( DEFAULT_FONT, 11, FFLAG_NONE, ANSI_CHARSET );
+	memobox->font = mgui_font_create( DEFAULT_FONT, 11, FFLAG_NONE, CHARSET_ANSI );
 	memobox->text->font = memobox->font;
 
 	memobox->text->pad.bottom = 5;
@@ -154,14 +154,13 @@ static void mgui_memobox_on_flags_change( MGuiElement* memobox, uint32 old )
 
 void mgui_memobox_add_line( MGuiMemobox* memobox, const char* fmt, ... )
 {
-	size_t	len;
-	char_t	tmp[512];
+	char_t tmp[512];
 	va_list	marker;
 
 	if ( memobox == NULL ) return;
 
 	va_start( marker, fmt );
-	len = msnprintf( tmp, lengthof(tmp), fmt, marker );
+	(void)msnprintf( tmp, lengthof(tmp), fmt, marker );
 	va_end( marker );
 
 	mgui_memobox_add_line_col_s( memobox, &tmp[0], &memobox->text->colour );
@@ -169,14 +168,13 @@ void mgui_memobox_add_line( MGuiMemobox* memobox, const char* fmt, ... )
 
 void mgui_memobox_add_line_col( MGuiMemobox* memobox, const char* fmt, const colour_t* col, ... )
 {
-	size_t	len;
-	char_t	tmp[512];
-	va_list	marker;
+	char_t tmp[512];
+	va_list marker;
 
 	if ( memobox == NULL ) return;
 
 	va_start( marker, col );
-	len = msnprintf( tmp, lengthof(tmp), fmt, marker );
+	(void)msnprintf( tmp, lengthof(tmp), fmt, marker );
 	va_end( marker );
 
 	mgui_memobox_add_line_col_s( memobox, &tmp[0], col );
@@ -528,7 +526,7 @@ static void mgui_memobox_wrap_line( struct MGuiMemobox* memobox, struct MGuiMemo
 			tmp = tmpbuf;
 
 			list_push( memobox->lines, cast_node(line) );
-			continue;	
+			continue;
 		}
 
 		linelength++;

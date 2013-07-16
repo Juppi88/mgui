@@ -85,7 +85,7 @@ MGuiEditbox* mgui_create_editbox( MGuiElement* parent )
 	*editbox->text->buffer = '\0';
 	*editbox->buffer = '\0';
 
-	editbox->font = mgui_font_create( DEFAULT_FONT, 11, FFLAG_NONE, ANSI_CHARSET );
+	editbox->font = mgui_font_create( DEFAULT_FONT, 11, FFLAG_NONE, CHARSET_ANSI );
 	editbox->text->font = editbox->font;
 	editbox->text->alignment = ALIGN_LEFT|ALIGN_CENTERV;
 	editbox->text->pad.left = 5;
