@@ -135,7 +135,7 @@ static bool mgui_input_handle_key_down( input_event_t* event )
 
 static bool mgui_input_handle_mouse_move( input_event_t* event )
 {
-	uint16 x, y;
+	int16 x, y;
 	MGuiElement* element;
 	MGuiEvent guievent;
 
@@ -210,7 +210,7 @@ static bool mgui_input_handle_mouse_wheel( input_event_t* event )
 
 static bool mgui_input_handle_lmb_up( input_event_t* event )
 {
-	uint16 x, y;
+	int16 x, y;
 	MGuiElement* element;
 	MGuiEvent guievent;
 
@@ -252,7 +252,7 @@ static bool mgui_input_handle_lmb_up( input_event_t* event )
 
 static bool mgui_input_handle_lmb_down( input_event_t* event )
 {
-	uint16 x, y;
+	int16 x, y;
 	MGuiElement* element;
 	MGuiEvent guievent;
 

@@ -22,7 +22,7 @@ extern MGuiFont* wndbutton_font; // Font used for the close button X
 // Window button callback handlers
 static void		mgui_windowbutton_on_bounds_change	( MGuiElement* button, bool pos, bool size );
 static void		mgui_windowbutton_on_colour_change	( MGuiElement* button );
-static void		mgui_windowbutton_on_mouse_release	( MGuiElement* button, uint16 x, uint16 y, MOUSEBTN mousebtn );
+static void		mgui_windowbutton_on_mouse_release	( MGuiElement* button, int16 x, int16 y, MOUSEBTN mousebtn );
 
 static struct MGuiCallbacks callbacks =
 {
@@ -110,14 +110,12 @@ static void mgui_windowbutton_on_colour_change( MGuiElement* button )
 	btn->text->colour.a = alpha;
 }
 
-static void mgui_windowbutton_on_mouse_release( MGuiElement* button, uint16 x, uint16 y, MOUSEBTN mousebtn )
+static void mgui_windowbutton_on_mouse_release( MGuiElement* button, int16 x, int16 y, MOUSEBTN mousebtn )
 {
 	MGuiWindowButton* btn;
 	MGuiEvent guievent;
 
 	UNREFERENCED_PARAM( mousebtn );
-	UNREFERENCED_PARAM( x );
-	UNREFERENCED_PARAM( y );
 
 	btn = (MGuiWindowButton*)button;
 

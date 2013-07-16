@@ -99,14 +99,14 @@ typedef enum
 	EVENT_FORCE_DWORD = 0x7FFFFFFF
 } MGUI_EVENT;
 
-typedef struct 
+typedef struct MGuiEvent 
 {
 	MGUI_EVENT		type;		// Event type
 	MGuiElement*	element;	// The element which triggered this event
 	void*			data;		// User specified data
 
 	union {
-		struct { uint16 x, y; } mouse;		// Mouse cursor position
+		struct { int16 x, y; } mouse;		// Mouse cursor position
 		struct { uint32 key; } keyboard;	// Active keyboard key
 	};
 } MGuiEvent;

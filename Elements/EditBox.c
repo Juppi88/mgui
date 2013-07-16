@@ -42,9 +42,9 @@ static void			mgui_editbox_render					( MGuiElement* element );
 static void			mgui_editbox_process				( MGuiElement* element );
 static void			mgui_editbox_on_bounds_change		( MGuiElement* element, bool pos, bool size );
 static void			mgui_editbox_on_text_change			( MGuiElement* element );
-static void			mgui_editbox_on_mouse_click			( MGuiElement* element, uint16 x, uint16 y, MOUSEBTN button );
-static void			mgui_editbox_on_mouse_release		( MGuiElement* element, uint16 x, uint16 y, MOUSEBTN button );
-static void			mgui_editbox_on_mouse_drag			( MGuiElement* element, uint16 x, uint16 y );
+static void			mgui_editbox_on_mouse_click			( MGuiElement* element, int16 x, int16 y, MOUSEBTN button );
+static void			mgui_editbox_on_mouse_release		( MGuiElement* element, int16 x, int16 y, MOUSEBTN button );
+static void			mgui_editbox_on_mouse_drag			( MGuiElement* element, int16 x, int16 y );
 static void			mgui_editbox_on_character			( MGuiElement* element, char_t c );
 static void			mgui_editbox_on_key_press			( MGuiElement* element, uint32 key, bool down );
 
@@ -209,7 +209,7 @@ static void mgui_editbox_on_text_change( MGuiElement* element )
 	mgui_editbox_refresh_cursor_bounds( editbox );
 }
 
-static void mgui_editbox_on_mouse_click( MGuiElement* element, uint16 x, uint16 y, MOUSEBTN button )
+static void mgui_editbox_on_mouse_click( MGuiElement* element, int16 x, int16 y, MOUSEBTN button )
 {
 	uint32 ch;
 	uint16 cx, cy;
@@ -238,7 +238,7 @@ static void mgui_editbox_on_mouse_click( MGuiElement* element, uint16 x, uint16 
 	mgui_editbox_refresh_cursor_bounds( editbox );
 }
 
-static void mgui_editbox_on_mouse_release( MGuiElement* element, uint16 x, uint16 y, MOUSEBTN button )
+static void mgui_editbox_on_mouse_release( MGuiElement* element, int16 x, int16 y, MOUSEBTN button )
 {
 	uint32 ch;
 	uint16 cx, cy;
@@ -263,7 +263,7 @@ static void mgui_editbox_on_mouse_release( MGuiElement* element, uint16 x, uint1
 	mgui_editbox_refresh_cursor_bounds( editbox );
 }
 
-static void mgui_editbox_on_mouse_drag( MGuiElement* element, uint16 x, uint16 y )
+static void mgui_editbox_on_mouse_drag( MGuiElement* element, int16 x, int16 y )
 {
 	uint32 ch;
 	uint16 cx, cy;
@@ -298,7 +298,7 @@ static void mgui_editbox_on_character( MGuiElement* element, char_t c )
 	mgui_editbox_insert_text( (struct MGuiEditbox*)element, tmp, 1 );
 }
 
-static void mgui_editbox_on_key_press( MGuiElement* element, uint key, bool down )
+static void mgui_editbox_on_key_press( MGuiElement* element, uint32 key, bool down )
 {
 	struct MGuiEditbox* editbox;
 	editbox = (struct MGuiEditbox*)element;

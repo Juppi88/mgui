@@ -21,8 +21,8 @@ static void		mgui_window_render				( MGuiElement* window );
 static void		mgui_window_on_bounds_change	( MGuiElement* window, bool pos, bool size );
 static void		mgui_window_on_flags_change		( MGuiElement* window, uint32 old );
 static void		mgui_window_on_colour_change	( MGuiElement* window );
-static void		mgui_window_on_mouse_click		( MGuiElement* window, uint16 x, uint16 y, MOUSEBTN button );
-static void		mgui_window_on_mouse_drag		( MGuiElement* window, uint16 x, uint16 y );
+static void		mgui_window_on_mouse_click		( MGuiElement* window, int16 x, int16 y, MOUSEBTN button );
+static void		mgui_window_on_mouse_drag		( MGuiElement* window, int16 x, int16 y );
 
 static struct MGuiCallbacks callbacks =
 {
@@ -205,7 +205,7 @@ static void mgui_window_on_colour_change( MGuiElement* window )
 	}
 }
 
-static void mgui_window_on_mouse_click( MGuiElement* window, uint16 x, uint16 y, MOUSEBTN button )
+static void mgui_window_on_mouse_click( MGuiElement* window, int16 x, int16 y, MOUSEBTN button )
 {
 	struct MGuiWindow* wnd;
 
@@ -217,15 +217,15 @@ static void mgui_window_on_mouse_click( MGuiElement* window, uint16 x, uint16 y,
 	wnd->click_offset.y = y;
 }
 
-static void mgui_window_on_mouse_drag( MGuiElement* window, uint16 x, uint16 y )
+static void mgui_window_on_mouse_drag( MGuiElement* window, int16 x, int16 y )
 {
 	node_t* node;
 	MGuiElement* child;
 	MGuiEvent guievent;
 	struct MGuiWindow* wnd = (struct MGuiWindow*)window;
 
-	wnd->bounds.x = (int16)x - wnd->click_offset.x;
-	wnd->bounds.y = (int16)y - wnd->click_offset.y;
+	wnd->bounds.x = x - wnd->click_offset.x;
+	wnd->bounds.y = y - wnd->click_offset.y;
 
 	mgui_window_on_bounds_change( window, true, false );
 

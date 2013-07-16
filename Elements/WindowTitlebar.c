@@ -17,8 +17,8 @@
 
 // Window titlebar callback handlers
 static void		mgui_titlebar_destroy			( MGuiElement* element );
-static void		mgui_titlebar_on_mouse_click	( MGuiElement* element, uint16 x, uint16 y, MOUSEBTN button );
-static void		mgui_titlebar_on_mouse_drag		( MGuiElement* element, uint16 x, uint16 y );
+static void		mgui_titlebar_on_mouse_click	( MGuiElement* element, int16 x, int16 y, MOUSEBTN button );
+static void		mgui_titlebar_on_mouse_drag		( MGuiElement* element, int16 x, int16 y );
 
 static struct MGuiCallbacks callbacks =
 {
@@ -76,7 +76,7 @@ static void mgui_titlebar_destroy( MGuiElement* element )
 	element->font = NULL;
 }
 
-static void mgui_titlebar_on_mouse_click( MGuiElement* element, uint16 x, uint16 y, MOUSEBTN button )
+static void mgui_titlebar_on_mouse_click( MGuiElement* element, int16 x, int16 y, MOUSEBTN button )
 {
 	MGuiTitlebar* titlebar;
 	titlebar = (MGuiTitlebar*)element;
@@ -91,7 +91,7 @@ static void mgui_titlebar_on_mouse_click( MGuiElement* element, uint16 x, uint16
 	}
 }
 
-static void mgui_titlebar_on_mouse_drag( MGuiElement* element, uint16 x, uint16 y )
+static void mgui_titlebar_on_mouse_drag( MGuiElement* element, int16 x, int16 y )
 {
 	MGuiTitlebar* titlebar;
 	titlebar = (MGuiTitlebar*)element;
