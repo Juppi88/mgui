@@ -30,7 +30,7 @@
 #ifdef _WIN32
 	#define DEFAULT_FONT _MTEXT("Tahoma")
 #else
-	#define DEFAULT_FONT _MTEXT("DejaVu Sans Mono")
+	#define DEFAULT_FONT _MTEXT("fixed")
 #endif
 
 // Element borders
@@ -46,7 +46,7 @@
 #define ARROW_LEFT		0x3
 #define ARROW_RIGHT		0x4
 
-// Skin interface 
+// Skin interface
 typedef struct MGuiSkin
 {
 	void*	texture; // Not used right now

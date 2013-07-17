@@ -10,11 +10,20 @@
  **********************************************************************/
 
 #include "Drawing.h"
+#include "Platform/Alloc.h"
 #include "Platform/Window.h"
+#include "Stringy/Stringy.h"
 
 static uint32 colour;
 extern syswindow_t* window;
 extern GC gc;
+
+struct X11Font
+{
+	XFontStruct* font;
+	uint32 size;
+	uint32 flags;
+};
 
 void mgui_x11_begin( void )
 {
@@ -86,21 +95,69 @@ void mgui_x11_draw_textured_rect( void* texture, int32 x, int32 y, uint32 w, uin
 
 void* mgui_x11_load_font( const char* name, uint32 size, uint32 flags, uint32 charset, uint32 firstc, uint32 lastc )
 {
-	return NULL;
+	struct X11Font* font;
+
+	UNREFERENCED_PARAM( charset );
+	UNREFERENCED_PARAM( firstc );
+	UNREFERENCED_PARAM( lastc );
+
+	if ( !name || !*name ) return NULL;
+
+	font = mem_alloc_clean( sizeof(*font) );
+
+	font->font = XLoadQueryFont( window->display, name );
+	font->size = size;
+	font->flags = flags;
+
+	if ( font->font == NULL )
+	{
+		mem_free( font );
+		return NULL;
+	}
+
+	return (void*)font;
 }
 
 void mgui_x11_destroy_font( void* font )
 {
+	struct X11Font* fnt = (struct X11Font*)font;
 
+	if ( font == NULL ) return;
+
+	if ( fnt->font ) XFreeFont( window->display, fnt->font );
+	mem_free( font );
 }
 
 void mgui_x11_draw_text( void* font, const char_t* text, int32 x, int32 y, uint32 flags )
 {
+	struct X11Font* fnt = (struct X11Font*)font;
 
+	if ( font == NULL ) return;
+	y += fnt->size;
+
+#ifdef MYLLY_UNICODE
+	XDrawString16( window->display, window->wnd, gc, x, y, text, mstrlen( text ) );
+#else
+	XDrawString( window->display, window->wnd, gc, x, y, text, strlen( text ) );
+#endif
 }
 
 void mgui_x11_measure_text( void* font, const char_t* text, uint32* w, uint32* h )
 {
-	*w = 1;
-	*h = 1;
+	struct X11Font* fnt = (struct X11Font*)font;
+
+	if ( font == NULL )
+	{
+		*w = 1;
+		*h = 1;
+		return;
+	}
+
+#ifdef MYLLY_UNICODE
+	*w = XTextWidth16( fnt->font, text, mstrlen(text) );
+#else
+	*w = XTextWidth( fnt->font, text, strlen(text) );
+#endif
+
+	*h = fnt->size;
 }
