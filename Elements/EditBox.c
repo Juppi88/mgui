@@ -127,36 +127,7 @@ void mgui_editbox_destroy( MGuiElement* element )
 
 static void mgui_editbox_render( MGuiElement* element )
 {
-	struct MGuiEditbox* editbox;
-	colour_t col;
-
-	editbox = (struct MGuiEditbox*)element;
-
 	element->skin->draw_editbox( element );
-
-	if ( BIT_ON( editbox->flags_int, INTFLAG_FOCUS ) )
-	{
-		// Draw the cursor, make sure it's within the editbox boundaries
-		if ( editbox->cursor_visible || BIT_OFF( editbox->flags, FLAG_ANIMATION ) )
-		{
-			if ( editbox->cursor.x < editbox->bounds.x + editbox->bounds.w )
-			{
-				renderer->set_draw_colour( &editbox->text->colour );
-				renderer->draw_rect( editbox->cursor.x, editbox->cursor.y, editbox->cursor.w, editbox->cursor.h );
-			}
-		}
-
-		// Draw the selection. TODO: Would be cool to change the text colour as well
-		if ( editbox->cursor_pos != editbox->cursor_end )
-		{
-			col = editbox->colour;
-			colour_invert( &col, &col );
-			col.a = 90;
-
-			renderer->set_draw_colour( &col );
-			renderer->draw_rect( editbox->selection.x, editbox->selection.y, editbox->selection.w, editbox->selection.h );
-		}
-	}
 }
 
 static void mgui_editbox_process( MGuiElement* element )
@@ -361,6 +332,16 @@ static void mgui_editbox_on_key_press( MGuiElement* element, uint32 key, bool do
 		mgui_editbox_press_end( editbox );
 		break;
 	}
+}
+
+bool mgui_editbox_has_text_selected( MGuiEditbox* editbox )
+{
+	struct MGuiEditbox* edit;
+	edit = (struct MGuiEditbox*)editbox;
+
+	if ( editbox == NULL ) return NULL;
+
+	return ( edit->cursor_pos != edit->cursor_end );
 }
 
 void mgui_editbox_get_selection( MGuiEditbox* editbox, char_t* buf, size_t buflen )

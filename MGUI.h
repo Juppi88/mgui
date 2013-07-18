@@ -70,7 +70,7 @@ enum MGUI_FLAGS
 	FLAG_TABSTOP			= 1 << 11,	/* Tab press can switch focus to this element */
 	FLAG_MOUSECTRL			= 1 << 12,	/* Element triggers mouse input events */
 	FLAG_KBCTRL				= 1 << 13,	/* Element triggers keyboard input events and accepts keyboard focus */
-	
+
 	// Element specific flags
 	FLAG_WINDOW_TITLEBAR	= 1 << 20,	/* Enable window titlebar */
 	FLAG_WINDOW_CLOSEBTN	= 1 << 21,	/* Enable window close button */
@@ -124,7 +124,7 @@ typedef enum
 	EVENT_FORCE_DWORD = 0x7FFFFFFF
 } MGUI_EVENT;
 
-typedef struct MGuiEvent 
+typedef struct MGuiEvent
 {
 	MGUI_EVENT		type;		// Event type
 	MGuiElement*	element;	// The element which triggered this event
@@ -234,6 +234,7 @@ MYLLY_API void				mgui_remove_flags				( MGuiElement* element, uint32 flags );
 MYLLY_API void				mgui_set_event_handler			( MGuiElement* element, mgui_event_handler_t handler, void* data );
 
 /* Editbox functions */
+MYLLY_API bool				mgui_editbox_has_text_selected	( MGuiEditbox* editbox );
 MYLLY_API void				mgui_editbox_get_selection		( MGuiEditbox* editbox, char_t* buf, size_t buflen );
 MYLLY_API void				mgui_editbox_select_text		( MGuiEditbox* editbox, uint32 begin, uint32 end );
 MYLLY_API uint32			mgui_editbox_get_cursor_pos		( MGuiEditbox* editbox );

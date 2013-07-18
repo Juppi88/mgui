@@ -31,6 +31,7 @@ struct MGuiEditbox
 MGuiEditbox*		mgui_create_editbox					( MGuiElement* parent );
 MGuiEditbox*		mgui_create_editbox_ex				( MGuiElement* parent, int16 x, int16 y, uint16 w, uint16 h, uint32 flags, uint32 col, const char_t* text );
 
+bool				mgui_editbox_has_text_selected		( MGuiEditbox* editbox );
 void				mgui_editbox_get_selection			( MGuiEditbox* editbox, char_t* buf, size_t buflen );
 void				mgui_editbox_select_text			( MGuiEditbox* editbox, uint32 begin, uint32 end );
 uint32				mgui_editbox_get_cursor_pos			( MGuiEditbox* editbox );

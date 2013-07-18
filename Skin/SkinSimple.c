@@ -230,15 +230,48 @@ static void skin_simple_draw_editbox( MGuiElement* element )
 		skin_simple_draw_border( r, &c, BORDER_TOP|BORDER_LEFT, 1 );
 	}
 
+	if ( BIT_ON( editbox->flags_int, INTFLAG_FOCUS ) )
+	{
+		// Draw the cursor, also make sure it's within the editbox boundaries
+		if ( editbox->cursor_visible || BIT_OFF( editbox->flags, FLAG_ANIMATION ) )
+		{
+			if ( editbox->cursor.x < editbox->bounds.x + editbox->bounds.w )
+			{
+				renderer->set_draw_colour( &editbox->text->colour );
+				renderer->draw_rect( editbox->cursor.x, editbox->cursor.y, editbox->cursor.w, editbox->cursor.h );
+			}
+		}
+
+		// Draw the selection. Invert the background colour.
+		if ( mgui_editbox_has_text_selected( (MGuiEditbox*)editbox ) )
+		{
+			c = editbox->colour; c.a = 90;
+			colour_invert( &c, &c );
+
+			renderer->set_draw_colour( &c );
+			renderer->draw_rect( editbox->selection.x, editbox->selection.y, editbox->selection.w, editbox->selection.h );
+		}
+	}
+
 	if ( ( text = element->text ) != NULL )
 	{
+		if ( BIT_ON( editbox->flags_int, INTFLAG_FOCUS ) && mgui_editbox_has_text_selected( (MGuiEditbox*)editbox ) )
+		{
+			c = text->colour;
+			colour_invert( &c, &c );
+		}
+		else
+		{
+			c = text->colour;
+		}
+
 		// This is a really ugly hack to make mgui_get_text return the correct buffer:
 		// We replace the MGuiText buffer with our own (with masked input etc cool)
 		// while we render, and put the original buffer back afterwards
 		tmp = element->text->buffer;
 		element->text->buffer = editbox->buffer;
 
-		renderer->set_draw_colour( &text->colour );
+		renderer->set_draw_colour( &c );
 		renderer->draw_text( text->font->data, text->buffer, text->pos.x, text->pos.y, text->font->flags );
 
 		// Really ugly hack cleanup
