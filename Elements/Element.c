@@ -105,10 +105,15 @@ void mgui_element_render( MGuiElement* element )
 
 	if ( BIT_ON( element->flags, FLAG_CLIP ) )
 	{
-		r = &element->bounds;
+		if ( element->callbacks->get_clip_region )
+			element->callbacks->get_clip_region( element, &r );
+
+		else r = &element->bounds;
+
 		renderer->start_clip( r->x, r->y, r->w, r->h );
 	}
 
+	// Render the element itself
 	if ( element->callbacks->render )
 	{
 		element->callbacks->render( element );
@@ -116,6 +121,7 @@ void mgui_element_render( MGuiElement* element )
 
 	if ( !element->children ) return;
 
+	// Render all the child elements
 	list_foreach( element->children, node )
 	{
 		child = cast_elem(node);
@@ -127,10 +133,16 @@ void mgui_element_render( MGuiElement* element )
 		renderer->end_clip();
 	}
 
-	if ( element->parent && BIT_ON( element->parent->flags, FLAG_CLIP ) )
+	// Re-enable parent clipping if necessary
+	element = element->parent;
+
+	if ( element && BIT_ON( element->flags, FLAG_CLIP ) )
 	{
-		// Re-enable parent clipping
-		r = &element->parent->bounds;
+		if ( element->callbacks->get_clip_region )
+			element->callbacks->get_clip_region( element, &r );
+
+		else r = &element->bounds;
+
 		renderer->start_clip( r->x, r->y, r->w, r->h );
 	}
 }

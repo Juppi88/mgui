@@ -18,6 +18,7 @@
 
 // Window callback handlers
 static void		mgui_window_render				( MGuiElement* window );
+static void		mgui_window_get_clip_region		( MGuiElement* window, rectangle_t** rect );
 static void		mgui_window_on_bounds_change	( MGuiElement* window, bool pos, bool size );
 static void		mgui_window_on_flags_change		( MGuiElement* window, uint32 old );
 static void		mgui_window_on_colour_change	( MGuiElement* window );
@@ -29,6 +30,7 @@ static struct MGuiCallbacks callbacks =
 	NULL, /* destroy */
 	mgui_window_render,
 	NULL, /* process */
+	mgui_window_get_clip_region,
 	mgui_window_on_bounds_change,
 	mgui_window_on_flags_change,
 	mgui_window_on_colour_change,
@@ -82,6 +84,16 @@ MGuiWindow* mgui_create_window_ex( MGuiElement* parent, int16 x, int16 y, uint16
 static void mgui_window_render( MGuiElement* window )
 {
 	window->skin->draw_window( window );
+}
+
+static void mgui_window_get_clip_region( MGuiElement* window, rectangle_t** rect )
+{
+	struct MGuiWindow* wnd;
+	wnd = (struct MGuiWindow*)window;
+
+	if ( rect == NULL ) return;
+
+	*rect = &wnd->window_bounds;
 }
 
 static void mgui_window_on_bounds_change( MGuiElement* window, bool pos, bool size )

@@ -21,6 +21,7 @@ static struct MGuiCallbacks callbacks =
 	NULL, /* destroy */
 	mgui_label_render,
 	NULL, /* process */
+	NULL, /* get_clip_region */
 	NULL, /* on_bounds_change */
 	NULL, /* on_flags_change */
 	NULL, /* on_colour_change */

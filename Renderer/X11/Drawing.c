@@ -15,6 +15,8 @@
 #include "Stringy/Stringy.h"
 
 static uint32 colour;
+static uint16 window_width;
+static uint16 window_height;
 extern syswindow_t* window;
 extern GC gc;
 
@@ -27,7 +29,7 @@ struct X11Font
 
 void mgui_x11_begin( void )
 {
-	//XClearWindow( window->display, window->wnd );
+	XClearWindow( window->display, window->wnd );
 }
 
 void mgui_x11_end( void )
@@ -36,8 +38,8 @@ void mgui_x11_end( void )
 
 void mgui_x11_resize( uint32 w, uint32 h )
 {
-	UNREFERENCED_PARAM( w );
-	UNREFERENCED_PARAM( h );
+	window_width = (uint16)w;
+	window_height = (uint16)h;
 }
 
 void mgui_x11_set_draw_colour( const colour_t* col )
@@ -48,14 +50,13 @@ void mgui_x11_set_draw_colour( const colour_t* col )
 
 void mgui_x11_start_clip( int32 x, int32 y, uint32 w, uint32 h )
 {
-	UNREFERENCED_PARAM( x );
-	UNREFERENCED_PARAM( y );
-	UNREFERENCED_PARAM( w );
-	UNREFERENCED_PARAM( h );
+	XRectangle r = { x, y, w, h };
+	XSetClipRectangles( window->display, gc, 0, 0, &r, 1, Unsorted );
 }
 
 void mgui_x11_end_clip( void )
 {
+	XSetClipMask( window->display, gc, None );
 }
 
 void mgui_x11_draw_rect( int32 x, int32 y, uint32 w, uint32 h )
@@ -65,12 +66,8 @@ void mgui_x11_draw_rect( int32 x, int32 y, uint32 w, uint32 h )
 
 void mgui_x11_draw_triangle( int32 x1, int32 y1, int32 x2, int32 y2, int32 x3, int32 y3 )
 {
-	UNREFERENCED_PARAM( x1 );
-	UNREFERENCED_PARAM( x2 );
-	UNREFERENCED_PARAM( x3 );
-	UNREFERENCED_PARAM( y1 );
-	UNREFERENCED_PARAM( y2 );
-	UNREFERENCED_PARAM( y3 );
+	XPoint points[] = { { x1, y1 }, { x2, y2 }, { x3, y3 } };
+	XFillPolygon( window->display, window->wnd, gc, points, 3, Convex, CoordModeOrigin );
 }
 
 void* mgui_x11_load_texture( const char_t* path )

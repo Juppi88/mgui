@@ -387,7 +387,7 @@ static void skin_simple_draw_scrollbar_button( const rectangle_t* r, const colou
 
 static void skin_simple_draw_window( MGuiElement* element )
 {
-	rectangle_t* r;
+	rectangle_t *r, *clip;
 	rectangle_t border;
 	colour_t col;
 	struct MGuiWindow* window = (struct MGuiWindow*)element;
@@ -423,7 +423,9 @@ static void skin_simple_draw_window( MGuiElement* element )
 		if ( element->flags & FLAG_CLIP )
 		{
 			// Re-enable clipping after titlebar and close button
-			renderer->start_clip( r->x, r->y, r->w, r->h );
+			clip = &window->window_bounds;
+
+			renderer->start_clip( clip->x, clip->y, clip->w, clip->h );
 		}
 
 		if ( element->flags & FLAG_BORDER )

@@ -78,6 +78,8 @@ struct MGuiElement
 		void		( *render )				( MGuiElement* element );
 		void		( *process )			( MGuiElement* element );
 
+		void		( *get_clip_region )	( MGuiElement* element, rectangle_t** rect );
+
 		void		( *on_bounds_change )	( MGuiElement* element, bool pos, bool size );
 		void		( *on_flags_change )	( MGuiElement* element, uint32 old );
 		void		( *on_colour_change )	( MGuiElement* element );

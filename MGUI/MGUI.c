@@ -67,7 +67,7 @@ void mgui_shutdown( void )
 		layers = NULL;
 	}
 
-	// Cleanup the skin
+	// Cleanup the skin.
 	// Dont cleanup the defskin if its the same as skin else things will go bang
 	if ( ( defskin ) && ( defskin != skin ) )
 	{

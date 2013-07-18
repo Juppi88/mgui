@@ -35,6 +35,7 @@ static struct MGuiCallbacks callbacks =
 	mgui_memobox_destroy,
 	mgui_memobox_render,
 	NULL, /* process */
+	NULL, /* get_clip_region */
 	mgui_memobox_on_bounds_change,
 	mgui_memobox_on_flags_change,
 	NULL, /* on_colour_change */

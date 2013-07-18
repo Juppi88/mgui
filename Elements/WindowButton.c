@@ -29,6 +29,7 @@ static struct MGuiCallbacks callbacks =
 	NULL, /* destroy */
 	NULL, /* render */
 	NULL, /* process */
+	NULL, /* get_clip_region */
 	mgui_windowbutton_on_bounds_change,
 	NULL, /* on_flags_change */
 	mgui_windowbutton_on_colour_change,

@@ -53,6 +53,7 @@ static struct MGuiCallbacks callbacks =
 	mgui_editbox_destroy, /* destroy */
 	mgui_editbox_render,
 	mgui_editbox_process,
+	NULL, /* get_clip_region */
 	mgui_editbox_on_bounds_change,
 	NULL, /* on_flags_change */
 	NULL, /* on_colour_change */
@@ -291,6 +292,11 @@ static void mgui_editbox_on_character( MGuiElement* element, char_t c )
 	char_t tmp[2];
 
 	if ( (uchar_t)c < ' ' ) return;
+
+#ifndef _WIN32
+	// Fix for visible Del character on X11
+	if ( c == 0x7F ) return;
+#endif
 
 	tmp[0] = c;
 	tmp[1] = '\0';
