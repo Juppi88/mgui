@@ -130,6 +130,8 @@ void mgui_x11_draw_text( void* font, const char_t* text, int32 x, int32 y, uint3
 	struct X11Font* fnt = (struct X11Font*)font;
 
 	if ( font == NULL ) return;
+
+	XSetFont( window->display, gc, fnt->font->fid );
 	y += fnt->size;
 
 #ifdef MYLLY_UNICODE
@@ -150,10 +152,12 @@ void mgui_x11_measure_text( void* font, const char_t* text, uint32* w, uint32* h
 		return;
 	}
 
+	XSetFont( window->display, gc, fnt->font->fid );
+
 #ifdef MYLLY_UNICODE
-	*w = XTextWidth16( fnt->font, text, mstrlen(text) );
+	*w = XTextWidth16( fnt->font, text, mstrlen( text ) );
 #else
-	*w = XTextWidth( fnt->font, text, strlen(text) );
+	*w = XTextWidth( fnt->font, text, strlen( text ) );
 #endif
 
 	*h = fnt->size;
