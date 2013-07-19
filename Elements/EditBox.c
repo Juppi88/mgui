@@ -578,13 +578,14 @@ static void mgui_editbox_select_all( struct MGuiEditbox* editbox )
 
 static void mgui_editbox_cut_selection( struct MGuiEditbox* editbox )
 {
+	extern syswindow_t* system_window;
 	char_t buf[512];
 	uint32 begin, end;
 
 	if ( editbox->cursor_pos == editbox->cursor_end ) return;
 
 	mgui_editbox_get_selection( cast_elem(editbox), buf, lengthof(buf) );
-	copy_to_clipboard( buf );
+	clipboard_copy( system_window, buf );
 
 	begin = math_min( editbox->cursor_pos, editbox->cursor_end );
 	end = math_max( editbox->cursor_pos, editbox->cursor_end );
@@ -594,22 +595,31 @@ static void mgui_editbox_cut_selection( struct MGuiEditbox* editbox )
 
 static void mgui_editbox_copy_selection( struct MGuiEditbox* editbox )
 {
+	extern syswindow_t* system_window;
 	char_t buf[512];
 
 	if ( editbox->cursor_pos == editbox->cursor_end ) return;
 
 	mgui_editbox_get_selection( cast_elem(editbox), buf, lengthof(buf) );
-	copy_to_clipboard( buf );
+	clipboard_copy( system_window, buf );
+}
+
+static void mgui_editbox_handle_paste_selection( const char* pasted, void* element )
+{
+	struct MGuiEditbox* editbox;
+	editbox = (struct MGuiEditbox*)element;
+
+	if ( !element ) return;
+	if ( !pasted ) return;
+
+	mgui_editbox_insert_text( editbox, pasted, mstrlen(pasted) );
 }
 
 static void mgui_editbox_paste_selection( struct MGuiEditbox* editbox )
 {
-	const char_t* pasted;
-	pasted = paste_from_clipboard();
+	extern syswindow_t* system_window;
 
-	if ( !pasted ) return;
-
-	mgui_editbox_insert_text( editbox, pasted, mstrlen(pasted) );
+	clipboard_paste( system_window, mgui_editbox_handle_paste_selection, (void*)editbox );
 }
 
 static void mgui_editbox_press_backspace( struct MGuiEditbox* editbox )

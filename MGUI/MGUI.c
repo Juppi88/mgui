@@ -21,7 +21,7 @@
 vectorscreen_t		draw_size;					// System window size
 rectangle_t			draw_rect;					// System window size as a rectangle
 
-static syswindow_t*	system_window	= NULL;		// Pointer to the system window
+syswindow_t*		system_window	= NULL;		// Pointer to the system window handle
 MGuiSkin*			defskin			= NULL;		// Pointer to the default (basic) skin
 MGuiSkin*			skin			= NULL;		// Current skin
 MGuiRenderer*		renderer		= NULL;		// Pointer to the renderer interface
