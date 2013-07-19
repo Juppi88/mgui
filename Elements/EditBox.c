@@ -339,7 +339,7 @@ bool mgui_editbox_has_text_selected( MGuiEditbox* editbox )
 	struct MGuiEditbox* edit;
 	edit = (struct MGuiEditbox*)editbox;
 
-	if ( editbox == NULL ) return NULL;
+	if ( editbox == NULL ) return false;
 
 	return ( edit->cursor_pos != edit->cursor_end );
 }

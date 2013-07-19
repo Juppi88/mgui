@@ -255,12 +255,13 @@ static void skin_simple_draw_editbox( MGuiElement* element )
 
 	if ( ( text = element->text ) != NULL )
 	{
-		if ( BIT_ON( editbox->flags_int, INTFLAG_FOCUS ) && mgui_editbox_has_text_selected( (MGuiEditbox*)editbox ) )
+		// TODO: This doesn't seem to work so well. Use colour tags after they're implemented.
+		/*if ( BIT_ON( editbox->flags_int, INTFLAG_FOCUS ) && mgui_editbox_has_text_selected( (MGuiEditbox*)editbox ) )
 		{
 			c = text->colour;
-			colour_invert( &c, &c );
+			colour_invert_noalpha( &c, &c );
 		}
-		else
+		else*/
 		{
 			c = text->colour;
 		}
