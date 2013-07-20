@@ -29,7 +29,7 @@ struct X11Font
 
 void mgui_x11_begin( void )
 {
-	XClearWindow( window->display, window->wnd );
+	XClearWindow( window->display, window->window );
 }
 
 void mgui_x11_end( void )
@@ -61,13 +61,13 @@ void mgui_x11_end_clip( void )
 
 void mgui_x11_draw_rect( int32 x, int32 y, uint32 w, uint32 h )
 {
-	XFillRectangle( window->display, window->wnd, gc, x, y, w, h );
+	XFillRectangle( window->display, window->window, gc, x, y, w, h );
 }
 
 void mgui_x11_draw_triangle( int32 x1, int32 y1, int32 x2, int32 y2, int32 x3, int32 y3 )
 {
 	XPoint points[] = { { x1, y1 }, { x2, y2 }, { x3, y3 } };
-	XFillPolygon( window->display, window->wnd, gc, points, 3, Convex, CoordModeOrigin );
+	XFillPolygon( window->display, window->window, gc, points, 3, Convex, CoordModeOrigin );
 }
 
 void* mgui_x11_load_texture( const char_t* path )
@@ -135,9 +135,9 @@ void mgui_x11_draw_text( void* font, const char_t* text, int32 x, int32 y, uint3
 	y += fnt->size;
 
 #ifdef MYLLY_UNICODE
-	XDrawString16( window->display, window->wnd, gc, x, y, text, mstrlen( text ) );
+	XDrawString16( window->display, window->window, gc, x, y, text, mstrlen( text ) );
 #else
-	XDrawString( window->display, window->wnd, gc, x, y, text, strlen( text ) );
+	XDrawString( window->display, window->window, gc, x, y, text, strlen( text ) );
 #endif
 }
 

@@ -46,11 +46,9 @@ MGuiRenderer* mgui_x11_initialize( void* syswindow )
 
 	mask = GCCapStyle|GCJoinStyle;
 
-	gc = XCreateGC( window->display, window->wnd, mask, &values );
+	gc = XCreateGC( window->display, window->window, mask, &values );
 	if ( gc < 0 ) return NULL;
 
-	// TODO: Figure out why this doesn't work.
-	//XSetBackground( window->display, gc, 0xFF000000 );
 	XSetFillStyle( window->display, gc, FillSolid );
 
 	return &renderer;
