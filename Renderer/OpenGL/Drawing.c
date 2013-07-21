@@ -181,14 +181,14 @@ static __inline uint32 __render_char( MGuiGLFont* font, uint32 c, int32 x, int32
 	y1 = 1.0f - font->coords[c][1];
 	y2 = 1.0f - font->coords[c][3];
 
-	space = ( font->flags & FFLAG_ITALIC ) ? (x2-x1) : 0;
+	space = 0;//( font->flags & FFLAG_ITALIC ) ? (x2-x1) : 0;
 	offset = space * font->width;
 
 	w = (uint32)( ( x2 - x1 + space ) * font->width );
 	h = (uint32)( ( y2 - y1 ) * font->height );
 	y -= h;
 
-	if ( flags & FFLAG_SHADOW )
+	if ( flags & FLAG_TEXT_SHADOW )
 	{
 		glColor4ubv( (const GLubyte*)&shadow_col );
 

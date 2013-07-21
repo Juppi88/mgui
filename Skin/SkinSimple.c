@@ -161,11 +161,11 @@ static void skin_simple_draw_button( MGuiElement* element )
 
 		if ( element->flags & INTFLAG_PRESSED )
 		{
-			renderer->draw_text( text->font->data, text->buffer, text->pos.x+1, text->pos.y+1, text->font->flags );
+			renderer->draw_text( text->font->data, text->buffer, text->pos.x+1, text->pos.y+1, element->flags );
 		}
 		else
 		{
-			renderer->draw_text( text->font->data, text->buffer, text->pos.x, text->pos.y, text->font->flags );
+			renderer->draw_text( text->font->data, text->buffer, text->pos.x, text->pos.y, element->flags );
 		}
 	}
 
@@ -273,7 +273,7 @@ static void skin_simple_draw_editbox( MGuiElement* element )
 		element->text->buffer = editbox->buffer;
 
 		renderer->set_draw_colour( &c );
-		renderer->draw_text( text->font->data, text->buffer, text->pos.x, text->pos.y, text->font->flags );
+		renderer->draw_text( text->font->data, text->buffer, text->pos.x, text->pos.y, element->flags );
 
 		// Really ugly hack cleanup
 		element->text->buffer = tmp;
@@ -305,7 +305,7 @@ static void skin_simple_draw_label( MGuiElement* element )
 	if ( ( text = element->text ) != NULL )
 	{
 		renderer->set_draw_colour( &text->colour );
-		renderer->draw_text( text->font->data, text->buffer, text->pos.x, text->pos.y, text->font->flags );
+		renderer->draw_text( text->font->data, text->buffer, text->pos.x, text->pos.y, element->flags );
 	}
 }
 
@@ -354,7 +354,7 @@ static void skin_simple_draw_memobox( MGuiElement* element )
 		line = (struct MGuiMemoLine*)node;
 
 		renderer->set_draw_colour( &line->colour );
-		renderer->draw_text( line->font->data, line->text, line->pos.x, line->pos.y, line->font->flags );
+		renderer->draw_text( line->font->data, line->text, line->pos.x, line->pos.y, element->flags );
 	}
 }
 
@@ -519,6 +519,6 @@ static void skin_simple_draw_window_titlebar( MGuiElement* element )
 	if ( text )
 	{
 		renderer->set_draw_colour( &text->colour );
-		renderer->draw_text( text->font->data, text->buffer, text->pos.x, text->pos.y, text->font->flags );
+		renderer->draw_text( text->font->data, text->buffer, text->pos.x, text->pos.y, element->flags );
 	}
 }

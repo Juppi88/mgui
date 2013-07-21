@@ -21,7 +21,6 @@ MGuiRenderer* mgui_gdiplus_initialize( void* syswindow )
 {
 	Gdiplus::GdiplusStartupInput si;
 
-	renderer.type = GUIREND_GDIPLUS;
 	renderer.device_context = NULL;
 
 	renderer.begin				= mgui_gdiplus_begin;

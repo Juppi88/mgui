@@ -19,6 +19,10 @@
 
 extern MGuiRenderer* renderer;
 
+static bool is_valid_colour_tag( const char* text );
+static bool is_valid_uline_tag( const char* text );
+static bool is_valid_end_tag( const char* text );
+
 MGuiText* mgui_text_create( void )
 {
 	MGuiText* text;
@@ -32,7 +36,7 @@ MGuiText* mgui_text_create( void )
 
 void mgui_text_destroy( MGuiText* text )
 {
-	assert( text != NULL );
+	if ( text == NULL ) return;
 
 	if ( text->buffer )
 		mem_free( text->buffer );
@@ -46,7 +50,7 @@ void mgui_text_set_buffer( MGuiText* text, const char_t* fmt, ... )
 	char_t	tmp[512];
 	va_list	marker;
 
-	assert( text != NULL );
+	if ( text == NULL ) return;
 
 	if ( text->buffer )
 		mem_free( text->buffer );
@@ -68,7 +72,7 @@ void mgui_text_set_buffer_s( MGuiText* text, const char_t* str )
 {
 	size_t len;
 
-	assert( text != NULL );
+	if ( text == NULL ) return;
 
 	if ( text->buffer )
 		mem_free( text->buffer );
@@ -88,7 +92,7 @@ void mgui_text_set_buffer_va( MGuiText* text, const char_t* fmt, va_list list )
 	size_t	len;
 	char_t	tmp[512];
 
-	assert( text != NULL );
+	if ( text == NULL ) return;
 
 	if ( text->buffer )
 		mem_free( text->buffer );
@@ -107,7 +111,7 @@ void mgui_text_update_dimensions( MGuiText* text )
 {
 	uint32 w, h;
 
-	assert( text != NULL );
+	if ( text == NULL ) return;
 
 	renderer->measure_text( text->font->data, text->buffer, &w, &h );
 	h -= 2;
@@ -122,8 +126,8 @@ void mgui_text_update_position( MGuiText* text )
 {
 	uint16 x, y, w, h;
 
-	assert( text != NULL );
-	assert( text->bounds != NULL );
+	if ( text == NULL ) return;
+	if ( text->bounds == NULL ) return;
 
 	x = text->bounds->x + text->pad.left;
 	y = text->bounds->y + text->pad.top - text->font->size;
@@ -191,6 +195,8 @@ uint32 mgui_text_get_closest_char( MGuiText* text, uint16 x, uint16 y )
 	uint32 dist, ch, i, tmp;
 	uint16 cx, cy;
 
+	if ( text == NULL ) return 0;
+
 	// We only calculate the dist along the x axis for now
 	UNREFERENCED_PARAM( y );
 
@@ -219,7 +225,7 @@ void mgui_text_get_char_pos( MGuiText* text, uint32 idx, uint16* x, uint16* y )
 	char_t tmp[512];
 	uint32 w, h;
 
-	assert( text != NULL );
+	if ( text == NULL ) return;
 
 	if ( text->len == 0 || idx == 0 )
 	{
@@ -233,4 +239,90 @@ void mgui_text_get_char_pos( MGuiText* text, uint32 idx, uint16* x, uint16* y )
 
 	*x = (uint16)w;
 	*y = (uint16)h;
+}
+
+static bool is_valid_colour_tag( const char* text )
+{
+	register const char* s = text;
+	size_t i;
+
+	for ( i = 0; i < 6; s++, i++ )
+	{
+		if ( *s >= '0' && *s <= '9' ) continue;
+		if ( *s >= 'a' && *s <= 'f' ) continue;
+		return false;
+	}
+
+	if ( *s != ']' ) return false;
+
+	return true;
+}
+
+static bool is_valid_uline_tag( const char* text )
+{
+	register const char* s = text;
+
+	if ( *s++ != 'u' ) return false;
+	if ( *s++ != 'l' ) return false;
+	if ( *s++ != 'i' ) return false;
+	if ( *s++ != 'n' ) return false;
+	if ( *s++ != 'e' ) return false;
+	if ( *s != ']' ) return false;
+
+	return true;
+}
+
+static bool is_valid_end_tag( const char* text )
+{
+	register const char* s = text;
+
+	if ( *s != 'd' && *s != 'u' ) return false;
+	if ( *++s != ']' ) return false;
+
+	return true;
+}
+
+void mgui_text_strip_format_tags( const char_t* text, char_t* buf, size_t buflen )
+{
+	const char_t* s = text;
+	char* d = buf;
+	size_t l = buflen;
+
+	if ( text == NULL || buf == NULL ) return;
+
+	for ( ; l && *s; --l )
+	{
+		if ( s[0] == '[' && s[1] == '#' )
+		{
+			// Colour tag
+			if ( is_valid_colour_tag( s + 2 ) )
+			{
+				s += 9;
+				continue;
+			}
+
+			// Underline tag
+			if ( is_valid_uline_tag( s + 2 ) )
+			{
+				s += 8;
+				continue;
+			}
+
+			// Format end tag
+			if ( is_valid_end_tag( s + 2 ) )
+			{
+				s += 4;
+				continue;
+			}
+		}
+
+		*d++ = *s++;
+	}
+
+	*d = '\0';
+}
+
+void mgui_text_parse_format_tags( MGuiText* text )
+{
+	if ( text == NULL ) return;
 }

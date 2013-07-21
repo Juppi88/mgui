@@ -13,10 +13,9 @@
 #ifndef __MYLLY_GUI_GDIPLUS_RENDERER_H
 #define __MYLLY_GUI_GDIPLUS_RENDERER_H
 
-#include "Renderer.h"
+#include "MGUI/Renderer/Renderer.h"
 
-typedef struct gdifont_s
-{
+typedef struct MGuiGDIFont {
 	uint32		size;
 	uint32		flags;
 	void*		font;

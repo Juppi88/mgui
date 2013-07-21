@@ -19,22 +19,22 @@ void	mgui_gdiplus_drawing_init		( void );
 
 void	mgui_gdiplus_begin				( void );
 void	mgui_gdiplus_end				( void );
-void	mgui_gdiplus_resize				( uint w, uint h );
+void	mgui_gdiplus_resize				( uint32 w, uint32 h );
 
 void	mgui_gdiplus_set_draw_colour	( const colour_t* col );
-void	mgui_gdiplus_start_clip			( uint x, uint y, uint w, uint h );
+void	mgui_gdiplus_start_clip			( int32 x, int32 y, uint32 w, uint32 h );
 void	mgui_gdiplus_end_clip			( void );
 
-void	mgui_gdiplus_draw_rect			( uint x, uint y, uint w, uint h );
-void	mgui_gdiplus_draw_triangle		( uint x1, uint y1, uint x2, uint y2, uint x3, uint y3 );
+void	mgui_gdiplus_draw_rect			( int32 x, int32 y, uint32 w, uint32 h );
+void	mgui_gdiplus_draw_triangle		( int32 x1, int32 y1, int32 x2, int32 y2, int32 x3, int32 y3 );
 
 void*	mgui_gdiplus_load_texture		( const char* path );
 void	mgui_gdiplus_destroy_texture	( void* texture );
-void	mgui_gdiplus_draw_textured_rect	( void* texture, uint x, uint y, uint w, uint h );
+void	mgui_gdiplus_draw_textured_rect	( void* texture, int32 x, int32 y, uint32 w, uint32 h );
 
-void*	mgui_gdiplus_load_font			( const char* name, uint size, uint flags, uint charset, uint firstc, uint lastc );
+void*	mgui_gdiplus_load_font			( const char* name, uint32 size, uint32 flags, uint32 charset, uint32 firstc, uint32 lastc );
 void	mgui_gdiplus_destroy_font		( void* font );
-void	mgui_gdiplus_draw_text			( void* font, const char_t* text, uint x, uint y, uint flags );
-void	mgui_gdiplus_measure_text		( void* font, const char_t* text, uint* w, uint* h );
+void	mgui_gdiplus_draw_text			( void* font, const char_t* text, int32 x, int32 y, uint32 flags );
+void	mgui_gdiplus_measure_text		( void* font, const char_t* text, uint32* w, uint32* h );
 
 #endif /* __MYLLY_GUI_GDIPLUS_DRAWING_H */

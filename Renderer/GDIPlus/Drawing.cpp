@@ -74,7 +74,7 @@ void mgui_gdiplus_end( void )
 	hdc = NULL;
 }
 
-void mgui_gdiplus_resize( uint w, uint h )
+void mgui_gdiplus_resize( uint32 w, uint32 h )
 {
 	UNREFERENCED_PARAM(w);
 	UNREFERENCED_PARAM(h);
@@ -85,7 +85,7 @@ void mgui_gdiplus_set_draw_colour( const colour_t* col )
 	colour = Gdiplus::Color( col->a, col->r, col->g, col->b );
 }
 
-void mgui_gdiplus_start_clip( uint x, uint y, uint w, uint h )
+void mgui_gdiplus_start_clip( int32 x, int32 y, uint32 w, uint32 h )
 {
 	graphics->SetClip( Gdiplus::Rect( x, y, w, h ), Gdiplus::CombineModeReplace );
 }
@@ -95,14 +95,14 @@ void mgui_gdiplus_end_clip( void )
 	graphics->ResetClip();
 }
 
-void mgui_gdiplus_draw_rect( uint x, uint y, uint w, uint h )
+void mgui_gdiplus_draw_rect( int32 x, int32 y, uint32 w, uint32 h )
 {
 	Gdiplus::SolidBrush brush( colour );
 
 	graphics->FillRectangle( &brush, (INT)x, (INT)y, (INT)w, (INT)h );
 }
 
-void mgui_gdiplus_draw_triangle( uint x1, uint y1, uint x2, uint y2, uint x3, uint y3 )
+void mgui_gdiplus_draw_triangle( int32 x1, int32 y1, int32 x2, int32 y2, int32 x3, int32 y3 )
 {
 	Gdiplus::SolidBrush brush( colour );
 	Gdiplus::Point points[] = { Gdiplus::Point(x1, y1), Gdiplus::Point(x2, y2), Gdiplus::Point(x3, y3) };
@@ -121,7 +121,7 @@ void mgui_gdiplus_destroy_texture( void* texture )
 	UNREFERENCED_PARAM(texture);
 }
 
-void mgui_gdiplus_draw_textured_rect( void* texture, uint x, uint y, uint w, uint h )
+void mgui_gdiplus_draw_textured_rect( void* texture, int32 x, int32 y, uint32 w, uint32 h )
 {
 	UNREFERENCED_PARAM(texture);
 	UNREFERENCED_PARAM(x);
@@ -130,7 +130,7 @@ void mgui_gdiplus_draw_textured_rect( void* texture, uint x, uint y, uint w, uin
 	UNREFERENCED_PARAM(h);
 }
 
-void* mgui_gdiplus_load_font( const char* name, uint size, uint flags, uint charset, uint firstc, uint lastc )
+void* mgui_gdiplus_load_font( const char* name, uint32 size, uint32 flags, uint32 charset, uint32 firstc, uint32 lastc )
 {
 	MGuiGDIFont* font;
 	int style = 0;
@@ -176,7 +176,7 @@ void mgui_gdiplus_destroy_font( void* font )
 	delete fnt;
 }
 
-void mgui_gdiplus_draw_text( void* font, const char_t* text, uint x, uint y, uint flags )
+void mgui_gdiplus_draw_text( void* font, const char_t* text, int32 x, int32 y, uint32 flags )
 {
 	MGuiGDIFont* fnt;
 	fnt = (MGuiGDIFont*)font;
@@ -192,7 +192,7 @@ void mgui_gdiplus_draw_text( void* font, const char_t* text, uint x, uint y, uin
 	wchar_t wtext[512];
 	mbstowcs( wtext, text, lengthof(wtext) );
 
-	if ( flags & FFLAG_SHADOW )
+	if ( flags & FLAG_TEXT_SHADOW )
 	{
 		Gdiplus::RectF rshadow( (float)x + SHADOW_OFFSET, (float)( y - 2 + SHADOW_OFFSET ), 1000, 1000 );
 		Gdiplus::SolidBrush shadowbrush( shadow_col );
@@ -214,7 +214,7 @@ void mgui_gdiplus_draw_text( void* font, const char_t* text, uint x, uint y, uin
 #endif /* MGUI_UNICODE */
 }
 
-void mgui_gdiplus_measure_text( void* font, const char_t* text, uint* w, uint* h )
+void mgui_gdiplus_measure_text( void* font, const char_t* text, uint32* w, uint32* h )
 {
 	Gdiplus::SizeF size;
 	Gdiplus::Graphics gfx(hwnd);
@@ -236,6 +236,6 @@ void mgui_gdiplus_measure_text( void* font, const char_t* text, uint* w, uint* h
 	gfx.MeasureString( text, -1, (Gdiplus::Font*)fnt->font, Gdiplus::SizeF( 10000, 10000 ), &format, &size );
 #endif
 
-	*w = (uint16)size.Width;
-	*h = (uint16)( size.Height + 1 );
+	*w = (uint32)size.Width;
+	*h = (uint32)( size.Height + 1 );
 }

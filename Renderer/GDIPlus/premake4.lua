@@ -1,6 +1,6 @@
 -- Mylly GUI renderer
 
-project "Lib-MGUI Renderer GDI+"
+project "Lib-MGUI-Renderer-GDIPlus"
 	kind "StaticLib"
 	language "C++"
 	files { "*.h", "*.c", "*.cpp", "premake4.lua" }

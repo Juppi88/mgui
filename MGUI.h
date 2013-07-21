@@ -70,6 +70,8 @@ enum MGUI_FLAGS
 	FLAG_TABSTOP			= 1 << 11,	/* Tab press can switch focus to this element */
 	FLAG_MOUSECTRL			= 1 << 12,	/* Element triggers mouse input events */
 	FLAG_KBCTRL				= 1 << 13,	/* Element triggers keyboard input events and accepts keyboard focus */
+	FLAG_TEXT_SHADOW		= 1 << 14,	/* Text will cast a shadow */
+	FLAG_TEXT_TAGS			= 1 << 15,	/* Text can be formatted using tags */
 
 	// Element specific flags
 	FLAG_WINDOW_TITLEBAR	= 1 << 20,	/* Enable window titlebar */
@@ -85,9 +87,7 @@ enum MGUI_FONT_FLAGS
 	FFLAG_ITALIC	= 1 << 1,	/* Italic font */
 	FFLAG_ULINE		= 1 << 2,	/* Underlined font */
 	FFLAG_STRIKE	= 1 << 3,	/* Strike out */
-	FFLAG_SHADOW	= 1 << 4,	/* Cast a shadow */
-	FFLAG_COLOUR	= 1 << 5,	/* Accept colour tags */
-	FFLAG_NOAA		= 1 << 6,	/* Disable edge smoothing (if possible) */
+	FFLAG_NOAA		= 1 << 4,	/* Disable edge smoothing (if possible) */
 };
 
 enum MGUI_FONT_CHARSET
@@ -154,6 +154,7 @@ MYLLY_API void				mgui_set_skin					( const char_t* skinimg );
 /* Misc functions */
 MYLLY_API MGuiElement*		mgui_get_focus					( void );
 MYLLY_API void				mgui_set_focus					( MGuiElement* element );
+MYLLY_API void				mgui_text_strip_format_tags		( const char_t* text, char_t* buf, size_t buflen );
 
 /* Element relations */
 MYLLY_API void				mgui_add_child					( MGuiElement* parent, MGuiElement* child );
