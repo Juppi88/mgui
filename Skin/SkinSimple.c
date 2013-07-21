@@ -348,7 +348,7 @@ static void skin_simple_draw_memobox( MGuiElement* element )
 	if ( count == 0 ) count = 0xFFFFFFFF;
 
 	for ( node = memo->first_line, i = 0;
-		  node != list_end(memo->lines) && i < count;
+		  node != list_end(memo->lines) && i < count && node;
 		  node = node->prev, i++ )
 	{
 		line = (struct MGuiMemoLine*)node;
