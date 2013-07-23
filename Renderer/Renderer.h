@@ -15,6 +15,21 @@
 
 #include "MGUI/MGUI.h"
 
+enum {
+	TAG_NONE			= 0,		// No special characteristics
+	TAG_COLOUR			= 1 << 0,	// Tag specifies a custom colour
+	TAG_COLOUR_END		= 1 << 1,	// Tag returns to default colour
+	TAG_UNDERLINE		= 1 << 2,	// Enable underlining
+	TAG_UNDERLINE_END	= 1 << 3,	// Enable underlining
+};
+
+typedef struct MGuiFormatTag
+{
+	uint16		index;		// Text buffer start index
+	uint16		flags;		// Tag flags (see enum above)
+	colour_t	colour;		// The colour that should be used with this tag
+} MGuiFormatTag;
+
 struct MGuiRenderer
 {
 	void*		device_context;

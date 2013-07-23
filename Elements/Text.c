@@ -46,24 +46,53 @@ void mgui_text_destroy( MGuiText* text )
 
 void mgui_text_set_buffer( MGuiText* text, const char_t* fmt, ... )
 {
-	size_t	len;
-	char_t	tmp[512];
+	size_t len, size;
+	char_t tmp[1024];
 	va_list	marker;
+	uint32 tags;
 
 	if ( text == NULL ) return;
-
-	if ( text->buffer )
-		mem_free( text->buffer );
 
 	va_start( marker, fmt );
 	len = msnprintf( tmp, lengthof(tmp), fmt, marker );
 	va_end( marker );
 
-	len = math_max( len, text->bufsize );
+	// Do we need to reallocate memory for the new buffer?
+	if ( len + 1 > text->bufsize )
+	{
+		// delete old buffers
+		if ( text->buffer )
+			mem_free( text->buffer );
 
-	text->buffer = mstrdup( tmp, len );
-	text->len = mstrlen( text->buffer );
-	text->bufsize = len + 1;
+		if ( text->buffer_tags )
+			mem_free( text->buffer_tags );
+
+		// Allocate new buffers
+		if ( text->flags & TFLAG_TAGS )
+		{
+			size = len * sizeof(char_t) + 1;
+
+			text->buffer = mem_alloc( size );
+			text->buffer_tags = mstrdup( tmp, len );
+			text->bufsize = len + 1;
+
+			tags = mgui_text_strip_format_tags( text->buffer_tags, text->buffer, size );
+			mgui_text_parse_format_tags( text, tags );
+
+			text->len = mstrlen( text->buffer );
+		}
+		else
+		{
+			text->buffer = mstrdup( tmp, len );
+			text->buffer_tags = NULL;
+			text->len = len;
+			text->bufsize = len + 1;
+		}
+	}
+	else
+	{
+		// TODO:
+	}
 
 	mgui_text_update_dimensions( text );
 }
@@ -89,8 +118,8 @@ void mgui_text_set_buffer_s( MGuiText* text, const char_t* str )
 
 void mgui_text_set_buffer_va( MGuiText* text, const char_t* fmt, va_list list )
 {
-	size_t	len;
-	char_t	tmp[512];
+	size_t len;
+	char_t tmp[1024];
 
 	if ( text == NULL ) return;
 
@@ -282,13 +311,59 @@ static bool is_valid_end_tag( const char* text )
 	return true;
 }
 
-void mgui_text_strip_format_tags( const char_t* text, char_t* buf, size_t buflen )
+static bool parse_colour_tag( const char_t* text, uint32* in )
+{
+	register const char* s = text;
+	uint32 order = 6;
+	uint32 multiplier = 1 << 28;
+
+	*in = 0;
+
+	for ( ; order; ++s, --order )
+	{
+		if ( *s >= '0' && *s <= '9' )
+		{
+			*in += ( *s - '0' ) * multiplier;
+
+			multiplier >>= 4;
+			continue;
+		}
+		if ( *s >= 'a' && *s <= 'f' )
+		{
+			*in += ( *s - 'a' + 0xA ) * multiplier;
+
+			multiplier >>= 4;
+			continue;
+		}
+
+		return false;
+	}
+
+	if ( *s != ']' ) return false;
+
+	return true;
+}
+
+static bool parse_end_tag( const char_t* text, char_t* in )
+{
+	register const char* s = text;
+
+	*in = *s;
+
+	if ( *s != 'd' && *s != 'u' ) return false;
+	if ( *++s != ']' ) return false;
+
+	return true;
+}
+
+uint32 mgui_text_strip_format_tags( const char_t* text, char_t* buf, size_t buflen )
 {
 	const char_t* s = text;
 	char* d = buf;
 	size_t l = buflen;
+	uint32 tags = 0;
 
-	if ( text == NULL || buf == NULL ) return;
+	if ( text == NULL || buf == NULL ) return 0;
 
 	for ( ; l && *s; --l )
 	{
@@ -297,21 +372,21 @@ void mgui_text_strip_format_tags( const char_t* text, char_t* buf, size_t buflen
 			// Colour tag
 			if ( is_valid_colour_tag( s + 2 ) )
 			{
-				s += 9;
+				s += 9; tags++;
 				continue;
 			}
 
 			// Underline tag
 			if ( is_valid_uline_tag( s + 2 ) )
 			{
-				s += 8;
+				s += 8; tags++;
 				continue;
 			}
 
 			// Format end tag
 			if ( is_valid_end_tag( s + 2 ) )
 			{
-				s += 4;
+				s += 4; tags++;
 				continue;
 			}
 		}
@@ -320,9 +395,123 @@ void mgui_text_strip_format_tags( const char_t* text, char_t* buf, size_t buflen
 	}
 
 	*d = '\0';
+	return tags;
 }
 
-void mgui_text_parse_format_tags( MGuiText* text )
+void mgui_text_parse_format_tags( MGuiText* text, uint32 num_tags )
 {
-	if ( text == NULL ) return;
+	const char* s;
+	size_t l, i = 0, ntag = 0;
+	uint32 hex;
+	char_t c;
+	MGuiFormatTag* tag;
+
+	if ( text == NULL || text->buffer_tags == NULL ) return;
+
+	// Allocate space for format tags if required
+	if ( text->num_tags < num_tags )
+	{
+		if ( text->tags )
+		{
+			mem_free( text->tags );
+		}
+
+		text->tags = mem_alloc_clean( sizeof(MGuiFormatTag) * num_tags );
+		text->num_tags = num_tags;
+	}
+
+	s = text->buffer_tags;
+	l = text->len_tags;
+
+	for ( ; l && *s; --l )
+	{
+		if ( s[0] == '[' && s[1] == '#' )
+		{
+			// Colour tag
+			if ( parse_colour_tag( s + 2 , &hex ) )
+			{
+				tag = &text->tags[ntag];
+
+				if ( tag->index == i )
+				{
+					tag->flags |= TAG_COLOUR;
+					tag->colour.hex = hex;
+					tag->colour.a = text->colour.a;
+				}
+				else
+				{
+					tag = &text->tags[++ntag];
+
+					tag->index = (uint16)i;
+					tag->flags = TAG_COLOUR;
+					tag->colour.hex = hex;
+					tag->colour.a = text->colour.a;
+				}
+
+				s += 9;
+				continue;
+			}
+
+			// Underline tag
+			if ( is_valid_uline_tag( s + 2 ) )
+			{
+				tag = &text->tags[ntag];
+
+				if ( tag->index == i )
+				{
+					tag->flags |= TAG_UNDERLINE;
+				}
+				else
+				{
+					tag = &text->tags[++ntag];
+					tag->index = (uint16)i;
+					tag->flags = TAG_UNDERLINE;
+				}
+
+				s += 8;
+				continue;
+			}
+
+			// Format end tag
+			if ( parse_end_tag( s + 2, &c ) )
+			{
+				tag = &text->tags[ntag];
+
+				if ( tag->index == i )
+				{
+					switch ( c )
+					{
+					case 'd':
+						tag->flags &= ~TAG_COLOUR;
+						tag->flags |= TAG_COLOUR_END;
+						break;
+					case 'u':
+						tag->flags &= ~TAG_UNDERLINE;
+						tag->flags |= TAG_UNDERLINE_END;
+						break;
+					}
+				}
+				else
+				{
+					tag = &text->tags[++ntag];
+					tag->index = (uint16)i;
+					
+					switch ( c )
+					{
+					case 'd':
+						tag->flags = TAG_COLOUR_END;
+						break;
+					case 'u':
+						tag->flags = TAG_UNDERLINE_END;
+						break;
+					}
+				}
+
+				s += 4;
+				continue;
+			}
+		}
+
+		i++;
+	}
 }

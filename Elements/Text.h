@@ -15,29 +15,33 @@
 
 #include "MGUI.h"
 #include "Font.h"
+#include "Renderer.h"
 #include <stdarg.h>
 
-typedef struct MGuiFormatTag
-{
-	colour_t	colour;			// The colour that should be used with this tag
-	uint16		index;			// Text buffer start index
-	uint8		use_default;	// true if default colour should be used, false otherwise
-	uint8		use_underline;	// Per character underlining
-} MGuiFormatTag;
+enum {
+	TFLAG_NONE		= 0,
+	TFLAG_TAGS		= 1 << 0,
+	TFLAG_SHADOW	= 1 << 1,
+	TFLAG_BOLD		= 1 << 2,
+	TFLAG_ITALIC	= 1 << 3,
+};
 
 typedef struct MGuiText
 {
-	char_t*					buffer;		// Text buffer for the actual text
-	size_t					len;		// The length of the buffer (in characters)
-	size_t					bufsize;	// Length of allocated buffer (in characters)
-	vectorscreen_t			pos;		// Rendering position
-	vectorscreen_t			size;		// Size of the text (width, height)
-	rectangle_t*			bounds;		// Containing boundaries
-	uint32					alignment;	// Alignment flags
-	MGuiFont*				font;		// Font used for rendering
-	colour_t				colour;		// Default text colour
-	MGuiFormatTag*			tags;		// Text format tag array or NULL if text has format tags disabled
-	uint32					num_tags;	// Number of colour tags in the array
+	char_t*					buffer;			// Text buffer for the actual text
+	char_t*					buffer_tags;	// Text buffer with tags still enabled
+	size_t					len;			// The length of the buffer (in characters)
+	size_t					len_tags;		// The length of the buffer with tags (in characters)
+	size_t					bufsize;		// Length of allocated buffer (in characters)
+	vectorscreen_t			pos;			// Rendering position
+	vectorscreen_t			size;			// Size of the text (width, height)
+	rectangle_t*			bounds;			// Containing boundaries
+	uint16					flags;			// Text flags (see enum above)
+	uint16					alignment;		// Alignment flags
+	MGuiFont*				font;			// Font used for rendering
+	colour_t				colour;			// Default text colour
+	MGuiFormatTag*			tags;			// Text format tag array or NULL if text has format tags disabled
+	uint32					num_tags;		// Number of colour tags in the array
 
 	struct { uint8 top, bottom, left, right; } pad;	// Text padding 
 } MGuiText;
@@ -56,7 +60,7 @@ void		mgui_text_update_position		( MGuiText* text );
 uint32		mgui_text_get_closest_char		( MGuiText* text, uint16 x, uint16 y );
 void		mgui_text_get_char_pos			( MGuiText* text, uint32 idx, uint16* x, uint16* y );
 
-void		mgui_text_strip_format_tags		( const char_t* text, char_t* buf, size_t buflen );
-void		mgui_text_parse_format_tags		( MGuiText* text );
+uint32		mgui_text_strip_format_tags		( const char_t* text, char_t* buf, size_t buflen );
+void		mgui_text_parse_format_tags		( MGuiText* text, uint32 num_tags );
 
 #endif /* __MGUI_TEXT_H */

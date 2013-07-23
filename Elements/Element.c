@@ -898,7 +898,7 @@ void mgui_set_alignment( MGuiElement* element, uint32 alignment )
 	if ( element == NULL ) return;
 	if ( element->text == NULL ) return;
 
-	element->text->alignment = alignment;
+	element->text->alignment = (uint16)alignment;
 	mgui_text_update_position( element->text );
 }
 

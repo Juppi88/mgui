@@ -154,7 +154,7 @@ MYLLY_API void				mgui_set_skin					( const char_t* skinimg );
 /* Misc functions */
 MYLLY_API MGuiElement*		mgui_get_focus					( void );
 MYLLY_API void				mgui_set_focus					( MGuiElement* element );
-MYLLY_API void				mgui_text_strip_format_tags		( const char_t* text, char_t* buf, size_t buflen );
+MYLLY_API uint32			mgui_text_strip_format_tags		( const char_t* text, char_t* buf, size_t buflen );
 
 /* Element relations */
 MYLLY_API void				mgui_add_child					( MGuiElement* parent, MGuiElement* child );

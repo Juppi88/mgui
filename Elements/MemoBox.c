@@ -64,6 +64,7 @@ MGuiMemobox* mgui_create_memobox( MGuiElement* parent )
 	memobox->num_lines = 0;
 	memobox->lines = list_create();
 	memobox->raw_lines = list_create();
+	memobox->first_line = list_end( memobox->lines );
 
 	memobox->font = mgui_font_create( DEFAULT_FONT, 11, FFLAG_NONE, CHARSET_ANSI );
 	memobox->text->font = memobox->font;
