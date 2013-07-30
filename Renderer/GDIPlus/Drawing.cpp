@@ -179,14 +179,19 @@ void mgui_gdiplus_destroy_font( void* font )
 void mgui_gdiplus_draw_text( void* font, const char_t* text, int32 x, int32 y, uint32 flags )
 {
 	MGuiGDIFont* fnt;
+
 	fnt = (MGuiGDIFont*)font;
 
-	if ( !text ) return;
+	if ( font == NULL || text == NULL ) return;
 
 	Gdiplus::StringFormat format( Gdiplus::StringFormat::GenericDefault() );
+	format.SetAlignment( Gdiplus::StringAlignmentNear );
+	format.SetLineAlignment( Gdiplus::StringAlignmentNear );
 
 	Gdiplus::SolidBrush brush( colour );
-	Gdiplus::RectF r( (float)x, (float)( y - 2 ), 1000, 1000 );
+
+	y -= 1;
+	Gdiplus::RectF r( (float)x, (float)y, 1000, 1000 );
 
 #ifndef MGUI_UNICODE
 	wchar_t wtext[512];
@@ -194,7 +199,7 @@ void mgui_gdiplus_draw_text( void* font, const char_t* text, int32 x, int32 y, u
 
 	if ( flags & FLAG_TEXT_SHADOW )
 	{
-		Gdiplus::RectF rshadow( (float)x + SHADOW_OFFSET, (float)( y - 2 + SHADOW_OFFSET ), 1000, 1000 );
+		Gdiplus::RectF rshadow( (float)x + SHADOW_OFFSET, (float)( y + SHADOW_OFFSET ), 1000, 1000 );
 		Gdiplus::SolidBrush shadowbrush( shadow_col );
 
 		graphics->DrawString( wtext, -1, (Gdiplus::Font*)fnt->font, rshadow, &format, &shadowbrush );
@@ -204,7 +209,7 @@ void mgui_gdiplus_draw_text( void* font, const char_t* text, int32 x, int32 y, u
 #else
 	if ( flags & FFLAG_SHADOW )
 	{
-		Gdiplus::RectF rshadow( (float)x + SHADOW_OFFSET, (float)( y - 2 + SHADOW_OFFSET ), 1000, 1000 );
+		Gdiplus::RectF rshadow( (float)x + SHADOW_OFFSET, (float)( y + SHADOW_OFFSET ), 1000, 1000 );
 		Gdiplus::SolidBrush shadowbrush( shadow_col );
 
 		graphics->DrawString( text, len-1, (Gdiplus::Font*)fnt->font, rshadow, &format, &shadowbrush );
@@ -225,7 +230,9 @@ void mgui_gdiplus_measure_text( void* font, const char_t* text, uint32* w, uint3
 	if ( !text ) return;
 
 	Gdiplus::StringFormat format( Gdiplus::StringFormat::GenericDefault() );
-	format.SetFormatFlags( Gdiplus::StringFormatFlagsMeasureTrailingSpaces | format.GetFormatFlags() );
+	format.SetAlignment( Gdiplus::StringAlignmentNear );
+	format.SetLineAlignment( Gdiplus::StringAlignmentNear );
+	format.SetFormatFlags( Gdiplus::StringFormatFlagsMeasureTrailingSpaces );
 
 #ifndef MGUI_UNICODE
 	wchar_t wtext[512];
@@ -235,7 +242,7 @@ void mgui_gdiplus_measure_text( void* font, const char_t* text, uint32* w, uint3
 #else
 	gfx.MeasureString( text, -1, (Gdiplus::Font*)fnt->font, Gdiplus::SizeF( 10000, 10000 ), &format, &size );
 #endif
-
+	
 	*w = (uint32)size.Width;
-	*h = (uint32)( size.Height + 1 );
+	*h = (uint32)fnt->size;
 }
