@@ -13,5 +13,5 @@ project "Lib-MGUI-Renderer-GDIPlus"
 		targetextension ".lib"
 		defines { "MGUI_GDIPLUS", "__MYLLY_USE_GDIPLUS" }
 		buildoptions { "/wd4201 /wd4996" } -- -- C4201: nameless struct/union, C4996: This function or variable may be unsafe (mbstowcs)
-		configuration "Debug" targetname "mguigdid"
-		configuration "Release" targetname "mguigdi"
+		configuration "Debug" targetname "mguirendgdid"
+		configuration "Release" targetname "mguirendgdi"

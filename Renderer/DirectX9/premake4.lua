@@ -1,6 +1,6 @@
 -- Mylly GUI renderer
 
-project "Lib-MGUI Renderer DirectX9"
+project "Lib-MGUI-Renderer-DirectX9"
 	kind "StaticLib"
 	language "C++"
 	files { "*.h", "*.c", "*.cpp", "premake4.lua" }
@@ -11,5 +11,5 @@ project "Lib-MGUI Renderer DirectX9"
 	-- Windows specific stuff
 	configuration "windows"
 		targetextension ".lib"
-		configuration "Debug" targetname "mguidx9"
-		configuration "Release" targetname "mguidx9"
+		configuration "Debug" targetname "mguirenddx9d"
+		configuration "Release" targetname "mguirenddx9"

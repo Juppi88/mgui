@@ -19,5 +19,5 @@ project "Lib-MGUI-Renderer-OpenGL"
 	configuration "windows"
 		targetextension ".lib"
 		buildoptions { "/wd4201 /wd4206" } -- C4201: nameless struct/union, C4206: translation unit is empty
-		configuration "Debug" targetname "mguiopengld"
-		configuration "Release" targetname "mguiopengl"
+		configuration "Debug" targetname "mguirendopengld"
+		configuration "Release" targetname "mguirendopengl"
