@@ -982,8 +982,13 @@ void mgui_set_font_flags( MGuiElement* element, uint8 flags )
 
 	element->font = mgui_font_set_flags( element->font, flags );
 
-	if ( element->text && element->text->buffer )
+	if ( element->text )
+	{
+		if ( flags & FFLAG_BOLD ) element->text->flags |= TFLAG_BOLD;
+		if ( flags & FFLAG_ITALIC ) element->text->flags |= TFLAG_ITALIC;
+
 		mgui_text_update_dimensions( element->text );
+	}
 }
 
 void mgui_set_font( MGuiElement* element, const char_t* font, uint8 size, uint8 flags, uint8 charset )
@@ -1002,8 +1007,10 @@ void mgui_set_font( MGuiElement* element, const char_t* font, uint8 size, uint8 
 	{
 		element->text->font = element->font;
 
-		if ( element->text->buffer )
-			mgui_text_update_dimensions( element->text );
+		if ( flags & FFLAG_BOLD ) element->text->flags |= TFLAG_BOLD;
+		if ( flags & FFLAG_ITALIC ) element->text->flags |= TFLAG_ITALIC;
+
+		mgui_text_update_dimensions( element->text );
 	}
 }
 
@@ -1020,6 +1027,12 @@ void mgui_set_flags( MGuiElement* element, uint32 flags )
 
 	if ( element == NULL ) return;
 
+	if ( flags & FLAG_TEXT_TAGS && element->type == GUI_EDITBOX )
+	{
+		// Format tags on editboxes is not supported for the time being.
+		flags &= ~FLAG_TEXT_TAGS;
+	}
+
 	old = element->flags;
 	element->flags = flags;
 
@@ -1034,6 +1047,12 @@ void mgui_add_flags( MGuiElement* element, uint32 flags )
 	uint32 old;
 
 	if ( element == NULL ) return;
+
+	if ( flags & FLAG_TEXT_TAGS && element->type == GUI_EDITBOX )
+	{
+		// Format tags on editboxes is not supported for the time being.
+		flags &= ~FLAG_TEXT_TAGS;
+	}
 
 	old = element->flags;
 	element->flags |= flags;

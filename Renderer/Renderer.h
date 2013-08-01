@@ -47,12 +47,17 @@ struct MGuiRenderer
 
 	void*		( *load_texture )		( const char_t* path );
 	void		( *destroy_texture )	( void* texture );
-	void		( *draw_textured_rect )	( void* texture, int32 x, int32 y, uint32 w, uint32 h );
+	void		( *draw_textured_rect )	( const void* texture, int32 x, int32 y, uint32 w, uint32 h );
 
-	void*		( *load_font )			( const char_t* font, uint32 size, uint32 flags, uint32 charset, uint32 firstc, uint32 lastc );
+	void*		( *load_font )			( const char_t* font, uint32 size, uint32 flags, uint32 charset,
+										  uint32 firstc, uint32 lastc );
+
 	void		( *destroy_font )		( void* font );
-	void		( *draw_text )			( void* font, const char_t* text, int32 x, int32 y, uint32 flags );
-	void		( *measure_text )		( void* font, const char_t* text, uint32* w, uint32* h );
+
+	void		( *draw_text )			( const void* font, const char_t* text, int32 x, int32 y,
+										  uint32 flags, const MGuiFormatTag tags[], uint32 ntags );
+
+	void		( *measure_text )		( const void* font, const char_t* text, uint32* w, uint32* h );
 };
 
 #endif /* __MYLLY_GUI_RENDERER_H */

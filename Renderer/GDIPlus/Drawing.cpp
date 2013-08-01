@@ -12,6 +12,7 @@
 #include "Drawing.h"
 #include "stdtypes.h"
 #include "Stringy/Stringy.h"
+#include "Platform/Alloc.h"
 #include <gdiplus.h>
 
 static Gdiplus::Graphics*	graphics	= NULL;
@@ -25,17 +26,10 @@ static Gdiplus::Color		shadow_col	= Gdiplus::Color( 125, 0, 0, 0 );
 
 #define SHADOW_OFFSET 1 // Text shadow offset in pixels
 
-#define SAFE_DELETE(x) \
-	if ( x ) {         \
-		delete x;      \
-		x = NULL;      \
-	}
-
-
 static void __mgui_gdiplus_destroy_buffer( void )
 {
-	SAFE_DELETE( bitmap );
-	SAFE_DELETE( graphics );
+	SAFE_DELETE_CPP( bitmap );
+	SAFE_DELETE_CPP( graphics );
 }
 
 void mgui_gdiplus_begin( void )
@@ -121,7 +115,7 @@ void mgui_gdiplus_destroy_texture( void* texture )
 	UNREFERENCED_PARAM(texture);
 }
 
-void mgui_gdiplus_draw_textured_rect( void* texture, int32 x, int32 y, uint32 w, uint32 h )
+void mgui_gdiplus_draw_textured_rect( const void* texture, int32 x, int32 y, uint32 w, uint32 h )
 {
 	UNREFERENCED_PARAM(texture);
 	UNREFERENCED_PARAM(x);
@@ -176,10 +170,14 @@ void mgui_gdiplus_destroy_font( void* font )
 	delete fnt;
 }
 
-void mgui_gdiplus_draw_text( void* font, const char_t* text, int32 x, int32 y, uint32 flags )
+void mgui_gdiplus_draw_text( const void* font, const char_t* text, int32 x, int32 y,
+							 uint32 flags, const MGuiFormatTag tags[], uint32 ntags )
 {
 	MGuiGDIFont* fnt;
 	fnt = (MGuiGDIFont*)font;
+
+	UNREFERENCED_PARAM( tags );
+	UNREFERENCED_PARAM( ntags );
 
 	if ( !text ) return;
 
@@ -214,7 +212,7 @@ void mgui_gdiplus_draw_text( void* font, const char_t* text, int32 x, int32 y, u
 #endif /* MGUI_UNICODE */
 }
 
-void mgui_gdiplus_measure_text( void* font, const char_t* text, uint32* w, uint32* h )
+void mgui_gdiplus_measure_text( const void* font, const char_t* text, uint32* w, uint32* h )
 {
 	Gdiplus::SizeF size;
 	Gdiplus::Graphics gfx(hwnd);

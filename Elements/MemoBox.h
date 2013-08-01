@@ -21,6 +21,8 @@ struct MGuiMemoLine
 	char_t*			text;
 	MGuiFont*		font;
 	colour_t		colour;
+	MGuiFormatTag*	tags;
+	uint32			ntags;
 	vectorscreen_t	pos;
 };
 

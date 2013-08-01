@@ -158,7 +158,7 @@ void mgui_opengl_destroy_texture( void* texture )
 	UNREFERENCED_PARAM(texture);
 }
 
-void mgui_opengl_draw_textured_rect( void* texture, int32 x, int32 y, uint32 w, uint32 h )
+void mgui_opengl_draw_textured_rect( const void* texture, int32 x, int32 y, uint32 w, uint32 h )
 {
 	UNREFERENCED_PARAM(texture);
 	UNREFERENCED_PARAM(x);
@@ -170,7 +170,7 @@ void mgui_opengl_draw_textured_rect( void* texture, int32 x, int32 y, uint32 w, 
 // Font loading related functions are platform dependent,
 // hence they're located in OpenGLWin/X11.c
 
-static __inline uint32 __render_char( MGuiGLFont* font, uint32 c, int32 x, int32 y, uint32 flags )
+static __inline uint32 __render_char( const MGuiGLFont* font, uint32 c, int32 x, int32 y, uint32 flags )
 {
 	float x1, y1, x2, y2;
 	float space, offset;
@@ -222,16 +222,34 @@ static __inline uint32 __render_char( MGuiGLFont* font, uint32 c, int32 x, int32
 	return (uint32)( w - offset );
 }
 
-void mgui_opengl_draw_text( void* font, const char_t* text, int32 x, int32 y, uint32 flags )
+static void mgui_opengl_process_tag( const MGuiFormatTag* tag )
 {
-	int32 dx, dy;
-	uint32 c;
+	if ( tag->flags & TAG_COLOUR ||
+		 tag->flags & TAG_COLOUR_END )
+	{
+		mgui_opengl_set_draw_colour( &tag->colour );
+		glColor4ubv( (const GLubyte*)&colour );
+	}
+	if ( tag->flags & TAG_UNDERLINE )
+	{
+		// TODO:
+	}
+	else if ( tag->flags & TAG_UNDERLINE_END )
+	{
+		// TODO:
+	}
+}
+
+void mgui_opengl_draw_text( const void* font, const char_t* text, int32 x, int32 y,
+						    uint32 flags, const MGuiFormatTag tags[], uint32 ntags )
+{
+	int32 dx = x, dy = y;
+	uint32 c, ntag = 0, idx = 0;
 	register const char_t* s;
-	MGuiGLFont* fnt = font;
+	const MGuiFormatTag* tag = NULL;
+	const MGuiGLFont* fnt = (const MGuiGLFont*)font;
 
-	assert( font != NULL );
-
-	if ( !text ) return;
+	if ( font == NULL || text == NULL ) return;
 
 	__flush();
 
@@ -241,12 +259,20 @@ void mgui_opengl_draw_text( void* font, const char_t* text, int32 x, int32 y, ui
 
 	glColor4ubv( (const GLubyte*)&colour );
 
-	dx = x;
-	dy = y;
+	if ( tags ) tag = &tags[ntag];
 
-	for ( s = text; *s; s += sizeof(char_t) )
+	for ( s = text; *s; ++s, ++idx )
 	{
 		c = *(uchar_t*)s;
+
+		// Process tags for this index
+		if ( tag && tag->index == idx )
+		{
+			mgui_opengl_process_tag( tag );
+
+			if ( ++ntag < ntags ) tag = &tags[ntag];
+			else tag = NULL;
+		}
 
 		if ( c < fnt->first_char || c > fnt->last_char )
 		{
@@ -262,13 +288,13 @@ void mgui_opengl_draw_text( void* font, const char_t* text, int32 x, int32 y, ui
 	glDisable( GL_TEXTURE_2D );
 }
 
-void mgui_opengl_measure_text( void* font, const char_t* text, uint32* x_out, uint32* y_out )
+void mgui_opengl_measure_text( const void* font, const char_t* text, uint32* x_out, uint32* y_out )
 {
 	float x, y, xout;
 	float tmp1, tmp2;
 	register const char_t* s;
 	uint32 c;
-	MGuiGLFont* fnt = font;
+	const MGuiGLFont* fnt = (const MGuiGLFont*)font;
 
 	assert( font != NULL );
 	assert( text != NULL );

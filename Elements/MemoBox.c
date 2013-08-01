@@ -156,7 +156,7 @@ static void mgui_memobox_on_flags_change( MGuiElement* memobox, uint32 old )
 
 void mgui_memobox_add_line( MGuiMemobox* memobox, const char* fmt, ... )
 {
-	char_t tmp[512];
+	char_t tmp[1024];
 	va_list	marker;
 
 	if ( memobox == NULL ) return;
@@ -165,12 +165,16 @@ void mgui_memobox_add_line( MGuiMemobox* memobox, const char* fmt, ... )
 	(void)msnprintf( tmp, lengthof(tmp), fmt, marker );
 	va_end( marker );
 
-	mgui_memobox_add_line_col_s( memobox, &tmp[0], &memobox->text->colour );
+	// It seems the MS implementation doesn't follow standards and in some cases
+	// doesn't write the null terminator. What a surprise.
+	tmp[lengthof(tmp)-1] = '\0';
+
+	mgui_memobox_add_line_col_s( memobox, tmp, &memobox->text->colour );
 }
 
 void mgui_memobox_add_line_col( MGuiMemobox* memobox, const char* fmt, const colour_t* col, ... )
 {
-	char_t tmp[512];
+	char_t tmp[1024];
 	va_list marker;
 
 	if ( memobox == NULL ) return;
@@ -179,7 +183,9 @@ void mgui_memobox_add_line_col( MGuiMemobox* memobox, const char* fmt, const col
 	(void)msnprintf( tmp, lengthof(tmp), fmt, marker );
 	va_end( marker );
 
-	mgui_memobox_add_line_col_s( memobox, &tmp[0], col );
+	tmp[lengthof(tmp)-1] = '\0';
+
+	mgui_memobox_add_line_col_s( memobox, tmp, col );
 }
 
 void mgui_memobox_add_line_s( MGuiMemobox* memobox, const char* text )
@@ -472,10 +478,38 @@ static void mgui_memobox_process_new_line( struct MGuiMemobox* memobox, struct M
 	}
 
 	mgui_memobox_update_display_positions( memobox );
-
 	mgui_element_request_redraw();
 }
 
+static void mgui_memobox_wrap_line( struct MGuiMemobox* memobox, struct MGuiMemoRaw* raw )
+{
+	struct MGuiMemoLine* line;
+	uint32 max_width, ntags;
+	MGuiFormatTag *tags, **tag_buf = NULL;
+	char* buf;
+
+	max_width = memobox->bounds.w - memobox->text->pad.left - memobox->text->pad.right;
+
+	// If format tags are enabled, fetch the pointer for tags
+	if ( memobox->flags & FLAG_TEXT_TAGS )
+	{
+		tag_buf = &tags;
+	}
+	
+	for ( ntags = mgui_text_parse_and_get_line( raw->text, memobox->text->font, &raw->colour, max_width, &buf, tag_buf ); buf;
+		  ntags = mgui_text_parse_and_get_line( NULL, memobox->text->font, &raw->colour, max_width, &buf, tag_buf ) )
+	{
+		line = mem_alloc_clean( sizeof(*line) );
+		line->colour = raw->colour;
+		line->font = memobox->text->font;
+		line->text = buf;
+		line->tags = *tag_buf;
+		line->ntags = ntags;
+
+		list_push( memobox->lines, cast_node(line) );
+	}
+}
+/*
 static void mgui_memobox_wrap_line( struct MGuiMemobox* memobox, struct MGuiMemoRaw* raw )
 {
 	struct MGuiMemoLine* line;
@@ -544,7 +578,7 @@ static void mgui_memobox_wrap_line( struct MGuiMemobox* memobox, struct MGuiMemo
 
 	list_push( memobox->lines, cast_node(line) );
 }
-
+*/
 static void mgui_memobox_refresh_lines( struct MGuiMemobox* memobox )
 {
 	struct MGuiMemoLine* line;
