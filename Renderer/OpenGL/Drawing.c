@@ -14,9 +14,8 @@
 
 static uint32			num_vertices = 0;				// Number of vetrices stored into the temp buffer
 static vertex_t			vertices[MYLLY_GUI_MAX_VERT];	// Temp buffer for vertices
-
-static colour_t			colour;							// Current drawing colour
-static const colour_t	shadow_col = { 0x0000007F };	// Text shadow colour
+static uint8			colour[4];						// Current drawing colour
+static uint8			shadow_col[4] = { 0,0,0,0x7F };	// Text shadow colour
 
 #define SHADOW_OFFSET 1 // Text shadow offset in pixels
 
@@ -84,7 +83,10 @@ void mgui_opengl_resize( uint32 w, uint32 h )
 
 void mgui_opengl_set_draw_colour( const colour_t* col )
 {
-	colour = *col;
+	colour[0] = col->r;
+	colour[1] = col->g;
+	colour[2] = col->b;
+	colour[3] = col->a;
 }
 
 void mgui_opengl_start_clip( int32 x, int32 y, uint32 w, uint32 h )
@@ -116,10 +118,10 @@ static __inline void __add_vertex2( int32 x, int32 y, float u, float v )
 	vertices[num_vertices].y = (float)y;
 	vertices[num_vertices].u = u;
 	vertices[num_vertices].v = v;
-	vertices[num_vertices].r = colour.r;
-	vertices[num_vertices].g = colour.g;
-	vertices[num_vertices].b = colour.b;
-	vertices[num_vertices].a = colour.a;
+	vertices[num_vertices].r = colour[0];
+	vertices[num_vertices].g = colour[1];
+	vertices[num_vertices].b = colour[2];
+	vertices[num_vertices].a = colour[3];
 
 	num_vertices++;
 }
@@ -243,7 +245,7 @@ static void mgui_opengl_process_tag( const MGuiFormatTag* tag )
 void mgui_opengl_draw_text( const void* font, const char_t* text, int32 x, int32 y,
 						    uint32 flags, const MGuiFormatTag tags[], uint32 ntags )
 {
-	int32 dx = x, dy = y;
+	int32 dx = x, dy = y - 2;
 	uint32 c, ntag = 0, idx = 0;
 	register const char_t* s;
 	const MGuiFormatTag* tag = NULL;
@@ -296,13 +298,17 @@ void mgui_opengl_measure_text( const void* font, const char_t* text, uint32* x_o
 	uint32 c;
 	const MGuiGLFont* fnt = (const MGuiGLFont*)font;
 
-	assert( font != NULL );
-	assert( text != NULL );
+	if ( font == NULL || text == NULL )
+	{
+		*x_out = 1;
+		*y_out = 1;
+		return;
+	}
 
 	x = xout = 0;
 	y = (float)fnt->size;
 
-	for ( s = text; *s; s += sizeof(char_t) )
+	for ( s = text; *s; ++s )
 	{
 		c = *(uchar_t*)s;
 

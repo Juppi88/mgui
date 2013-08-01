@@ -147,7 +147,6 @@ void mgui_text_update_dimensions( MGuiText* text )
 	if ( text->buffer == NULL ) return;
 
 	renderer->measure_text( text->font->data, text->buffer, &w, &h );
-	h -= 2;
 
 	text->size.x = (uint16)w;
 	text->size.y = (uint16)h;
