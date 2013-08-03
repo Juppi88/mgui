@@ -81,7 +81,7 @@ void mgui_x11_destroy_texture( void* texture )
 	UNREFERENCED_PARAM( texture );
 }
 
-void mgui_x11_draw_textured_rect( void* texture, int32 x, int32 y, uint32 w, uint32 h )
+void mgui_x11_draw_textured_rect( const void* texture, int32 x, int32 y, uint32 w, uint32 h )
 {
 	UNREFERENCED_PARAM( texture );
 	UNREFERENCED_PARAM( x );
@@ -125,9 +125,12 @@ void mgui_x11_destroy_font( void* font )
 	mem_free( font );
 }
 
-void mgui_x11_draw_text( void* font, const char_t* text, int32 x, int32 y, uint32 flags )
+void mgui_x11_draw_text( const void* font, const char_t* text, int32 x, int32 y, uint32 flags, const MGuiFormatTag tags[], uint32 ntags )
 {
-	struct X11Font* fnt = (struct X11Font*)font;
+	const struct X11Font* fnt = (const struct X11Font*)font;
+
+	UNREFERENCED_PARAM( tags );
+	UNREFERENCED_PARAM( ntags );
 
 	if ( font == NULL ) return;
 
@@ -141,9 +144,9 @@ void mgui_x11_draw_text( void* font, const char_t* text, int32 x, int32 y, uint3
 #endif
 }
 
-void mgui_x11_measure_text( void* font, const char_t* text, uint32* w, uint32* h )
+void mgui_x11_measure_text( const void* font, const char_t* text, uint32* w, uint32* h )
 {
-	struct X11Font* fnt = (struct X11Font*)font;
+	const struct X11Font* fnt = (const struct X11Font*)font;
 
 	if ( font == NULL )
 	{

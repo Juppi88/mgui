@@ -485,7 +485,7 @@ static void mgui_memobox_wrap_line( struct MGuiMemobox* memobox, struct MGuiMemo
 {
 	struct MGuiMemoLine* line;
 	uint32 max_width, ntags;
-	MGuiFormatTag *tags, **tag_buf = NULL;
+	MGuiFormatTag *tags = NULL, **tag_buf = NULL;
 	char* buf;
 
 	max_width = memobox->bounds.w - memobox->text->pad.left - memobox->text->pad.right;
@@ -503,82 +503,13 @@ static void mgui_memobox_wrap_line( struct MGuiMemobox* memobox, struct MGuiMemo
 		line->colour = raw->colour;
 		line->font = memobox->text->font;
 		line->text = buf;
-		line->tags = *tag_buf;
+		line->tags = tag_buf ? tags : NULL;
 		line->ntags = ntags;
 
 		list_push( memobox->lines, cast_node(line) );
 	}
 }
-/*
-static void mgui_memobox_wrap_line( struct MGuiMemobox* memobox, struct MGuiMemoRaw* raw )
-{
-	struct MGuiMemoLine* line;
-	uint32 linelength, spacepos;
-	uint32 width, w, h;
-	char_t *str, *tmp, *lastspace;
-	char_t tmpbuf[512] = { 0 };
 
-	width = memobox->bounds.w - memobox->text->pad.left - memobox->text->pad.right;
-	linelength = spacepos = 0;
-	lastspace = NULL;
-
-	for ( str = raw->text, tmp = tmpbuf;
-		*str && linelength < lengthof(tmpbuf) - 1; )
-	{
-		*tmp = *str;
-		*(tmp+sizeof(char_t)) = '\0';
-
-		if ( *str == ' ' )
-		{
-			if ( linelength == 0 )
-			{
-				str += sizeof(char_t); // Remove leading spaces
-				continue;
-			}
-
-			spacepos = linelength;
-			lastspace = str;
-		}
-
-		renderer->measure_text( memobox->font->data, tmpbuf, &w, &h );
-
-		if ( w > width || *str == '\n' )
-		{
-			if ( *str != '\n' )
-				linelength = ( spacepos == 0 ) ? linelength : spacepos;
-
-			line = mem_alloc_clean( sizeof(*line) );
-			line->colour = raw->colour;
-			line->font = memobox->text->font;
-			line->text = mstrdup( tmpbuf, linelength );
-
-			if ( *str != '\n' )
-				str = lastspace ? lastspace : str;
-			else
-				str++;
-
-			linelength = spacepos = 0;
-			lastspace = NULL;
-			tmp = tmpbuf;
-
-			list_push( memobox->lines, cast_node(line) );
-			continue;
-		}
-
-		linelength++;
-
-		tmp++;
-		str++;
-	}
-
-	line = mem_alloc_clean( sizeof(*line) );
-	line->colour = raw->colour;
-	line->font = memobox->text->font;
-	line->text = mstrdup( tmpbuf, ++linelength );
-
-	list_push( memobox->lines, cast_node(line) );
-}
-*/
 static void mgui_memobox_refresh_lines( struct MGuiMemobox* memobox )
 {
 	struct MGuiMemoLine* line;

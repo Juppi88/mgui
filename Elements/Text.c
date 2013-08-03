@@ -406,28 +406,23 @@ static bool mgui_text_parse_tag( const char_t** ptext, MGuiFormatTag tags[], uin
 	char_t c;
 	register const char_t* s = *ptext;
 
-	if ( s[0] != '[' || s[1] != '#' ) { ++*index; return false; }
+	if ( s[0] != '[' || s[1] != '#' ) { return false; }
 
 	// Colour tag
 	if ( parse_colour_tag( s + 2 , &hex ) )
 	{
 		tag = &tags[*ntag];
 
-		if ( tag->index == *index )
-		{
-			tag->flags |= TAG_COLOUR;
-			tag->colour.hex = hex;
-			tag->colour.a = def->a;
-		}
-		else
+		if ( tag->index != *index && tag->flags != TAG_NONE )
 		{
 			tag = &tags[++*ntag];
-
-			tag->index = (uint16)*index;
-			tag->flags = TAG_COLOUR;
-			tag->colour.hex = hex;
-			tag->colour.a = def->a;
+			tag->flags = TAG_NONE;
 		}
+
+		tag->index = (uint16)*index;
+		tag->flags |= TAG_COLOUR;
+		tag->colour.hex = hex;
+		tag->colour.a = def->a;
 
 		*ptext = s + 9;
 		return true;
@@ -438,16 +433,14 @@ static bool mgui_text_parse_tag( const char_t** ptext, MGuiFormatTag tags[], uin
 	{
 		tag = &tags[*ntag];
 
-		if ( tag->index == *index )
-		{
-			tag->flags |= TAG_UNDERLINE;
-		}
-		else
+		if ( tag->index != *index && tag->flags != TAG_NONE )
 		{
 			tag = &tags[++*ntag];
-			tag->index = (uint16)*index;
-			tag->flags = TAG_UNDERLINE;
+			tag->flags = TAG_NONE;
 		}
+		
+		tag->index = (uint16)*index;
+		tag->flags = TAG_UNDERLINE;
 
 		*ptext = s + 8;
 		return true;
@@ -458,41 +451,30 @@ static bool mgui_text_parse_tag( const char_t** ptext, MGuiFormatTag tags[], uin
 	{
 		tag = &tags[*ntag];
 
-		if ( tag->index == *index )
-		{
-			switch ( c )
-			{
-			case 'd':
-				tag->flags &= ~TAG_COLOUR;
-				tag->flags |= TAG_COLOUR_END;
-				break;
-			case 'u':
-				tag->flags &= ~TAG_UNDERLINE;
-				tag->flags |= TAG_UNDERLINE_END;
-				break;
-			}
-		}
-		else
+		if ( tag->index != *index && tag->flags != TAG_NONE )
 		{
 			tag = &tags[++*ntag];
-			tag->index = (uint16)*index;
-
-			switch ( c )
-			{
-			case 'd':
-				tag->flags = TAG_COLOUR_END;
-				break;
-			case 'u':
-				tag->flags = TAG_UNDERLINE_END;
-				break;
-			}
+			tag->flags = TAG_NONE;
 		}
 
+		tag->index = (uint16)*index;
+
+		switch ( c )
+		{
+		case 'd':
+			tag->flags &= ~TAG_COLOUR;
+			tag->flags |= TAG_COLOUR_END;
+			tag->colour = *def;
+			break;
+		case 'u':
+			tag->flags &= ~TAG_UNDERLINE;
+			tag->flags |= TAG_UNDERLINE_END;
+			break;
+		}
 		*ptext = s + 4;
 		return true;
 	}
 
-	++*index;
 	return false;
 }
 
@@ -625,8 +607,7 @@ uint32 mgui_text_parse_and_get_line( const char_t* text, MGuiFont* font, const c
 	uint32 width = 0, w, h, i;
 	uint32 space = 0, ntag = 0, len = 0, index = 0;
 	const char_t *s, *last_space = NULL;
-	char_t *t;
-	char_t tmp[2];
+	char_t *t, tmp[2];
 
 	static uint32 pad = 0;
 	static char_t tmpbuf[1024];
@@ -642,7 +623,11 @@ uint32 mgui_text_parse_and_get_line( const char_t* text, MGuiFont* font, const c
 		s = ptr;
 
 		if ( ptr == NULL ) goto cleanup;
-		if ( last_tag ) tmptags[0] = *last_tag;
+		if ( last_tag )
+		{
+			tmptags[0] = *last_tag;
+			tmptags[0].index = 0;
+		}
 	}
 	else
 	{

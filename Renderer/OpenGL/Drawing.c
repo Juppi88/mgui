@@ -5,17 +5,29 @@
  * LICENCE:		See Licence.txt
  * PURPOSE:		OpenGL GUI drawing functions.
  *
- *				(c) Tuomo Jauhiainen 2012
+ *				(c) Tuomo Jauhiainen 2012-13
  *
  **********************************************************************/
 
 #include "Drawing.h"
 #include <assert.h>
 
+enum LINE_STATUS
+{
+	LINE_IDLE,
+	LINE_BEGIN,
+	LINE_DRAWING,
+	LINE_DRAW,
+};
+
 static uint32			num_vertices = 0;				// Number of vetrices stored into the temp buffer
 static vertex_t			vertices[MYLLY_GUI_MAX_VERT];	// Temp buffer for vertices
 static uint8			colour[4];						// Current drawing colour
+static colour_t			draw_colour;					// Current drawing colour
 static uint8			shadow_col[4] = { 0,0,0,0x7F };	// Text shadow colour
+static enum LINE_STATUS	line_status = LINE_IDLE;		// Line drawing status
+static bool				line_continue = false;			// Continue line drawing
+
 
 #define SHADOW_OFFSET 1 // Text shadow offset in pixels
 
@@ -87,6 +99,8 @@ void mgui_opengl_set_draw_colour( const colour_t* col )
 	colour[1] = col->g;
 	colour[2] = col->b;
 	colour[3] = col->a;
+
+	draw_colour = *col;
 }
 
 void mgui_opengl_start_clip( int32 x, int32 y, uint32 w, uint32 h )
@@ -231,14 +245,83 @@ static void mgui_opengl_process_tag( const MGuiFormatTag* tag )
 	{
 		mgui_opengl_set_draw_colour( &tag->colour );
 		glColor4ubv( (const GLubyte*)&colour );
+
+		if ( line_status == LINE_DRAWING )
+		{
+			line_status = LINE_DRAW;
+			line_continue = true;
+		}
 	}
+
 	if ( tag->flags & TAG_UNDERLINE )
 	{
-		// TODO:
+		line_status = LINE_BEGIN;
 	}
+
 	else if ( tag->flags & TAG_UNDERLINE_END )
 	{
-		// TODO:
+		switch ( line_status )
+		{
+		case LINE_DRAWING:
+		case LINE_DRAW:
+			line_status = LINE_DRAW;
+			line_continue = false;
+			break;
+		default:
+			line_status = LINE_IDLE;
+			break;
+		}
+	}
+}
+
+static void mgui_opengl_process_line( const MGuiGLFont* font, int32 x, int32 y, int32* x2, int32* y2, colour_t* line_colour )
+{
+	colour_t col;
+
+	switch ( line_status )
+	{
+	case LINE_BEGIN:
+		*x2 = x;
+		*y2 = y + font->size;
+		*line_colour = draw_colour;
+
+		line_status = LINE_DRAWING;
+		break;
+
+	case LINE_DRAW:
+		__flush();
+
+		glEnd();
+		glDisable( GL_TEXTURE_2D );
+
+		col = draw_colour;
+
+		mgui_opengl_set_draw_colour( line_colour );
+		glColor4ubv( (const GLubyte*)&colour );
+
+		mgui_opengl_draw_rect( *x2, *y2, x - *x2, 1 );
+		__flush();
+
+		glEnable( GL_TEXTURE_2D );
+		glBegin( GL_QUADS );
+
+		mgui_opengl_set_draw_colour( &col );
+		glColor4ubv( (const GLubyte*)&colour );
+
+		if ( line_continue )
+		{
+			line_status = LINE_DRAWING;
+			line_continue = false;
+			*x2 = x;
+			*y2 = y + font->size;
+		}
+		else
+		{
+			line_status = LINE_IDLE;
+		}
+
+		*line_colour = draw_colour;
+		break;
 	}
 }
 
@@ -246,12 +329,16 @@ void mgui_opengl_draw_text( const void* font, const char_t* text, int32 x, int32
 						    uint32 flags, const MGuiFormatTag tags[], uint32 ntags )
 {
 	int32 dx = x, dy = y - 2;
+	int32 line_x = dx, line_y = dy;
 	uint32 c, ntag = 0, idx = 0;
+	colour_t line_colour;
 	register const char_t* s;
 	const MGuiFormatTag* tag = NULL;
 	const MGuiGLFont* fnt = (const MGuiGLFont*)font;
 
 	if ( font == NULL || text == NULL ) return;
+
+	line_status = LINE_IDLE;
 
 	__flush();
 
@@ -261,16 +348,17 @@ void mgui_opengl_draw_text( const void* font, const char_t* text, int32 x, int32
 
 	glColor4ubv( (const GLubyte*)&colour );
 
-	if ( tags ) tag = &tags[ntag];
+	if ( tags && ntags > 0 ) tag = &tags[ntag];
 
 	for ( s = text; *s; ++s, ++idx )
 	{
 		c = *(uchar_t*)s;
 
-		// Process tags for this index
+		// Process format tags for this index
 		if ( tag && tag->index == idx )
 		{
 			mgui_opengl_process_tag( tag );
+			mgui_opengl_process_line( fnt, dx, dy, &line_x, &line_y, &line_colour );
 
 			if ( ++ntag < ntags ) tag = &tags[ntag];
 			else tag = NULL;
@@ -284,6 +372,14 @@ void mgui_opengl_draw_text( const void* font, const char_t* text, int32 x, int32
 		{
 			dx += __render_char( fnt, c - fnt->first_char, dx, dy, flags );		
 		}
+	}
+
+	if ( line_status == LINE_DRAWING )
+	{
+		// Finish drawing the line in case the end tag was missing
+		line_status = LINE_DRAW;
+
+		mgui_opengl_process_line( fnt, dx, dy, &line_x, &line_y, &line_colour );
 	}
 
 	glEnd();

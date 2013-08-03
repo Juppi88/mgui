@@ -174,8 +174,10 @@ void mgui_gdiplus_draw_text( const void* font, const char_t* text, int32 x, int3
 							 uint32 flags, const MGuiFormatTag tags[], uint32 ntags )
 {
 	MGuiGDIFont* fnt;
-
 	fnt = (MGuiGDIFont*)font;
+
+	UNREFERENCED_PARAM( tags );
+	UNREFERENCED_PARAM( ntags );
 
 	if ( font == NULL || text == NULL ) return;
 
