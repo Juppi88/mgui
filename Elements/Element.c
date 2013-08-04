@@ -1027,10 +1027,11 @@ void mgui_set_flags( MGuiElement* element, uint32 flags )
 
 	if ( element == NULL ) return;
 
-	if ( flags & FLAG_TEXT_TAGS && element->type == GUI_EDITBOX )
+	if ( flags & FLAG_TEXT_TAGS )
 	{
 		// Format tags on editboxes is not supported for the time being.
-		flags &= ~FLAG_TEXT_TAGS;
+		if ( element->type == GUI_EDITBOX ) flags &= ~FLAG_TEXT_TAGS;
+		else if ( element->text ) element->text->flags |= TFLAG_TAGS;
 	}
 
 	old = element->flags;
@@ -1048,19 +1049,18 @@ void mgui_add_flags( MGuiElement* element, uint32 flags )
 
 	if ( element == NULL ) return;
 
-	if ( flags & FLAG_TEXT_TAGS && element->type == GUI_EDITBOX )
+	if ( flags & FLAG_TEXT_TAGS )
 	{
 		// Format tags on editboxes is not supported for the time being.
-		flags &= ~FLAG_TEXT_TAGS;
+		if ( element->type == GUI_EDITBOX ) flags &= ~FLAG_TEXT_TAGS;
+		else if ( element->text ) element->text->flags |= TFLAG_TAGS;
 	}
 
 	old = element->flags;
 	element->flags |= flags;
 
 	if ( element->callbacks->on_flags_change )
-	{
 		element->callbacks->on_flags_change( element, old );
-	}
 }
 
 void mgui_remove_flags( MGuiElement* element, uint32 flags )
@@ -1072,10 +1072,11 @@ void mgui_remove_flags( MGuiElement* element, uint32 flags )
 	old = element->flags;
 	element->flags &= ~flags;
 
+	if ( BIT_OFF( old, FLAG_TEXT_TAGS ) && element->text )
+		element->text->flags |= TFLAG_TAGS;
+
 	if ( element->callbacks->on_flags_change )
-	{
 		element->callbacks->on_flags_change( element, old );
-	}
 }
 
 void mgui_set_event_handler( MGuiElement* element, mgui_event_handler_t handler, void* data )

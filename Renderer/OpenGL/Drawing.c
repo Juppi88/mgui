@@ -328,8 +328,7 @@ static void mgui_opengl_process_line( const MGuiGLFont* font, int32 x, int32 y, 
 void mgui_opengl_draw_text( const void* font, const char_t* text, int32 x, int32 y,
 						    uint32 flags, const MGuiFormatTag tags[], uint32 ntags )
 {
-	int32 dx = x, dy = y - 2;
-	int32 line_x = dx, line_y = dy;
+	int32 dx = x, dy = y - 2, line_x = dx, line_y = dy;
 	uint32 c, ntag = 0, idx = 0;
 	colour_t line_colour;
 	register const char_t* s;

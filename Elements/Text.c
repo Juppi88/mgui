@@ -480,105 +480,24 @@ static bool mgui_text_parse_tag( const char_t** ptext, MGuiFormatTag tags[], uin
 
 void mgui_text_parse_format_tags( const char_t* text, const colour_t* def, MGuiFormatTag* tags, uint32 ntags )
 {
-	register const char* s;
+	const char* s;
 	size_t l, i = 0, ntag = 0;
-	uint32 hex;
-	char_t c;
-	MGuiFormatTag* tag;
 
 	if ( text == NULL || def == NULL || tags == NULL ) return;
 
 	s = text;
 	l = ntags;
 
-	for ( ; l && *s; --l )
+	while ( l && *s )
 	{
-		if ( s[0] != '[' || s[1] != '#' ) { i++; continue; }
-		
-		// Colour tag
-		if ( parse_colour_tag( s + 2 , &hex ) )
+		if ( mgui_text_parse_tag( &s, tags, &ntag, &i, def ) )
 		{
-			tag = &tags[ntag];
-
-			if ( tag->index == i )
-			{
-				tag->flags |= TAG_COLOUR;
-				tag->colour.hex = hex;
-				tag->colour.a = def->a;
-			}
-			else
-			{
-				tag = &tags[++ntag];
-
-				tag->index = (uint16)i;
-				tag->flags = TAG_COLOUR;
-				tag->colour.hex = hex;
-				tag->colour.a = def->a;
-			}
-
-			s += 9;
+			--l;
 			continue;
 		}
 
-		// Underline tag
-		if ( is_valid_uline_tag( s + 2 ) )
-		{
-			tag = &tags[ntag];
-
-			if ( tag->index == i )
-			{
-				tag->flags |= TAG_UNDERLINE;
-			}
-			else
-			{
-				tag = &tags[++ntag];
-				tag->index = (uint16)i;
-				tag->flags = TAG_UNDERLINE;
-			}
-
-			s += 8;
-			continue;
-		}
-
-		// Format end tag
-		if ( parse_end_tag( s + 2, &c ) )
-		{
-			tag = &tags[ntag];
-
-			if ( tag->index == i )
-			{
-				switch ( c )
-				{
-				case 'd':
-					tag->flags &= ~TAG_COLOUR;
-					tag->flags |= TAG_COLOUR_END;
-					break;
-				case 'u':
-					tag->flags &= ~TAG_UNDERLINE;
-					tag->flags |= TAG_UNDERLINE_END;
-					break;
-				}
-			}
-			else
-			{
-				tag = &tags[++ntag];
-				tag->index = (uint16)i;
-
-				switch ( c )
-				{
-				case 'd':
-					tag->flags = TAG_COLOUR_END;
-					break;
-				case 'u':
-					tag->flags = TAG_UNDERLINE_END;
-					break;
-				}
-			}
-
-			s += 4;
-			continue;
-		}
-		i++;
+		++s;
+		++i;
 	}
 }
 
@@ -604,15 +523,15 @@ static void mgui_text_parse_format_tags2( MGuiText* text, uint32 num_tags )
 
 uint32 mgui_text_parse_and_get_line( const char_t* text, MGuiFont* font, const colour_t* def, uint32 max_width, char_t** buf_in, MGuiFormatTag** tags_in )
 {
-	uint32 width = 0, w, h, i;
+	uint32 width = 0, w, h, i, flags;
 	uint32 space = 0, ntag = 0, len = 0, index = 0;
+	bool has_tags = false;
 	const char_t *s, *last_space = NULL;
 	char_t *t, tmp[2];
 
 	static uint32 pad = 0;
 	static char_t tmpbuf[1024];
-	static MGuiFormatTag tmptags[32];
-	static MGuiFormatTag* last_tag = NULL;
+	static MGuiFormatTag tmptags[32], prev_tag;
 	static const char_t* ptr = NULL;
 
 	if ( font == NULL || buf_in == NULL ) goto cleanup;
@@ -623,22 +542,25 @@ uint32 mgui_text_parse_and_get_line( const char_t* text, MGuiFont* font, const c
 		s = ptr;
 
 		if ( ptr == NULL ) goto cleanup;
-		if ( last_tag )
+		if ( prev_tag.index < (uint16)-1 )
 		{
-			tmptags[0] = *last_tag;
+			tmptags[0] = prev_tag;
 			tmptags[0].index = 0;
 		}
 	}
 	else
 	{
 		// This is a new string. Start from the beginning.
-		ptr = NULL; last_tag = NULL;
+		ptr = NULL;
 		s = text;
 
 		tmptags[0].index = 0;
 		tmptags[0].flags = TAG_NONE;
 		tmptags[0].colour = *def;
-		last_tag = NULL;
+
+		prev_tag.index = (uint16)-1;
+		prev_tag.flags = 0;
+		prev_tag.colour.hex = 0;
 
 		// Measure padding between two characters.
 		renderer->measure_text( font->data, _MTEXT("XX"), &pad, &h );
@@ -667,7 +589,17 @@ uint32 mgui_text_parse_and_get_line( const char_t* text, MGuiFont* font, const c
 		// Parse and remove format tags. This will store the result into the temp buffer automatically.
 		if ( tags_in && mgui_text_parse_tag( &s, tmptags, &ntag, &index, def ) )
 		{
-			last_tag = &tmptags[ntag];
+			has_tags = true;
+			flags = tmptags[ntag].flags;
+
+			if ( flags & TAG_COLOUR ) { prev_tag.flags |= TAG_COLOUR; prev_tag.flags &= ~TAG_COLOUR_END; }
+			if ( flags & TAG_COLOUR_END ) { prev_tag.flags &= ~TAG_COLOUR; prev_tag.flags |= TAG_COLOUR_END; }
+			if ( flags & TAG_UNDERLINE ) { prev_tag.flags |= TAG_UNDERLINE; prev_tag.flags &= ~TAG_UNDERLINE_END; }
+			if ( flags & TAG_UNDERLINE_END ) { prev_tag.flags &= ~TAG_UNDERLINE; prev_tag.flags |= TAG_UNDERLINE_END; }
+
+			prev_tag.colour = tmptags[ntag].colour;
+			prev_tag.index = tmptags[ntag].index;
+
 			continue;
 		}
 
@@ -704,12 +636,14 @@ uint32 mgui_text_parse_and_get_line( const char_t* text, MGuiFont* font, const c
 	ptr = *s ? s : NULL;
 
 	// Allocate memory for tags and copy the tags
-	if ( tags_in && last_tag )
+	if ( tags_in && has_tags )
 	{
 		*tags_in = mem_alloc( ( ntag + 1 ) * sizeof(MGuiFormatTag) );
 
 		for ( i = 0; i < ntag+1; ++i )
+		{
 			(*tags_in)[i] = tmptags[i];
+		}
 	}
 
 	return ntag + 1;
