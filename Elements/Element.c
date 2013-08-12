@@ -1038,9 +1038,7 @@ void mgui_set_flags( MGuiElement* element, uint32 flags )
 	element->flags = flags;
 
 	if ( element->callbacks->on_flags_change )
-	{
 		element->callbacks->on_flags_change( element, old );
-	}
 }
 
 void mgui_add_flags( MGuiElement* element, uint32 flags )
@@ -1073,7 +1071,7 @@ void mgui_remove_flags( MGuiElement* element, uint32 flags )
 	element->flags &= ~flags;
 
 	if ( BIT_OFF( old, FLAG_TEXT_TAGS ) && element->text )
-		element->text->flags |= TFLAG_TAGS;
+		element->text->flags &= ~TFLAG_TAGS;
 
 	if ( element->callbacks->on_flags_change )
 		element->callbacks->on_flags_change( element, old );

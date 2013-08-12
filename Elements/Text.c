@@ -21,6 +21,9 @@ extern MGuiRenderer* renderer;
 static bool is_valid_colour_tag( const char* text );
 static bool is_valid_uline_tag( const char* text );
 static bool is_valid_end_tag( const char* text );
+static bool parse_colour_tag( const char_t* text, uint32* in );
+static bool parse_end_tag( const char_t* text, char_t* in );
+static bool mgui_text_parse_tag( const char_t** ptext, MGuiFormatTag tags[], uint32* ntag, uint32* index, const colour_t* def );
 static void mgui_text_parse_format_tags2( MGuiText* text, uint32 num_tags );
 
 MGuiText* mgui_text_create( void )
@@ -306,7 +309,7 @@ static bool is_valid_end_tag( const char* text )
 {
 	register const char* s = text;
 
-	if ( *s != 'd' && *s != 'u' ) return false;
+	if ( *s != 'd' && *s != 'u' && *s != 'e' ) return false;
 	if ( *++s != ']' ) return false;
 
 	return true;
@@ -351,7 +354,7 @@ static bool parse_end_tag( const char_t* text, char_t* in )
 
 	*in = *s;
 
-	if ( *s != 'd' && *s != 'u' ) return false;
+	if ( *s != 'd' && *s != 'u' && *s != 'e' ) return false;
 	if ( *++s != ']' ) return false;
 
 	return true;
@@ -440,7 +443,7 @@ static bool mgui_text_parse_tag( const char_t** ptext, MGuiFormatTag tags[], uin
 		}
 		
 		tag->index = (uint16)*index;
-		tag->flags = TAG_UNDERLINE;
+		tag->flags |= TAG_UNDERLINE;
 
 		*ptext = s + 8;
 		return true;
@@ -466,11 +469,22 @@ static bool mgui_text_parse_tag( const char_t** ptext, MGuiFormatTag tags[], uin
 			tag->flags |= TAG_COLOUR_END;
 			tag->colour = *def;
 			break;
+
 		case 'u':
 			tag->flags &= ~TAG_UNDERLINE;
 			tag->flags |= TAG_UNDERLINE_END;
 			break;
+
+		case 'e':
+			tag->flags &= ~TAG_COLOUR;
+			tag->flags |= TAG_COLOUR_END;
+			tag->flags &= ~TAG_UNDERLINE;
+			tag->flags |= TAG_UNDERLINE_END;
+
+			tag->colour = *def;
+			break;
 		}
+
 		*ptext = s + 4;
 		return true;
 	}
@@ -544,7 +558,8 @@ uint32 mgui_text_parse_and_get_line( const char_t* text, MGuiFont* font, const c
 		if ( ptr == NULL ) goto cleanup;
 		if ( prev_tag.index < (uint16)-1 )
 		{
-			tmptags[0] = prev_tag;
+			tmptags[0].colour.hex = prev_tag.colour.hex;
+			tmptags[0].flags = prev_tag.flags;
 			tmptags[0].index = 0;
 		}
 	}
@@ -592,13 +607,31 @@ uint32 mgui_text_parse_and_get_line( const char_t* text, MGuiFont* font, const c
 			has_tags = true;
 			flags = tmptags[ntag].flags;
 
-			if ( flags & TAG_COLOUR ) { prev_tag.flags |= TAG_COLOUR; prev_tag.flags &= ~TAG_COLOUR_END; }
-			if ( flags & TAG_COLOUR_END ) { prev_tag.flags &= ~TAG_COLOUR; prev_tag.flags |= TAG_COLOUR_END; }
-			if ( flags & TAG_UNDERLINE ) { prev_tag.flags |= TAG_UNDERLINE; prev_tag.flags &= ~TAG_UNDERLINE_END; }
-			if ( flags & TAG_UNDERLINE_END ) { prev_tag.flags &= ~TAG_UNDERLINE; prev_tag.flags |= TAG_UNDERLINE_END; }
-
-			prev_tag.colour = tmptags[ntag].colour;
 			prev_tag.index = tmptags[ntag].index;
+
+			if ( flags & TAG_COLOUR )
+			{
+				prev_tag.flags |= TAG_COLOUR;
+				prev_tag.flags &= ~TAG_COLOUR_END;
+				prev_tag.colour.hex = tmptags[ntag].colour.hex;
+			}
+			else if ( flags & TAG_COLOUR_END )
+			{
+				prev_tag.flags &= ~TAG_COLOUR;
+				prev_tag.flags |= TAG_COLOUR_END;
+				prev_tag.colour.hex = tmptags[ntag].colour.hex;
+			}
+
+			if ( flags & TAG_UNDERLINE )
+			{
+				prev_tag.flags |= TAG_UNDERLINE;
+				prev_tag.flags &= ~TAG_UNDERLINE_END;
+			}
+			else if ( flags & TAG_UNDERLINE_END )
+			{
+				prev_tag.flags &= ~TAG_UNDERLINE;
+				prev_tag.flags |= TAG_UNDERLINE_END;
+			}
 
 			continue;
 		}
