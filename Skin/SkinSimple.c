@@ -59,7 +59,7 @@ MGuiSkin* mgui_setup_skin_simple( void )
 static void skin_simple_draw_panel( const rectangle_t* r, const colour_t* col )
 {
 	renderer->set_draw_colour( col );
-	renderer->draw_rect( r->x, r->y, r->w, r->h );
+	renderer->draw_rect( r->x, r->y, r->w, r->h, 1.0f );
 }
 
 static void skin_simple_draw_border( const rectangle_t* r, const colour_t* col, uint32 borders, uint32 thickness )
@@ -67,16 +67,16 @@ static void skin_simple_draw_border( const rectangle_t* r, const colour_t* col, 
 	renderer->set_draw_colour( col );
 
 	if ( borders & BORDER_LEFT )
-		renderer->draw_rect( r->x, r->y, thickness, r->h );
+		renderer->draw_rect( r->x, r->y, thickness, r->h, 1.0f );
 
 	if ( borders & BORDER_RIGHT )
-		renderer->draw_rect( r->x + r->w-thickness, r->y, thickness, r->h );
+		renderer->draw_rect( r->x + r->w-thickness, r->y, thickness, r->h, 1.0f );
 
 	if ( borders & BORDER_TOP )
-		renderer->draw_rect( r->x, r->y, r->w, thickness );
+		renderer->draw_rect( r->x, r->y, r->w, thickness, 1.0f );
 
 	if ( borders & BORDER_BOTTOM )
-		renderer->draw_rect( r->x, r->y + r->h-thickness, r->w, thickness );
+		renderer->draw_rect( r->x, r->y + r->h-thickness, r->w, thickness, 1.0f );
 }
 
 static void skin_simple_draw_generic_button( const rectangle_t* r, const colour_t* col, uint32 flags )
@@ -92,7 +92,7 @@ static void skin_simple_draw_generic_button( const rectangle_t* r, const colour_
 	}
 
 	renderer->set_draw_colour( &c );
-	renderer->draw_rect( r->x + 1, r->y + 1, r->w - 2, r->h - 2 );
+	renderer->draw_rect( r->x + 1, r->y + 1, r->w - 2, r->h - 2, 1.0f );
 
 	// Borders
 	colour_add_scalar( &c, &c, 40 );
@@ -100,26 +100,26 @@ static void skin_simple_draw_generic_button( const rectangle_t* r, const colour_
 	if ( BIT_OFF( flags, INTFLAG_PRESSED ) )
 	{
 		renderer->set_draw_colour( &c );
-		renderer->draw_rect( r->x, r->y, r->w, 1 );
-		renderer->draw_rect( r->x, r->y, 1, r->h );
+		renderer->draw_rect( r->x, r->y, r->w, 1, 1.0f );
+		renderer->draw_rect( r->x, r->y, 1, r->h, 1.0f );
 
 		colour_subtract_scalar( &c, &c, 80 );
 
 		renderer->set_draw_colour( &c );
-		renderer->draw_rect( r->x + r->w - 1, r->y, 1, r->h );
-		renderer->draw_rect( r->x, r->y + r->h - 1, r->w, 1 );
+		renderer->draw_rect( r->x + r->w - 1, r->y, 1, r->h, 1.0f );
+		renderer->draw_rect( r->x, r->y + r->h - 1, r->w, 1, 1.0f );
 	}
 	else
 	{
 		renderer->set_draw_colour( &c );
-		renderer->draw_rect( r->x + r->w - 1, r->y, 1, r->h );
-		renderer->draw_rect( r->x, r->y + r->h - 1, r->w, 1 );
+		renderer->draw_rect( r->x + r->w - 1, r->y, 1, r->h, 1.0f );
+		renderer->draw_rect( r->x, r->y + r->h - 1, r->w, 1, 1.0f );
 
 		colour_subtract_scalar( &c, &c, 80 );
 
 		renderer->set_draw_colour( &c );
-		renderer->draw_rect( r->x, r->y, r->w, 1 );
-		renderer->draw_rect( r->x, r->y, 1, r->h );
+		renderer->draw_rect( r->x, r->y, r->w, 1, 1.0f );
+		renderer->draw_rect( r->x, r->y, 1, r->h, 1.0f );
 	}
 }
 
@@ -130,8 +130,8 @@ static void skin_simple_draw_shadow( const rectangle_t* r, uint offset )
 
 	renderer->set_draw_colour( &c );
 
-	renderer->draw_rect( r->x + r->w, r->y + offset, offset, r->h - offset );
-	renderer->draw_rect( r->x + offset, r->y + r->h, r->w, offset );
+	renderer->draw_rect( r->x + r->w, r->y + offset, offset, r->h - offset, 1.0f );
+	renderer->draw_rect( r->x + offset, r->y + r->h, r->w, offset, 1.0f );
 }
 
 static void skin_simple_draw_button( MGuiElement* element )
@@ -152,7 +152,7 @@ static void skin_simple_draw_button( MGuiElement* element )
 	if ( BIT_ON( element->flags, FLAG_BACKGROUND ) )
 	{
 		renderer->set_draw_colour( &c );
-		renderer->draw_rect( r->x + 1, r->y + 1, r->w - 2, r->h - 2 );
+		renderer->draw_rect( r->x + 1, r->y + 1, r->w - 2, r->h - 2, 1.0f );
 	}
 
 	if ( ( text = element->text ) != NULL )
@@ -161,12 +161,12 @@ static void skin_simple_draw_button( MGuiElement* element )
 
 		if ( element->flags & INTFLAG_PRESSED )
 		{
-			renderer->draw_text( text->font->data, text->buffer, text->pos.x+1, text->pos.y+1,
+			renderer->draw_text( text->font->data, text->buffer, text->pos.x+1, text->pos.y+1, 1.0f,
 								 text->flags, text->tags, text->num_tags );
 		}
 		else
 		{
-			renderer->draw_text( text->font->data, text->buffer, text->pos.x, text->pos.y,
+			renderer->draw_text( text->font->data, text->buffer, text->pos.x, text->pos.y, 1.0f,
 								 text->flags, text->tags, text->num_tags );
 		}
 	}
@@ -179,26 +179,26 @@ static void skin_simple_draw_button( MGuiElement* element )
 		if ( BIT_OFF( element->flags_int, INTFLAG_PRESSED ) )
 		{
 			renderer->set_draw_colour( &c );
-			renderer->draw_rect( r->x, r->y, r->w, 1 );
-			renderer->draw_rect( r->x, r->y, 1, r->h );
+			renderer->draw_rect( r->x, r->y, r->w, 1, 1.0f );
+			renderer->draw_rect( r->x, r->y, 1, r->h, 1.0f );
 
 			colour_subtract_scalar( &c, &c, 80 );
 
 			renderer->set_draw_colour( &c );
-			renderer->draw_rect( r->x + r->w - 1, r->y, 1, r->h );
-			renderer->draw_rect( r->x, r->y + r->h - 1, r->w, 1 );
+			renderer->draw_rect( r->x + r->w - 1, r->y, 1, r->h, 1.0f );
+			renderer->draw_rect( r->x, r->y + r->h - 1, r->w, 1, 1.0f );
 		}
 		else
 		{
 			renderer->set_draw_colour( &c );
-			renderer->draw_rect( r->x + r->w - 1, r->y, 1, r->h );
-			renderer->draw_rect( r->x, r->y + r->h - 1, r->w, 1 );
+			renderer->draw_rect( r->x + r->w - 1, r->y, 1, r->h, 1.0f );
+			renderer->draw_rect( r->x, r->y + r->h - 1, r->w, 1, 1.0f );
 
 			colour_subtract_scalar( &c, &c, 80 );
 
 			renderer->set_draw_colour( &c );
-			renderer->draw_rect( r->x, r->y, r->w, 1 );
-			renderer->draw_rect( r->x, r->y, 1, r->h );
+			renderer->draw_rect( r->x, r->y, r->w, 1, 1.0f );
+			renderer->draw_rect( r->x, r->y, 1, r->h, 1.0f );
 		}
 	}
 }
@@ -240,7 +240,7 @@ static void skin_simple_draw_editbox( MGuiElement* element )
 			if ( editbox->cursor.x < editbox->bounds.x + editbox->bounds.w )
 			{
 				renderer->set_draw_colour( &editbox->text->colour );
-				renderer->draw_rect( editbox->cursor.x, editbox->cursor.y, editbox->cursor.w, editbox->cursor.h );
+				renderer->draw_rect( editbox->cursor.x, editbox->cursor.y, editbox->cursor.w, editbox->cursor.h, 1.0f );
 			}
 		}
 
@@ -251,7 +251,7 @@ static void skin_simple_draw_editbox( MGuiElement* element )
 			colour_invert( &c, &c );
 
 			renderer->set_draw_colour( &c );
-			renderer->draw_rect( editbox->selection.x, editbox->selection.y, editbox->selection.w, editbox->selection.h );
+			renderer->draw_rect( editbox->selection.x, editbox->selection.y, editbox->selection.w, editbox->selection.h, 1.0f );
 		}
 	}
 
@@ -275,7 +275,7 @@ static void skin_simple_draw_editbox( MGuiElement* element )
 		element->text->buffer = editbox->buffer;
 
 		renderer->set_draw_colour( &c );
-		renderer->draw_text( text->font->data, text->buffer, text->pos.x, text->pos.y,
+		renderer->draw_text( text->font->data, text->buffer, text->pos.x, text->pos.y, 1.0f,
 							 text->flags, text->tags, text->num_tags );
 
 		// Really ugly hack cleanup
@@ -308,7 +308,7 @@ static void skin_simple_draw_label( MGuiElement* element )
 	if ( ( text = element->text ) != NULL )
 	{
 		renderer->set_draw_colour( &text->colour );
-		renderer->draw_text( text->font->data, text->buffer, text->pos.x, text->pos.y,
+		renderer->draw_text( text->font->data, text->buffer, text->pos.x, text->pos.y, 1.0f,
 							 text->flags, text->tags, text->num_tags );
 	}
 }
@@ -359,7 +359,7 @@ static void skin_simple_draw_memobox( MGuiElement* element )
 
 		renderer->set_draw_colour( &line->colour );
 
-		renderer->draw_text( line->font->data, line->text, line->pos.x, line->pos.y,
+		renderer->draw_text( line->font->data, line->text, line->pos.x, line->pos.y, 1.0f,
 							 line->font->flags & FFLAG_ITALIC ? TFLAG_ITALIC : 0,
 							 line->tags, line->ntags );
 	}
@@ -409,19 +409,19 @@ static void skin_simple_draw_scrollbar_button( const rectangle_t* r, const colou
 	switch ( dir )
 	{
 	case ARROW_UP:
-		renderer->draw_triangle( xm, y1, x2, y2, x1, y2 );
+		renderer->draw_triangle( xm, y1, x2, y2, x1, y2, 1.0f );
 		break;
 
 	case ARROW_DOWN:
-		renderer->draw_triangle( xm, y2, x1, y1, x2, y1 );
+		renderer->draw_triangle( xm, y2, x1, y1, x2, y1, 1.0f );
 		break;
 
 	case ARROW_LEFT:
-		renderer->draw_triangle( x1, ym, x2, y1, x2, y2 );
+		renderer->draw_triangle( x1, ym, x2, y1, x2, y2, 1.0f );
 		break;
 
 	case ARROW_RIGHT:
-		renderer->draw_triangle( x2, ym, x1, y2, x1, y1 );
+		renderer->draw_triangle( x2, ym, x1, y2, x1, y1, 1.0f );
 		break;
 	}
 }
@@ -445,7 +445,7 @@ static void skin_simple_draw_window( MGuiElement* element )
 		if ( element->flags & FLAG_BACKGROUND )
 		{
 			renderer->set_draw_colour( &element->colour );
-			renderer->draw_rect( r->x, r->y, r->w, r->h );
+			renderer->draw_rect( r->x, r->y, r->w, r->h, 1.0f );
 		}
 
 		if ( element->flags & FLAG_CLIP )
@@ -488,7 +488,7 @@ static void skin_simple_draw_window( MGuiElement* element )
 		if ( element->flags & FLAG_BACKGROUND )
 		{
 			renderer->set_draw_colour( &element->colour );
-			renderer->draw_rect( r->x, r->y, r->w, r->h );
+			renderer->draw_rect( r->x, r->y, r->w, r->h, 1.0f );
 		}
 
 		if ( element->flags & FLAG_BORDER )
@@ -516,17 +516,17 @@ static void skin_simple_draw_window_titlebar( MGuiElement* element )
 	c = element->colour;
 
 	renderer->set_draw_colour( &c );
-	renderer->draw_rect( r->x, r->y+h, r->w, h2 );
+	renderer->draw_rect( r->x, r->y+h, r->w, h2, 1.0f );
 
 	colour_add_scalar( &c, &c, 8 );
 
 	renderer->set_draw_colour( &c );
-	renderer->draw_rect( r->x, r->y, r->w, h );
+	renderer->draw_rect( r->x, r->y, r->w, h, 1.0f );
 
 	if ( text )
 	{
 		renderer->set_draw_colour( &text->colour );
-		renderer->draw_text( text->font->data, text->buffer, text->pos.x, text->pos.y,
+		renderer->draw_text( text->font->data, text->buffer, text->pos.x, text->pos.y, 1.0f,
 							 text->flags, text->tags, text->num_tags );
 	}
 }
