@@ -72,6 +72,8 @@ enum MGUI_FLAGS
 	FLAG_KBCTRL				= 1 << 13,	/* Element triggers keyboard input events and accepts keyboard focus */
 	FLAG_TEXT_SHADOW		= 1 << 14,	/* Text will cast a shadow */
 	FLAG_TEXT_TAGS			= 1 << 15,	/* Text can be formatted using tags */
+	FLAG_DEPTH_TEST			= 1 << 16,	/* Enable depth testing (useful for 3D text) */
+	FLAG_3D_ENTITY			= 1 << 17,	/* This element is fully 3D, use mgui_set_3d_* to manipulate */
 
 	// Element specific flags
 	FLAG_WINDOW_TITLEBAR	= 1 << 20,	/* Enable window titlebar */
@@ -156,6 +158,9 @@ MYLLY_API MGuiElement*		mgui_get_focus					( void );
 MYLLY_API void				mgui_set_focus					( MGuiElement* element );
 MYLLY_API uint32			mgui_text_strip_format_tags		( const char_t* text, char_t* buf, size_t buflen );
 
+MYLLY_API void				mgui_screen_pos_to_world		( const vector3_t* src, vector3_t* dst );
+MYLLY_API void				mgui_world_pos_to_screen		( const vector3_t* src, vector3_t* dst );
+
 /* Element relations */
 MYLLY_API void				mgui_add_child					( MGuiElement* parent, MGuiElement* child );
 MYLLY_API void				mgui_remove_child				( MGuiElement* child );
@@ -199,6 +204,17 @@ MYLLY_API void				mgui_get_abs_size_i				( MGuiElement* element, uint16* w, uint
 MYLLY_API void				mgui_set_abs_pos_i				( MGuiElement* element, int16 x, int16 y );
 MYLLY_API void				mgui_set_abs_size_i				( MGuiElement* element, uint16 w, uint16 h );
 
+MYLLY_API float				mgui_get_z_depth				( MGuiElement* element );
+MYLLY_API void				mgui_set_z_depth				( MGuiElement* element, float depth );
+
+MYLLY_API void				mgui_get_3d_position			( MGuiElement* element, vector3_t* pos );
+MYLLY_API void				mgui_set_3d_position			( MGuiElement* element, const vector3_t* pos );
+MYLLY_API void				mgui_get_3d_rotation			( MGuiElement* element, vector3_t* rot );
+MYLLY_API void				mgui_set_3d_rotation			( MGuiElement* element, const vector3_t* rot );
+MYLLY_API void				mgui_get_3d_size				( MGuiElement* element, vector2_t* size );
+MYLLY_API void				mgui_set_3d_size				( MGuiElement* element, const vector2_t* size );
+MYLLY_API void				mgui_set_3d_transform			( MGuiElement* element, const vector3_t* pos, const vector3_t* rot, const vector2_t* size );
+
 MYLLY_API void				mgui_get_colour					( MGuiElement* element, colour_t* col );
 MYLLY_API void				mgui_set_colour					( MGuiElement* element, const colour_t* col );
 MYLLY_API void				mgui_get_text_colour			( MGuiElement* element, colour_t* col );
@@ -228,7 +244,6 @@ MYLLY_API void				mgui_set_font_flags				( MGuiElement* element, uint8 flags );
 MYLLY_API void				mgui_set_font					( MGuiElement* element, const char_t* font, uint8 size, uint8 flags, uint8 charset );
 
 MYLLY_API uint32			mgui_get_flags					( MGuiElement* element );
-MYLLY_API void				mgui_set_flags					( MGuiElement* element, uint32 flags );
 MYLLY_API void				mgui_add_flags					( MGuiElement* element, uint32 flags );
 MYLLY_API void				mgui_remove_flags				( MGuiElement* element, uint32 flags );
 

@@ -178,3 +178,13 @@ void mgui_set_skin( const char_t* skinimg )
 
 	// TODO: Add texture loading
 }
+
+void mgui_screen_pos_to_world( const vector3_t* src, vector3_t* dst )
+{
+	if ( renderer ) renderer->screen_pos_to_world( src, dst );
+}
+
+void mgui_world_pos_to_screen( const vector3_t* src, vector3_t* dst )
+{
+	if ( renderer ) renderer->world_pos_to_screen( src, dst );
+}

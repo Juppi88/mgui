@@ -19,8 +19,7 @@
 #include "Input/Input.h"
 
 /* The following are internal flags and should not be used by the library user */
-enum MGUI_INTERNAL_FLAGS
-{
+enum MGUI_INTERNAL_FLAGS {
 	INTFLAG_BACKBUFFER	= 1 << 0,	/* Cache this element into a backbuffer */
 	INTFLAG_REFRESH		= 1 << 1,	/* Backbuffer needs refreshing */
 	INTFLAG_FOCUS		= 1 << 2,	/* This element has captured focus */
@@ -30,8 +29,7 @@ enum MGUI_INTERNAL_FLAGS
 	INTFLAG_LAYER		= 1 << 6,	/* This element is a main GUI layer */
 };
 
-typedef enum MGUI_TYPE
-{
+typedef enum MGUI_TYPE {
 	GUI_NONE,
 	GUI_BUTTON,
 	GUI_CANVAS,
@@ -61,6 +59,7 @@ struct MGuiElement
 	uint32					flags;			// Element flags
 	uint32					flags_int;		// Internal flags
 	rectangle_t				bounds;			// Absolute boundaries for this element (in pixels)
+	float					z_depth;		// Z depth index (active if depth test is ebabled and supported)
 	MGuiElement*			parent;			// Parent element, NULL if none
 	list_t*					children;		// List of children elements
 	enum MGUI_TYPE			type;			// The type of this GUI element
@@ -72,6 +71,15 @@ struct MGuiElement
 	MGuiSkin*				skin;			// Skin to be used for rendering
 	mgui_event_handler_t	event_handler;	// User event handler callback
 	void*					event_data;		// User-specified data to be passed via event_handler
+
+	// ---------- Transform info for 3D elements ----------
+
+	struct MGuiTransform {
+		vector3_t	position;
+		vector3_t	rotation;
+		vector2_t	size;
+		matrix4_t	transform;
+	} *transform;
 
 	// ---------- Internal callbacks ----------
 
@@ -138,6 +146,19 @@ void			mgui_get_abs_size_i				( MGuiElement* element, uint16* w, uint16* h );
 void			mgui_set_abs_pos_i				( MGuiElement* element, int16 x, int16 y );
 void			mgui_set_abs_size_i				( MGuiElement* element, uint16 w, uint16 h );
 
+float			mgui_get_z_depth				( MGuiElement* element );
+void			mgui_set_z_depth				( MGuiElement* element, float depth );
+
+void			mgui_get_3d_position			( MGuiElement* element, vector3_t* pos );
+void			mgui_set_3d_position			( MGuiElement* element, const vector3_t* pos );
+void			mgui_get_3d_rotation			( MGuiElement* element, vector3_t* rot );
+void			mgui_set_3d_rotation			( MGuiElement* element, const vector3_t* rot );
+void			mgui_get_3d_size				( MGuiElement* element, vector2_t* size );
+void			mgui_set_3d_size				( MGuiElement* element, const vector2_t* size );
+void			mgui_set_3d_transform			( MGuiElement* element, const vector3_t* pos, const vector3_t* rot, const vector2_t* size );
+
+void			mgui_element_update_transform	( MGuiElement* element );
+
 void			mgui_get_colour					( MGuiElement* element, colour_t* col );
 void			mgui_set_colour					( MGuiElement* element, const colour_t* col );
 void			mgui_get_text_colour			( MGuiElement* element, colour_t* col );
@@ -167,7 +188,6 @@ void			mgui_set_font_flags				( MGuiElement* element, uint8 flags );
 void			mgui_set_font					( MGuiElement* element, const char_t* font, uint8 size, uint8 flags, uint8 charset );
 
 uint32			mgui_get_flags					( MGuiElement* element );
-void			mgui_set_flags					( MGuiElement* element, uint32 flags );
 void			mgui_add_flags					( MGuiElement* element, uint32 flags );
 void			mgui_remove_flags				( MGuiElement* element, uint32 flags );
 

@@ -15,11 +15,14 @@
 
 #include "MGUI/MGUI.h"
 #include "Math/Matrix4.h"
+#include "Math/Vector3.h"
+#include "Math/VectorScreen.h"
 
 typedef enum {
-	DRAWING_2D,		// Draw 2D entities on top of everything else
-	DRAWING_2DZ,	// Draw 2D entities, set the Z index
-	DRAWING_3D,		// Draw 3D entities (use with set_draw_transform)
+	DRAWING_INVALID,
+	DRAWING_2D,			// Draw 2D entities on top of everything else
+	DRAWING_2D_DEPTH,	// Draw 2D entities, depth test enabled
+	DRAWING_3D,			// Draw 3D entities (use with set_draw_transform)
 } DRAW_MODE;
 
 enum {
@@ -43,30 +46,35 @@ struct MGuiRenderer
 	void		( *end )					( void );
 	void		( *resize )					( uint32 w, uint32 h );
 
-	void		( *set_draw_mode )			( DRAW_MODE mode );
+	DRAW_MODE	( *set_draw_mode )			( DRAW_MODE mode );
 	void		( *set_draw_colour )		( const colour_t* col );
-	void		( *set_draw_transform )		( const matrix4_t* mat );
+	void		( *set_draw_depth )			( float z_depth );
+	void		( *set_draw_transform )		( const matrix4_t* mat );	
 	void		( *reset_draw_transform )	( void );
 
 	void		( *start_clip )				( int32 x, int32 y, uint32 w, uint32 h );
 	void		( *end_clip )				( void );
 
-	void		( *draw_rect )				( int32 x, int32 y, uint32 w, uint32 h, float z_index );
-	void		( *draw_triangle )			( int32 x1, int32 y1, int32 x2, int32 y2, int32 x3, int32 y3, float z_index );
+	void		( *draw_rect )				( int32 x, int32 y, uint32 w, uint32 h );
+	void		( *draw_triangle )			( int32 x1, int32 y1, int32 x2, int32 y2, int32 x3, int32 y3 );
+	void		( *draw_pixel )				( int32 x, int32 y );
 
 	void*		( *load_texture )			( const char_t* path );
 	void		( *destroy_texture )		( void* texture );
-	void		( *draw_textured_rect )		( const void* texture, int32 x, int32 y, uint32 w, uint32 h, float z_index );
+	void		( *draw_textured_rect )		( const void* texture, int32 x, int32 y, uint32 w, uint32 h );
 
 	void*		( *load_font )				( const char_t* font, uint32 size, uint32 flags, uint32 charset,
 											  uint32 firstc, uint32 lastc );
 
 	void		( *destroy_font )			( void* font );
 
-	void		( *draw_text )				( const void* font, const char_t* text, int32 x, int32 y, float z_index,
+	void		( *draw_text )				( const void* font, const char_t* text, int32 x, int32 y,
 											  uint32 flags, const MGuiFormatTag tags[], uint32 ntags );
 
 	void		( *measure_text )			( const void* font, const char_t* text, uint32* w, uint32* h );
+
+	void		( *screen_pos_to_world )	( const vector3_t* src, vector3_t* dst );
+	void		( *world_pos_to_screen )	( const vector3_t* src, vector3_t* dst );
 };
 
 #endif /* __MYLLY_GUI_RENDERER_H */

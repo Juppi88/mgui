@@ -41,6 +41,17 @@ typedef struct
 	MGuiPrimitive	windowbtn_close_pressed;
 } MGuiTexturedSkin;
 
+static void		skin_textured_draw_panel			( const rectangle_t* r, const colour_t* col );
+static void		skin_textured_draw_border			( const rectangle_t* r, const colour_t* col, uint32 borders, uint32 thickness );
+static void		skin_textured_draw_shadow			( const rectangle_t* r, uint offset );
+static void		skin_textured_draw_button			( MGuiElement* element );
+static void		skin_textured_draw_editbox			( MGuiElement* element );
+static void		skin_textured_draw_label			( MGuiElement* element );
+static void		skin_textured_draw_memobox			( MGuiElement* element );
+static void		skin_textured_draw_scrollbar		( MGuiElement* element );
+static void		skin_textured_draw_window			( MGuiElement* element );
+static void		skin_textured_draw_window_titlebar	( MGuiElement* element );
+
 MGuiSkin* mgui_setup_skin_textured( const char_t* texture )
 {
 	MGuiSkin* skin;
@@ -70,7 +81,7 @@ MGuiSkin* mgui_setup_skin_textured( const char_t* texture )
 static void skin_textured_draw_panel( const rectangle_t* r, const colour_t* col )
 {
 	renderer->set_draw_colour( col );
-	renderer->draw_rect( r->x, r->y, r->w, r->h, 1.0f );
+	renderer->draw_rect( r->x, r->y, r->w, r->h );
 }
 
 static void skin_textured_draw_border( const rectangle_t* r, const colour_t* col, uint32 borders, uint32 thickness )
@@ -78,16 +89,16 @@ static void skin_textured_draw_border( const rectangle_t* r, const colour_t* col
 	renderer->set_draw_colour( col );
 
 	if ( borders & BORDER_LEFT )
-		renderer->draw_rect( r->x, r->y, thickness, r->h, 1.0f );
+		renderer->draw_rect( r->x, r->y, thickness, r->h );
 
 	if ( borders & BORDER_RIGHT )
-		renderer->draw_rect( r->x + r->w-thickness, r->y, thickness, r->h, 1.0f );
+		renderer->draw_rect( r->x + r->w-thickness, r->y, thickness, r->h );
 
 	if ( borders & BORDER_TOP )
-		renderer->draw_rect( r->x, r->y, r->w, thickness, 1.0f );
+		renderer->draw_rect( r->x, r->y, r->w, thickness );
 
 	if ( borders & BORDER_BOTTOM )
-		renderer->draw_rect( r->x, r->y + r->h-thickness, r->w, thickness, 1.0f );
+		renderer->draw_rect( r->x, r->y + r->h-thickness, r->w, thickness );
 }
 
 static void skin_textured_draw_shadow( const rectangle_t* r, uint offset )
@@ -96,8 +107,8 @@ static void skin_textured_draw_shadow( const rectangle_t* r, uint offset )
 
 	renderer->set_draw_colour( &c );
 
-	renderer->draw_rect( r->x + r->w, r->y + offset, offset, r->h - offset, 1.0f );
-	renderer->draw_rect( r->x + offset, r->y + r->h, r->w, offset, 1.0f );
+	renderer->draw_rect( r->x + r->w, r->y + offset, offset, r->h - offset );
+	renderer->draw_rect( r->x + offset, r->y + r->h, r->w, offset );
 }
 
 static void skin_textured_draw_button( MGuiElement* element )

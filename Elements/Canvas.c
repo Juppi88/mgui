@@ -71,7 +71,7 @@ static void mgui_canvas_render( MGuiElement* canvas )
 	if ( canvas->colour.hex != 0 )
 	{
 		renderer->set_draw_colour( &canvas->colour );
-		renderer->draw_rect( canvas->bounds.x, canvas->bounds.y, canvas->bounds.w, canvas->bounds.h, 1.0f );
+		renderer->draw_rect( canvas->bounds.x, canvas->bounds.y, canvas->bounds.w, canvas->bounds.h );
 	}
 }
 

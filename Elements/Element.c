@@ -39,6 +39,7 @@ void mgui_element_create( MGuiElement* element, MGuiElement* parent )
 	}
 
 	element->colour.hex = COL_ELEMENT;
+	element->z_depth = 1.0f;
 
 	if ( parent )
 	{
@@ -98,50 +99,79 @@ void mgui_element_render( MGuiElement* element )
 {
 	node_t* node;
 	rectangle_t* r;
-	MGuiElement* child;
+	DRAW_MODE draw_mode = DRAWING_INVALID;
 
 	if ( element == NULL ) return;
 	if ( BIT_OFF( element->flags, FLAG_VISIBLE ) ) return;
 
+	// Set clipping region and toggle clip mode.
 	if ( BIT_ON( element->flags, FLAG_CLIP ) )
 	{
 		if ( element->callbacks->get_clip_region )
 			element->callbacks->get_clip_region( element, &r );
-
-		else r = &element->bounds;
+		else
+			r = &element->bounds;
 
 		renderer->start_clip( r->x, r->y, r->w, r->h );
 	}
 
+	// If the element is a 3D element, toggle special drawing mode.
+	// Make sure the element is also a root element (to avoid some dodgy results)
+	if ( element->parent == NULL )
+	{
+		switch ( element->flags & (FLAG_3D_ENTITY|FLAG_DEPTH_TEST) )
+		{
+		case FLAG_DEPTH_TEST:
+			draw_mode = renderer->set_draw_mode( DRAWING_2D_DEPTH );
+			renderer->set_draw_depth( element->z_depth );
+			break;
+
+		case FLAG_3D_ENTITY:
+			draw_mode = renderer->set_draw_mode( DRAWING_3D );
+			renderer->set_draw_transform( &element->transform->transform );
+			renderer->set_draw_depth( element->z_depth );
+			break;
+		}
+	}
+
 	// Render the element itself
 	if ( element->callbacks->render )
-	{
 		element->callbacks->render( element );
-	}
 
-	if ( !element->children ) return;
-
-	// Render all the child elements
-	list_foreach( element->children, node )
+	// If the element has children, draw them now.
+	if ( element->children )
 	{
-		child = cast_elem(node);
-		mgui_element_render( child );
+		list_foreach( element->children, node )
+		{
+			mgui_element_render( (MGuiElement*)node );
+		}
 	}
 
+	// Reset draw modes back to original.
+	if ( draw_mode != DRAWING_INVALID )
+	{
+		renderer->set_draw_mode( draw_mode );
+		renderer->set_draw_depth( 1.0f );
+	}
+
+	if ( element->flags & FLAG_3D_ENTITY )
+		renderer->reset_draw_transform();
+
+	// Disable current cliping.
 	if ( BIT_ON( element->flags, FLAG_CLIP ) )
 	{
 		renderer->end_clip();
 	}
 
-	// Re-enable parent clipping if necessary
+	// Re-enable parent clipping if necessary.
 	element = element->parent;
 
 	if ( element && BIT_ON( element->flags, FLAG_CLIP ) )
 	{
 		if ( element->callbacks->get_clip_region )
 			element->callbacks->get_clip_region( element, &r );
-
-		else r = &element->bounds;
+		else
+			r = &element->bounds;
 
 		renderer->start_clip( r->x, r->y, r->w, r->h );
 	}
@@ -285,6 +315,8 @@ void mgui_add_child( MGuiElement* parent, MGuiElement* child )
 {
 	if ( child == NULL ) return;
 	if ( child->parent != NULL ) return;
+	if ( BIT_ON( child->flags, FLAG_3D_ENTITY ) ) return;
+	if ( BIT_ON( child->flags, FLAG_DEPTH_TEST ) ) return;
 	if ( BIT_ON( child->flags_int, INTFLAG_LAYER ) ) return;
 
 	if ( parent )
@@ -744,6 +776,156 @@ void mgui_set_abs_size_i( MGuiElement* elem, uint16 w, uint16 h )
 	mgui_element_update_rel_size( elem );
 }
 
+float mgui_get_z_depth( MGuiElement* element )
+{
+	if ( element == NULL ) return 0.0f;
+
+	return element->z_depth;
+}
+
+void mgui_set_z_depth( MGuiElement* element, float depth )
+{
+	if ( element == NULL ) return;
+	if ( BIT_OFF( element->flags, FLAG_DEPTH_TEST ) ) return;
+
+	element->z_depth = depth;
+}
+
+void mgui_get_3d_position( MGuiElement* element, vector3_t* pos )
+{
+	if ( element == NULL ||
+		 element->transform == NULL ||
+		 pos == NULL )
+	{
+		pos->x = pos->y = pos->z = 0.0f;
+		return;
+	}
+
+	*pos = element->transform->position;
+}
+
+void mgui_set_3d_position( MGuiElement* element, const vector3_t* pos )
+{
+	if ( element == NULL ||
+		 element->transform == NULL ||
+		 pos == NULL )
+	{
+		return;
+	}
+
+	element->transform->position = *pos;
+	mgui_element_update_transform( element );
+}
+
+void mgui_get_3d_rotation( MGuiElement* element, vector3_t* rot )
+{
+	if ( element == NULL ||
+		 element->transform == NULL ||
+		 rot == NULL )
+	{
+		rot->x = rot->y = rot->z = 0.0f;
+		return;
+	}
+
+	*rot = element->transform->rotation;
+}
+
+void mgui_set_3d_rotation( MGuiElement* element, const vector3_t* rot )
+{
+	if ( element == NULL ||
+		 element->transform == NULL ||
+		 rot == NULL )
+	{
+		return;
+	}
+
+	element->transform->rotation = *rot;
+	mgui_element_update_transform( element );
+}
+
+void mgui_get_3d_size( MGuiElement* element, vector2_t* size )
+{
+	if ( element == NULL ||
+		 element->transform == NULL ||
+		 size == NULL )
+	{
+		size->x = size->y = 0.0f;
+		return;
+	}
+
+	*size = element->transform->size;
+}
+
+void mgui_set_3d_size( MGuiElement* element, const vector2_t* size )
+{
+	if ( element == NULL ||
+		 element->transform == NULL ||
+		 size == NULL )
+	{
+		return;
+	}
+
+	element->transform->size = *size;
+	mgui_element_update_transform( element );
+}
+
+void mgui_set_3d_transform( MGuiElement* element, const vector3_t* pos, const vector3_t* rot, const vector2_t* size )
+{
+	if ( element == NULL ||
+		 element->transform == NULL ||
+		 pos == NULL || rot == NULL || size == NULL )
+	{
+		return;
+	}
+
+	element->transform->position = *pos;
+	element->transform->rotation = *rot;
+	element->transform->size = *size;
+
+	mgui_element_update_transform( element );
+}
+
+void mgui_element_update_transform( MGuiElement* element )
+{
+	matrix4_t mat1, mat2, mat3, mat4;
+	rectangle_t* bounds;
+	float x, y, z;
+
+	if ( element == NULL || element->transform == NULL ) return;
+
+	if ( element->callbacks->get_clip_region )
+		element->callbacks->get_clip_region( element, &bounds );
+	else
+		bounds = &element->bounds;
+
+	// Scale
+	x = element->transform->size.x / bounds->w;
+	y = element->transform->size.y / bounds->h;
+
+	matrix4_scale( &mat4, x, y, 1.0f );
+
+	// Rotate
+	if ( !vector3_is_zero( &element->transform->rotation ) )
+	{
+		matrix4_rotation_x( &mat1, element->transform->rotation.x );
+		matrix4_multiply( &mat3, &mat4, &mat1 );
+
+		matrix4_rotation_y( &mat2, element->transform->rotation.y );
+		matrix4_multiply( &mat1, &mat3, &mat2 );
+
+		matrix4_rotation_z( &mat3, element->transform->rotation.z );
+		matrix4_multiply( &mat4, &mat1, &mat3 );
+	}
+
+	// Translate
+	x = element->transform->position.x - x * (float)bounds->x;
+	y = element->transform->position.y - y * (float)bounds->y;
+	z = element->transform->position.z - element->z_depth;
+
+	matrix4_translation( &mat1, x, y, z );
+	matrix4_multiply( &element->transform->transform, &mat4, &mat1 );
+}
+
 void mgui_get_colour( MGuiElement* elem, colour_t* col )
 {
 	if ( elem == NULL || col == NULL ) return;
@@ -1021,7 +1203,7 @@ uint32 mgui_get_flags( MGuiElement* element )
 	return element->flags;
 }
 
-void mgui_set_flags( MGuiElement* element, uint32 flags )
+void mgui_add_flags( MGuiElement* element, uint32 flags )
 {
 	uint32 old;
 
@@ -1034,24 +1216,23 @@ void mgui_set_flags( MGuiElement* element, uint32 flags )
 		else if ( element->text ) element->text->flags |= TFLAG_TAGS;
 	}
 
-	old = element->flags;
-	element->flags = flags;
-
-	if ( element->callbacks->on_flags_change )
-		element->callbacks->on_flags_change( element, old );
-}
-
-void mgui_add_flags( MGuiElement* element, uint32 flags )
-{
-	uint32 old;
-
-	if ( element == NULL ) return;
-
-	if ( flags & FLAG_TEXT_TAGS )
+	if ( flags & FLAG_3D_ENTITY )
 	{
-		// Format tags on editboxes is not supported for the time being.
-		if ( element->type == GUI_EDITBOX ) flags &= ~FLAG_TEXT_TAGS;
-		else if ( element->text ) element->text->flags |= TFLAG_TAGS;
+		if ( element->parent )
+		{
+			// A 3D element must be a root element.
+			flags &= ~FLAG_3D_ENTITY;
+		}
+		else if ( element->transform == NULL )
+		{
+			// Create transform matrix storage.
+			element->transform = mem_alloc_clean( sizeof(*element->transform) );
+		}
+	}
+	if ( flags & FLAG_DEPTH_TEST && element->parent )
+	{
+		// A 3D element must be a root element.
+		flags &= ~FLAG_DEPTH_TEST;
 	}
 
 	old = element->flags;
@@ -1070,8 +1251,18 @@ void mgui_remove_flags( MGuiElement* element, uint32 flags )
 	old = element->flags;
 	element->flags &= ~flags;
 
-	if ( BIT_OFF( old, FLAG_TEXT_TAGS ) && element->text )
+	if ( BIT_OFF( flags, FLAG_TEXT_TAGS ) && element->text )
 		element->text->flags &= ~TFLAG_TAGS;
+
+	if ( flags & FLAG_3D_ENTITY )
+	{
+		SAFE_DELETE( element->transform );
+	}
+
+	if ( flags & FLAG_DEPTH_TEST )
+	{
+		element->z_depth = 1.0f;
+	}
 
 	if ( element->callbacks->on_flags_change )
 		element->callbacks->on_flags_change( element, old );
