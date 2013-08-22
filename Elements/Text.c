@@ -274,6 +274,26 @@ void mgui_text_get_char_pos( MGuiText* text, uint32 idx, uint16* x, uint16* y )
 	*y = (uint16)h;
 }
 
+void mgui_text_set_default_colour( MGuiText* text )
+{
+	uint32 ntag;
+	MGuiFormatTag* tag;
+
+	if ( text == NULL ) return;
+	if ( text->tags == NULL || text->num_tags == 0 ) return;
+
+	for ( ntag = 0; ntag < text->num_tags; ntag++ )
+	{
+		tag = &text->tags[ntag];
+
+		if ( tag->flags & TAG_COLOUR_END )
+			tag->colour = text->colour;
+
+		else if ( tag->flags & TAG_COLOUR )
+			tag->colour.a = text->colour.a;
+	}
+}
+
 static bool is_valid_colour_tag( const char* text )
 {
 	register const char* s = text;

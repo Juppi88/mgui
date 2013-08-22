@@ -230,6 +230,8 @@ MYLLY_API const char_t*		mgui_get_text					( MGuiElement* element );
 MYLLY_API uint32			mgui_get_text_len				( MGuiElement* element );
 MYLLY_API void				mgui_set_text					( MGuiElement* element, const char_t* fmt, ... );
 MYLLY_API void				mgui_set_text_s					( MGuiElement* element, const char_t* text );
+MYLLY_API void				mgui_get_text_size				( MGuiElement* element, vectorscreen_t* size );
+MYLLY_API void				mgui_get_text_size_i			( MGuiElement* element, uint16* w, uint16* h );
 MYLLY_API uint32			mgui_get_alignment				( MGuiElement* element );
 MYLLY_API void				mgui_set_alignment				( MGuiElement* element, uint32 alignment );
 MYLLY_API void				mgui_get_text_padding			( MGuiElement* element, uint8* top, uint8* bottom, uint8* left, uint8* right );

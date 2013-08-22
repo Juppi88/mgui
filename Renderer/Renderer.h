@@ -16,7 +16,6 @@
 #include "MGUI/MGUI.h"
 #include "Math/Matrix4.h"
 #include "Math/Vector3.h"
-#include "Math/VectorScreen.h"
 
 typedef enum {
 	DRAWING_INVALID,
@@ -26,6 +25,14 @@ typedef enum {
 } DRAW_MODE;
 
 enum {
+	TFLAG_NONE			= 0,
+	TFLAG_TAGS			= 1 << 0,	// Text has format tag support
+	TFLAG_SHADOW		= 1 << 1,	// Text has a shadow
+	TFLAG_BOLD			= 1 << 2,	// Font used by the text is bold
+	TFLAG_ITALIC		= 1 << 3,	// Font used by the text is cursive
+};
+
+enum {
 	TAG_NONE			= 0,		// No special characteristics
 	TAG_COLOUR			= 1 << 0,	// Tag specifies a custom colour
 	TAG_COLOUR_END		= 1 << 1,	// Tag returns to default colour
@@ -33,8 +40,7 @@ enum {
 	TAG_UNDERLINE_END	= 1 << 3,	// Enable underlining
 };
 
-typedef struct MGuiFormatTag
-{
+typedef struct {
 	uint16		index;		// Text buffer start index
 	uint16		flags;		// Tag flags (see enum above)
 	colour_t	colour;		// The colour that should be used with this tag

@@ -163,6 +163,8 @@ void			mgui_get_colour					( MGuiElement* element, colour_t* col );
 void			mgui_set_colour					( MGuiElement* element, const colour_t* col );
 void			mgui_get_text_colour			( MGuiElement* element, colour_t* col );
 void			mgui_set_text_colour			( MGuiElement* element, const colour_t* col );
+void			mgui_get_text_size				( MGuiElement* element, vectorscreen_t* size );
+void			mgui_get_text_size_i			( MGuiElement* element, uint16* w, uint16* h );
 uint32			mgui_get_colour_i				( MGuiElement* element );
 void			mgui_set_colour_i				( MGuiElement* element, uint32 hex );
 uint32			mgui_get_text_colour_i			( MGuiElement* element );

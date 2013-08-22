@@ -954,6 +954,8 @@ void mgui_set_text_colour( MGuiElement* elem, const colour_t* col )
 
 	elem->text->colour = *col;
 	elem->text->colour.a = elem->colour.a;
+
+	mgui_text_set_default_colour( elem->text );
 }
 
 uint32 mgui_get_colour_i( MGuiElement* elem )
@@ -984,6 +986,8 @@ void mgui_set_text_colour_i( MGuiElement* elem, uint32 hex )
 
 	elem->text->colour.hex = hex;
 	elem->text->colour.a = elem->colour.a;
+
+	mgui_text_set_default_colour( elem->text );
 }
 
 uint8 mgui_get_alpha( MGuiElement* elem )
@@ -993,31 +997,33 @@ uint8 mgui_get_alpha( MGuiElement* elem )
 	return elem->colour.a;
 }
 
-void mgui_set_alpha( MGuiElement* elem, uint8 alpha )
+void mgui_set_alpha( MGuiElement* element, uint8 alpha )
 {
 	node_t* node;
 	MGuiElement* child;
 
-	if ( elem == NULL ) return;
+	if ( element == NULL ) return;
 
-	elem->colour.a = alpha;
+	element->colour.a = alpha;
 
-	if ( elem->text ) elem->text->colour.a = alpha;
-
-	if ( elem->callbacks->on_colour_change )
+	if ( element->text )
 	{
-		elem->callbacks->on_colour_change( elem );
+		element->text->colour.a = alpha;
+		mgui_text_set_default_colour( element->text );
 	}
 
-	if ( elem->children == NULL ) return;
+	if ( element->callbacks->on_colour_change )
+		element->callbacks->on_colour_change( element );
 
-	list_foreach( elem->children, node )
+	if ( element->children == NULL ) return;
+
+	list_foreach( element->children, node )
 	{
 		child = cast_elem(node);
 
 		if ( BIT_ON( child->flags, FLAG_INHERIT_ALPHA ) )
 		{
-			// If this child element is supposed to inherit its parent's alpha, do it
+			// If this child element is supposed to inherit its parent's alpha, apply it.
 			mgui_set_alpha( child, alpha );
 		}
 	}
@@ -1065,6 +1071,35 @@ void mgui_set_text_s( MGuiElement* element, const char_t* text )
 	{
 		element->callbacks->on_text_change( element );
 	}
+}
+
+void mgui_get_text_size( MGuiElement* element, vectorscreen_t* size )
+{
+	if ( size == NULL ) return;
+
+	if ( element == NULL || element->text == NULL )
+	{
+		size->w = 0;
+		size->h = 0;
+		return;
+	}
+
+	size->w = element->text->size.w;
+	size->h = element->text->size.h;
+}
+
+void mgui_get_text_size_i( MGuiElement* element, uint16* w, uint16* h )
+{
+	if ( w == NULL || h == NULL ) return;
+
+	if ( element == NULL || element->text == NULL )
+	{
+		w = h = 0;
+		return;
+	}
+
+	*w = element->text->size.ux;
+	*h = element->text->size.uy;
 }
 
 uint32 mgui_get_alignment( MGuiElement* element )
@@ -1218,22 +1253,22 @@ void mgui_add_flags( MGuiElement* element, uint32 flags )
 
 	if ( flags & FLAG_3D_ENTITY )
 	{
-		if ( element->parent )
-		{
-			// A 3D element must be a root element.
-			flags &= ~FLAG_3D_ENTITY;
-		}
-		else if ( element->transform == NULL )
-		{
-			// Create transform matrix storage.
-			element->transform = mem_alloc_clean( sizeof(*element->transform) );
-		}
-	}
-	if ( flags & FLAG_DEPTH_TEST && element->parent )
-	{
 		// A 3D element must be a root element.
-		flags &= ~FLAG_DEPTH_TEST;
+		if ( element->parent )
+			flags &= ~FLAG_3D_ENTITY;
+
+		// Create transform matrix storage.
+		else if ( element->transform == NULL )
+			element->transform = mem_alloc_clean( sizeof(*element->transform) );
 	}
+
+	// A 3D element must be a root element.
+	if ( flags & FLAG_DEPTH_TEST && element->parent )
+		flags &= ~FLAG_DEPTH_TEST;
+
+	// Enable shadow bit in text flags as well.
+	if ( flags & FLAG_TEXT_SHADOW && element->text )
+		element->text->flags |= TFLAG_SHADOW;
 
 	old = element->flags;
 	element->flags |= flags;
@@ -1251,18 +1286,24 @@ void mgui_remove_flags( MGuiElement* element, uint32 flags )
 	old = element->flags;
 	element->flags &= ~flags;
 
-	if ( BIT_OFF( flags, FLAG_TEXT_TAGS ) && element->text )
-		element->text->flags &= ~TFLAG_TAGS;
+	if ( element->text )
+	{
+		// Disable text tag bit.
+		if ( flags & FLAG_TEXT_TAGS )
+			element->text->flags &= ~TFLAG_TAGS;
 
+		// Disable shadow bit.
+		if ( flags & FLAG_TEXT_SHADOW )
+			element->text->flags &= ~TFLAG_SHADOW;
+	}
+
+	// Remove transformation data.
 	if ( flags & FLAG_3D_ENTITY )
-	{
 		SAFE_DELETE( element->transform );
-	}
 
+	// Set default z depth.
 	if ( flags & FLAG_DEPTH_TEST )
-	{
 		element->z_depth = 1.0f;
-	}
 
 	if ( element->callbacks->on_flags_change )
 		element->callbacks->on_flags_change( element, old );

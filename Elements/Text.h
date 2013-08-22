@@ -18,14 +18,6 @@
 #include "Renderer.h"
 #include <stdarg.h>
 
-enum {
-	TFLAG_NONE		= 0,
-	TFLAG_TAGS		= 1 << 0,
-	TFLAG_SHADOW	= 1 << 1,
-	TFLAG_BOLD		= 1 << 2,
-	TFLAG_ITALIC	= 1 << 3,
-};
-
 typedef struct MGuiText
 {
 	char_t*			buffer;			// Text buffer for the actual text
@@ -59,6 +51,8 @@ void		mgui_text_update_position		( MGuiText* text );
 
 uint32		mgui_text_get_closest_char		( MGuiText* text, uint16 x, uint16 y );
 void		mgui_text_get_char_pos			( MGuiText* text, uint32 idx, uint16* x, uint16* y );
+
+void		mgui_text_set_default_colour	( MGuiText* text );
 
 uint32		mgui_text_strip_format_tags		( const char_t* text, char_t* buf, size_t buflen );
 void		mgui_text_parse_format_tags		( const char_t* text, const colour_t* def, MGuiFormatTag* tags, uint32 ntags );
