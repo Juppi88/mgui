@@ -1,13 +1,13 @@
 /**********************************************************************
-*
-* PROJECT:		Mylly GUI
-* FILE:		Font.h
-* LICENCE:		See Licence.txt
-* PURPOSE:		A renderer font storage.
-*
-*				(c) Tuomo Jauhiainen 2012-13
-*
-**********************************************************************/
+ *
+ * PROJECT:		Mylly GUI
+ * FILE:		Font.h
+ * LICENCE:		See Licence.txt
+ * PURPOSE:		A renderer font storage.
+ *
+ *				(c) Tuomo Jauhiainen 2012-13
+ *
+ **********************************************************************/
 
 #include "Font.h"
 #include "Skin.h"
@@ -19,8 +19,8 @@
 extern MGuiRenderer* renderer;
 static list_t* fonts;
 
-MGuiFont*	default_font = NULL;	// Default font for all elements
-MGuiFont*	wndbutton_font = NULL;	// Font used for the close button X
+MGuiFont*			default_font = NULL;	// Default font for all elements
+MGuiFont*			wndbutton_font = NULL;	// Font used for the close button X
 
 static MGuiFont*	mgui_font_find			( const char_t* name, uint8 size, uint8 flags, uint8 charset, char_t firstc, char_t lastc );
 static uint32		mgui_font_get_charset	( uint32 charset );
@@ -36,15 +36,13 @@ void mgui_fontmgr_initialize( void )
 void mgui_fontmgr_shutdown( void )
 {
 	node_t *node, *tmp;
-	MGuiFont* font;
 
 	if ( default_font ) mgui_font_destroy( default_font );
 	if ( wndbutton_font ) mgui_font_destroy( wndbutton_font );
 
 	list_foreach_safe( fonts, node, tmp )
 	{
-		font = (MGuiFont*)node;
-		mgui_font_destroy( font );
+		mgui_font_destroy( (MGuiFont*)node );
 	}
 
 	list_destroy( fonts );
@@ -103,28 +101,26 @@ MGuiFont* mgui_font_create_range( const char_t* name, uint8 size, uint8 flags, u
 		font->refcount++;
 		return font;
 	}
-	else
-	{
-		len = mstrsize( name );
+	
+	len = mstrsize( name );
 
-		font = (MGuiFont*)mem_alloc_clean( sizeof(*font) );
-		font->name = mem_alloc( len );
-		font->size = size;
-		font->flags = flags;
-		font->charset = charset;
-		font->first_char = firstc;
-		font->last_char = lastc;
-		font->refcount = 1;
+	font = (MGuiFont*)mem_alloc_clean( sizeof(*font) );
+	font->name = mem_alloc( len2size(len) );
+	font->size = size;
+	font->flags = flags;
+	font->charset = charset;
+	font->first_char = firstc;
+	font->last_char = lastc;
+	font->refcount = 1;
 
-		mstrcpy( font->name, name, len );
+	mstrcpy( font->name, name, len );
 
-		if ( renderer )
-			font->data = renderer->load_font( name, size, flags, mgui_font_get_charset( charset ), firstc, lastc );
+	if ( renderer )
+		font->data = renderer->load_font( name, size, flags, mgui_font_get_charset( charset ), firstc, lastc );
 
-		list_push( fonts, &font->node );
+	list_push( fonts, &font->node );
 
-		return font;
-	}
+	return font;
 }
 
 void mgui_font_destroy( MGuiFont* font )
@@ -135,11 +131,9 @@ void mgui_font_destroy( MGuiFont* font )
 	if ( font->data )
 		renderer->destroy_font( font->data );
 
-	if ( font->name )
-		mem_free( font->name );
+	SAFE_DELETE( font->name );
 
 	list_remove( fonts, &font->node );
-
 	mem_free( font );
 }
 

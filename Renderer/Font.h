@@ -10,13 +10,13 @@
  **********************************************************************/
 
 #pragma once
-#ifndef __MYLLY_GUI_FONT_H
-#define __MYLLY_GUI_FONT_H
+#ifndef __MGUI_FONT_H
+#define __MGUI_FONT_H
 
 #include "MGUI.h"
 #include "Types/List.h"
 
-typedef struct MGuiFont
+typedef struct
 {
 	node_t		node;		// Linked list node
 	void*		data;		// Renderer font data
@@ -45,4 +45,4 @@ MGuiFont*	mgui_font_set_charset		( MGuiFont* font, uint8 charset );
 
 void		mgui_font_reinitialize		( MGuiFont* font );
 
-#endif /* __MYLLY_GUI_FONT_H */
+#endif /* __MGUI_FONT_H */

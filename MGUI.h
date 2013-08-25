@@ -30,6 +30,7 @@ MGUI_ELEMENT_DECL( MGuiEditbox );
 MGUI_ELEMENT_DECL( MGuiLabel );
 MGUI_ELEMENT_DECL( MGuiMemobox );
 MGUI_ELEMENT_DECL( MGuiScrollbar );
+MGUI_ELEMENT_DECL( MGuiSprite );
 MGUI_ELEMENT_DECL( MGuiWindow );
 
 #define cast_elem(x) ((MGuiElement*)x)
@@ -181,6 +182,8 @@ MYLLY_API MGuiLabel*		mgui_create_label_ex			( MGuiElement* parent, int16 x, int
 MYLLY_API MGuiMemobox*		mgui_create_memobox				( MGuiElement* parent );
 MYLLY_API MGuiMemobox*		mgui_create_memobox_ex			( MGuiElement* parent, int16 x, int16 y, uint16 w, uint16 h, uint32 flags, uint32 col );
 MYLLY_API MGuiScrollbar*	mgui_create_scrollbar			( MGuiElement* parent );
+MYLLY_API MGuiSprite*		mgui_create_sprite				( MGuiElement* parent );
+MYLLY_API MGuiSprite*		mgui_create_sprite_ex			( MGuiElement* parent, int16 x, int16 y, uint32 flags, uint32 col, const char_t* texture );
 MYLLY_API MGuiWindow*		mgui_create_window				( MGuiElement* parent );
 MYLLY_API MGuiWindow*		mgui_create_window_ex			( MGuiElement* parent, int16 x, int16 y, uint16 w, uint16 h, uint32 flags, uint32 col, const char_t* text );
 
@@ -286,6 +289,25 @@ MYLLY_API float				mgui_scrollbar_get_nudge		( MGuiScrollbar* scrollbar );
 MYLLY_API void				mgui_scrollbar_set_nudge		( MGuiScrollbar* scrollbar, float amount );
 MYLLY_API void				mgui_scrollbar_get_track_colour	( MGuiScrollbar* scrollbar, colour_t* col );
 MYLLY_API void				mgui_scrollbar_set_track_colour	( MGuiScrollbar* scrollbar, const colour_t* col );
+
+/* Sprite functions */
+MYLLY_API const char_t*		mgui_sprite_get_texture			( MGuiSprite* sprite );
+MYLLY_API void				mgui_sprite_set_texture			( MGuiSprite* sprite, const char_t* texture );
+MYLLY_API void				mgui_sprite_get_texture_size	( MGuiSprite* sprite, vectorscreen_t* size );
+MYLLY_API void				mgui_sprite_get_texture_size_i	( MGuiSprite* sprite, uint16* width, uint16* height );
+MYLLY_API void				mgui_sprite_resize				( MGuiSprite* sprite );
+/*MYLLY_API void				mgui_sprite_get_scale			( MGuiSprite* sprite, vector2_t* scale );
+MYLLY_API void				mgui_sprite_set_scale			( MGuiSprite* sprite, const vector2_t* scale );
+MYLLY_API void				mgui_sprite_get_scale_f			( MGuiSprite* sprite, float* scale_x, float* scale_y );
+MYLLY_API void				mgui_sprite_set_scale_f			( MGuiSprite* sprite, float scale_x, float scale_y );*/
+MYLLY_API void				mgui_sprite_get_uv				( MGuiSprite* sprite, float* u1, float* v1, float* u2, float* v2 );
+MYLLY_API void				mgui_sprite_set_uv				( MGuiSprite* sprite, float u1, float v1, float u2, float v2 );
+/*MYLLY_API float				mgui_sprite_get_rotation		( MGuiSprite* sprite );
+MYLLY_API void				mgui_sprite_set_rotation		( MGuiSprite* sprite, float rotation );
+MYLLY_API void				mgui_sprite_get_rotation_centre	( MGuiSprite* sprite, vectorscreen_t* pos );
+MYLLY_API void				mgui_sprite_set_rotation_centre	( MGuiSprite* sprite, const vectorscreen_t* pos );
+MYLLY_API void				mgui_sprite_get_rotation_centre_i( MGuiSprite* sprite, int16* x, int16* y );
+MYLLY_API void				mgui_sprite_set_rotation_centre_i( MGuiSprite* sprite, int16 x, int16 y );*/
 
 /* Window functions */
 MYLLY_API void				mgui_window_get_title_col		( MGuiWindow* window, colour_t* col );

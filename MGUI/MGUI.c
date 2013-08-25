@@ -11,6 +11,7 @@
 
 #include "MGUI.h"
 #include "Element.h"
+#include "Texture.h"
 #include "Renderer.h"
 #include "SkinSimple.h"
 #include "Platform/Alloc.h"
@@ -34,6 +35,8 @@ uint32				params			= 0;		// The parameters MGUI was initialized with
 void mgui_initialize( void* wndhandle, uint32 parameters )
 {
 	mgui_input_initialize_hooks();
+
+	mgui_texturemgr_initialize();
 	mgui_fontmgr_initialize();
 
 	system_window = wndhandle;
@@ -83,6 +86,8 @@ void mgui_shutdown( void )
 	}
 
 	mgui_fontmgr_shutdown();
+	mgui_texturemgr_shutdown();
+
 	mgui_input_shutdown_hooks();
 }
 
@@ -156,6 +161,7 @@ void mgui_set_renderer( MGuiRenderer* rend )
 	{
 		// If the old renderer still exists, invalidate everything related to it.
 		mgui_fontmgr_invalidate_all();
+		mgui_texturemgr_invalidate_all();
 	}
 
 	renderer = rend;
@@ -163,6 +169,7 @@ void mgui_set_renderer( MGuiRenderer* rend )
 	if ( renderer )
 	{
 		// Initialize everything with the new renderer.
+		mgui_texturemgr_initialize_all();
 		mgui_fontmgr_initialize_all();
 	}
 }

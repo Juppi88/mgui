@@ -65,9 +65,10 @@ struct MGuiRenderer
 	void		( *draw_triangle )			( int32 x1, int32 y1, int32 x2, int32 y2, int32 x3, int32 y3 );
 	void		( *draw_pixel )				( int32 x, int32 y );
 
-	void*		( *load_texture )			( const char_t* path );
+	void*		( *load_texture )			( const char_t* path, uint32* width, uint32* height );
 	void		( *destroy_texture )		( void* texture );
-	void		( *draw_textured_rect )		( const void* texture, int32 x, int32 y, uint32 w, uint32 h );
+	void		( *draw_textured_rect )		( const void* texture, int32 x, int32 y, uint32 w, uint32 h,
+											  float u1, float v1, float u2, float v2 );
 
 	void*		( *load_font )				( const char_t* font, uint32 size, uint32 flags, uint32 charset,
 											  uint32 firstc, uint32 lastc );
