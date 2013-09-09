@@ -1028,9 +1028,23 @@ void mgui_set_alpha( MGuiElement* element, uint8 alpha )
 
 const char_t* mgui_get_text( MGuiElement* element )
 {
-	if ( !element->text ) return NULL;
+	if ( element == NULL || element->text == NULL ) return NULL;
 
 	return element->text->buffer;
+}
+
+char_t* mgui_get_text_buffer( MGuiElement* element, char_t* buf, size_t buflen )
+{
+	if ( buf == NULL ) return NULL;
+
+	if ( element == NULL || element->text == NULL )
+	{
+		*buf = '\0';
+		return buf;
+	}
+
+	mstrcpy( buf, element->text->buffer, buflen );
+	return buf;
 }
 
 uint32 mgui_get_text_len( MGuiElement* element )

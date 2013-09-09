@@ -237,6 +237,7 @@ MGUI_EXPORT uint8			mgui_get_alpha					( MGuiElement* element );
 MGUI_EXPORT void			mgui_set_alpha					( MGuiElement* element, uint8 alpha );
 
 MGUI_EXPORT const char_t*	mgui_get_text					( MGuiElement* element );
+MGUI_EXPORT char_t*			mgui_get_text_buffer			( MGuiElement* element, char_t* buf, size_t buflen );
 MGUI_EXPORT uint32			mgui_get_text_len				( MGuiElement* element );
 MGUI_EXPORT void			mgui_set_text					( MGuiElement* element, const char_t* fmt, ... );
 MGUI_EXPORT void			mgui_set_text_s					( MGuiElement* element, const char_t* text );
