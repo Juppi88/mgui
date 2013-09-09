@@ -797,7 +797,6 @@ void mgui_get_3d_position( MGuiElement* element, vector3_t* pos )
 		 element->transform == NULL ||
 		 pos == NULL )
 	{
-		pos->x = pos->y = pos->z = 0.0f;
 		return;
 	}
 
@@ -823,7 +822,6 @@ void mgui_get_3d_rotation( MGuiElement* element, vector3_t* rot )
 		 element->transform == NULL ||
 		 rot == NULL )
 	{
-		rot->x = rot->y = rot->z = 0.0f;
 		return;
 	}
 
@@ -849,7 +847,6 @@ void mgui_get_3d_size( MGuiElement* element, vector2_t* size )
 		 element->transform == NULL ||
 		 size == NULL )
 	{
-		size->x = size->y = 0.0f;
 		return;
 	}
 

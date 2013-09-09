@@ -17,6 +17,12 @@
 #include "stdtypes.h"
 #include "Math/MathDefs.h"
 
+#ifdef _MYLLY_SHARED_LIB
+#define MGUI_EXPORT MYLLY_EXPORT
+#else
+#define MGUI_EXPORT MGUI_EXPORT
+#endif
+
 // Interface types
 typedef struct MGuiElement	MGuiElement;
 typedef struct MGuiRenderer	MGuiRenderer;
@@ -38,9 +44,10 @@ MGUI_ELEMENT_DECL( MGuiWindow );
 
 enum MGUI_PARAMETERS
 {
-	MGUI_NO_PARAMS			= 0x0,	/* Don't use any special parameters */
-	MGUI_USE_DRAW_EVENT		= 0x1,	/* MGUI will refresh only when the user calls mgui_force_redraw */
-	MGUI_USE_WITHOUT_INPUT	= 0x2,	/* Disable user input hooks, use the library for drawing only */
+	MGUI_NO_PARAMS		= 0x0,	/* Don't use any special parameters */
+	MGUI_USE_DRAW_EVENT	= 0x1,	/* MGUI will refresh only when the user calls mgui_force_redraw */
+	MGUI_PROCESS_INPUT	= 0x2,	/* Process input within the GUI library without external hooks */
+	MGUI_HOOK_INPUT		= 0x4,	/* Hook window messages and process input within the GUI library */
 };
 
 enum MGUI_ALIGNMENT
@@ -146,175 +153,165 @@ typedef void ( *mgui_event_handler_t )( MGuiEvent* event );
 __BEGIN_DECLS
 
 /* Library initialization and processing */
-MYLLY_API void				mgui_initialize					( void* wndhandle, uint32 params );
-MYLLY_API void				mgui_shutdown					( void );
-MYLLY_API void				mgui_process					( void );
-MYLLY_API void				mgui_force_redraw				( void );
+MGUI_EXPORT void			mgui_initialize					( void* wndhandle, uint32 params );
+MGUI_EXPORT void			mgui_shutdown					( void );
+MGUI_EXPORT void			mgui_process					( void );
+MGUI_EXPORT void			mgui_force_redraw				( void );
 
-MYLLY_API void				mgui_set_renderer				( MGuiRenderer* renderer );
-MYLLY_API void				mgui_set_skin					( const char_t* skinimg );
+MGUI_EXPORT void			mgui_set_renderer				( MGuiRenderer* renderer );
+MGUI_EXPORT void			mgui_set_skin					( const char_t* skinimg );
 
 /* Misc functions */
-MYLLY_API MGuiElement*		mgui_get_focus					( void );
-MYLLY_API void				mgui_set_focus					( MGuiElement* element );
-MYLLY_API uint32			mgui_text_strip_format_tags		( const char_t* text, char_t* buf, size_t buflen );
+MGUI_EXPORT MGuiElement*	mgui_get_focus					( void );
+MGUI_EXPORT void			mgui_set_focus					( MGuiElement* element );
+MGUI_EXPORT uint32			mgui_text_strip_format_tags		( const char_t* text, char_t* buf, size_t buflen );
 
-MYLLY_API void				mgui_screen_pos_to_world		( const vector3_t* src, vector3_t* dst );
-MYLLY_API void				mgui_world_pos_to_screen		( const vector3_t* src, vector3_t* dst );
+MGUI_EXPORT void			mgui_screen_pos_to_world		( const vector3_t* src, vector3_t* dst );
+MGUI_EXPORT void			mgui_world_pos_to_screen		( const vector3_t* src, vector3_t* dst );
 
 /* Element relations */
-MYLLY_API void				mgui_add_child					( MGuiElement* parent, MGuiElement* child );
-MYLLY_API void				mgui_remove_child				( MGuiElement* child );
-MYLLY_API void				mgui_move_forward				( MGuiElement* child );
-MYLLY_API void				mgui_move_backward				( MGuiElement* child );
-MYLLY_API void				mgui_send_to_top				( MGuiElement* child );
-MYLLY_API void				mgui_send_to_bottom				( MGuiElement* child );
-MYLLY_API bool				mgui_is_child_of				( MGuiElement* parent, MGuiElement* child );
+MGUI_EXPORT void			mgui_add_child					( MGuiElement* parent, MGuiElement* child );
+MGUI_EXPORT void			mgui_remove_child				( MGuiElement* child );
+MGUI_EXPORT void			mgui_move_forward				( MGuiElement* child );
+MGUI_EXPORT void			mgui_move_backward				( MGuiElement* child );
+MGUI_EXPORT void			mgui_send_to_top				( MGuiElement* child );
+MGUI_EXPORT void			mgui_send_to_bottom				( MGuiElement* child );
+MGUI_EXPORT bool			mgui_is_child_of				( MGuiElement* parent, MGuiElement* child );
 
 /* Element constructors */
-MYLLY_API MGuiButton*		mgui_create_button				( MGuiElement* parent );
-MYLLY_API MGuiButton*		mgui_create_button_ex			( MGuiElement* parent, int16 x, int16 y, uint16 w, uint16 h, uint32 flags, uint32 col, const char_t* text );
-MYLLY_API MGuiEditbox*		mgui_create_canvas				( MGuiElement* parent );
-MYLLY_API MGuiEditbox*		mgui_create_editbox				( MGuiElement* parent );
-MYLLY_API MGuiEditbox*		mgui_create_editbox_ex			( MGuiElement* parent, int16 x, int16 y, uint16 w, uint16 h, uint32 flags, uint32 col, const char_t* text );
-MYLLY_API MGuiLabel*		mgui_create_label				( MGuiElement* parent );
-MYLLY_API MGuiLabel*		mgui_create_label_ex			( MGuiElement* parent, int16 x, int16 y, uint16 w, uint16 h, uint32 flags, uint32 col, const char_t* text );
-MYLLY_API MGuiMemobox*		mgui_create_memobox				( MGuiElement* parent );
-MYLLY_API MGuiMemobox*		mgui_create_memobox_ex			( MGuiElement* parent, int16 x, int16 y, uint16 w, uint16 h, uint32 flags, uint32 col );
-MYLLY_API MGuiScrollbar*	mgui_create_scrollbar			( MGuiElement* parent );
-MYLLY_API MGuiSprite*		mgui_create_sprite				( MGuiElement* parent );
-MYLLY_API MGuiSprite*		mgui_create_sprite_ex			( MGuiElement* parent, int16 x, int16 y, uint32 flags, uint32 col, const char_t* texture );
-MYLLY_API MGuiWindow*		mgui_create_window				( MGuiElement* parent );
-MYLLY_API MGuiWindow*		mgui_create_window_ex			( MGuiElement* parent, int16 x, int16 y, uint16 w, uint16 h, uint32 flags, uint32 col, const char_t* text );
+MGUI_EXPORT MGuiButton*		mgui_create_button				( MGuiElement* parent );
+MGUI_EXPORT MGuiButton*		mgui_create_button_ex			( MGuiElement* parent, int16 x, int16 y, uint16 w, uint16 h, uint32 flags, uint32 col, const char_t* text );
+MGUI_EXPORT MGuiEditbox*	mgui_create_canvas				( MGuiElement* parent );
+MGUI_EXPORT MGuiEditbox*	mgui_create_editbox				( MGuiElement* parent );
+MGUI_EXPORT MGuiEditbox*	mgui_create_editbox_ex			( MGuiElement* parent, int16 x, int16 y, uint16 w, uint16 h, uint32 flags, uint32 col, const char_t* text );
+MGUI_EXPORT MGuiLabel*		mgui_create_label				( MGuiElement* parent );
+MGUI_EXPORT MGuiLabel*		mgui_create_label_ex			( MGuiElement* parent, int16 x, int16 y, uint16 w, uint16 h, uint32 flags, uint32 col, const char_t* text );
+MGUI_EXPORT MGuiMemobox*	mgui_create_memobox				( MGuiElement* parent );
+MGUI_EXPORT MGuiMemobox*	mgui_create_memobox_ex			( MGuiElement* parent, int16 x, int16 y, uint16 w, uint16 h, uint32 flags, uint32 col );
+MGUI_EXPORT MGuiScrollbar*	mgui_create_scrollbar			( MGuiElement* parent );
+MGUI_EXPORT MGuiSprite*		mgui_create_sprite				( MGuiElement* parent );
+MGUI_EXPORT MGuiSprite*		mgui_create_sprite_ex			( MGuiElement* parent, int16 x, int16 y, uint32 flags, uint32 col, const char_t* texture );
+MGUI_EXPORT MGuiWindow*		mgui_create_window				( MGuiElement* parent );
+MGUI_EXPORT MGuiWindow*		mgui_create_window_ex			( MGuiElement* parent, int16 x, int16 y, uint16 w, uint16 h, uint32 flags, uint32 col, const char_t* text );
 
-MYLLY_API void				mgui_element_destroy			( MGuiElement* element );
+MGUI_EXPORT void			mgui_element_destroy			( MGuiElement* element );
 
 /* Generic element manipulation */
-MYLLY_API void				mgui_get_pos					( MGuiElement* element, vector2_t* pos );
-MYLLY_API void				mgui_get_size					( MGuiElement* element, vector2_t* size );
-MYLLY_API void				mgui_set_pos					( MGuiElement* element, const vector2_t* pos );
-MYLLY_API void				mgui_set_size					( MGuiElement* element, const vector2_t* size );
-MYLLY_API void				mgui_get_abs_pos				( MGuiElement* element, vectorscreen_t* pos );
-MYLLY_API void				mgui_get_abs_size				( MGuiElement* element, vectorscreen_t* size );
-MYLLY_API void				mgui_set_abs_pos				( MGuiElement* element, const vectorscreen_t* pos );
-MYLLY_API void				mgui_set_abs_size				( MGuiElement* element, const vectorscreen_t* size );
-MYLLY_API void				mgui_get_pos_f					( MGuiElement* element, float* x, float* y );
-MYLLY_API void				mgui_get_size_f					( MGuiElement* element, float* w, float* h );
-MYLLY_API void				mgui_set_pos_f					( MGuiElement* element, float x, float y );
-MYLLY_API void				mgui_set_size_f					( MGuiElement* element, float w, float h );
-MYLLY_API void				mgui_get_abs_pos_i				( MGuiElement* element, int16* x, int16* y );
-MYLLY_API void				mgui_get_abs_size_i				( MGuiElement* element, uint16* w, uint16* h );
-MYLLY_API void				mgui_set_abs_pos_i				( MGuiElement* element, int16 x, int16 y );
-MYLLY_API void				mgui_set_abs_size_i				( MGuiElement* element, uint16 w, uint16 h );
+MGUI_EXPORT void			mgui_get_pos					( MGuiElement* element, vector2_t* pos );
+MGUI_EXPORT void			mgui_get_size					( MGuiElement* element, vector2_t* size );
+MGUI_EXPORT void			mgui_set_pos					( MGuiElement* element, const vector2_t* pos );
+MGUI_EXPORT void			mgui_set_size					( MGuiElement* element, const vector2_t* size );
+MGUI_EXPORT void			mgui_get_abs_pos				( MGuiElement* element, vectorscreen_t* pos );
+MGUI_EXPORT void			mgui_get_abs_size				( MGuiElement* element, vectorscreen_t* size );
+MGUI_EXPORT void			mgui_set_abs_pos				( MGuiElement* element, const vectorscreen_t* pos );
+MGUI_EXPORT void			mgui_set_abs_size				( MGuiElement* element, const vectorscreen_t* size );
+MGUI_EXPORT void			mgui_get_pos_f					( MGuiElement* element, float* x, float* y );
+MGUI_EXPORT void			mgui_get_size_f					( MGuiElement* element, float* w, float* h );
+MGUI_EXPORT void			mgui_set_pos_f					( MGuiElement* element, float x, float y );
+MGUI_EXPORT void			mgui_set_size_f					( MGuiElement* element, float w, float h );
+MGUI_EXPORT void			mgui_get_abs_pos_i				( MGuiElement* element, int16* x, int16* y );
+MGUI_EXPORT void			mgui_get_abs_size_i				( MGuiElement* element, uint16* w, uint16* h );
+MGUI_EXPORT void			mgui_set_abs_pos_i				( MGuiElement* element, int16 x, int16 y );
+MGUI_EXPORT void			mgui_set_abs_size_i				( MGuiElement* element, uint16 w, uint16 h );
 
-MYLLY_API float				mgui_get_z_depth				( MGuiElement* element );
-MYLLY_API void				mgui_set_z_depth				( MGuiElement* element, float depth );
+MGUI_EXPORT float			mgui_get_z_depth				( MGuiElement* element );
+MGUI_EXPORT void			mgui_set_z_depth				( MGuiElement* element, float depth );
 
-MYLLY_API void				mgui_get_3d_position			( MGuiElement* element, vector3_t* pos );
-MYLLY_API void				mgui_set_3d_position			( MGuiElement* element, const vector3_t* pos );
-MYLLY_API void				mgui_get_3d_rotation			( MGuiElement* element, vector3_t* rot );
-MYLLY_API void				mgui_set_3d_rotation			( MGuiElement* element, const vector3_t* rot );
-MYLLY_API void				mgui_get_3d_size				( MGuiElement* element, vector2_t* size );
-MYLLY_API void				mgui_set_3d_size				( MGuiElement* element, const vector2_t* size );
-MYLLY_API void				mgui_set_3d_transform			( MGuiElement* element, const vector3_t* pos, const vector3_t* rot, const vector2_t* size );
+MGUI_EXPORT void			mgui_get_3d_position			( MGuiElement* element, vector3_t* pos );
+MGUI_EXPORT void			mgui_set_3d_position			( MGuiElement* element, const vector3_t* pos );
+MGUI_EXPORT void			mgui_get_3d_rotation			( MGuiElement* element, vector3_t* rot );
+MGUI_EXPORT void			mgui_set_3d_rotation			( MGuiElement* element, const vector3_t* rot );
+MGUI_EXPORT void			mgui_get_3d_size				( MGuiElement* element, vector2_t* size );
+MGUI_EXPORT void			mgui_set_3d_size				( MGuiElement* element, const vector2_t* size );
+MGUI_EXPORT void			mgui_set_3d_transform			( MGuiElement* element, const vector3_t* pos, const vector3_t* rot, const vector2_t* size );
 
-MYLLY_API void				mgui_get_colour					( MGuiElement* element, colour_t* col );
-MYLLY_API void				mgui_set_colour					( MGuiElement* element, const colour_t* col );
-MYLLY_API void				mgui_get_text_colour			( MGuiElement* element, colour_t* col );
-MYLLY_API void				mgui_set_text_colour			( MGuiElement* element, const colour_t* col );
-MYLLY_API uint32			mgui_get_colour_i				( MGuiElement* element );
-MYLLY_API void				mgui_set_colour_i				( MGuiElement* element, uint32 hex );
-MYLLY_API uint32			mgui_get_text_colour_i			( MGuiElement* element );
-MYLLY_API void				mgui_set_text_colour_i			( MGuiElement* element, uint32 hex );
-MYLLY_API uint8				mgui_get_alpha					( MGuiElement* element );
-MYLLY_API void				mgui_set_alpha					( MGuiElement* element, uint8 alpha );
+MGUI_EXPORT void			mgui_get_colour					( MGuiElement* element, colour_t* col );
+MGUI_EXPORT void			mgui_set_colour					( MGuiElement* element, const colour_t* col );
+MGUI_EXPORT void			mgui_get_text_colour			( MGuiElement* element, colour_t* col );
+MGUI_EXPORT void			mgui_set_text_colour			( MGuiElement* element, const colour_t* col );
+MGUI_EXPORT uint32			mgui_get_colour_i				( MGuiElement* element );
+MGUI_EXPORT void			mgui_set_colour_i				( MGuiElement* element, uint32 hex );
+MGUI_EXPORT uint32			mgui_get_text_colour_i			( MGuiElement* element );
+MGUI_EXPORT void			mgui_set_text_colour_i			( MGuiElement* element, uint32 hex );
+MGUI_EXPORT uint8			mgui_get_alpha					( MGuiElement* element );
+MGUI_EXPORT void			mgui_set_alpha					( MGuiElement* element, uint8 alpha );
 
-MYLLY_API const char_t*		mgui_get_text					( MGuiElement* element );
-MYLLY_API uint32			mgui_get_text_len				( MGuiElement* element );
-MYLLY_API void				mgui_set_text					( MGuiElement* element, const char_t* fmt, ... );
-MYLLY_API void				mgui_set_text_s					( MGuiElement* element, const char_t* text );
-MYLLY_API void				mgui_get_text_size				( MGuiElement* element, vectorscreen_t* size );
-MYLLY_API void				mgui_get_text_size_i			( MGuiElement* element, uint16* w, uint16* h );
-MYLLY_API uint32			mgui_get_alignment				( MGuiElement* element );
-MYLLY_API void				mgui_set_alignment				( MGuiElement* element, uint32 alignment );
-MYLLY_API void				mgui_get_text_padding			( MGuiElement* element, uint8* top, uint8* bottom, uint8* left, uint8* right );
-MYLLY_API void				mgui_set_text_padding			( MGuiElement* element, uint8 top, uint8 bottom, uint8 left, uint8 right );
+MGUI_EXPORT const char_t*	mgui_get_text					( MGuiElement* element );
+MGUI_EXPORT uint32			mgui_get_text_len				( MGuiElement* element );
+MGUI_EXPORT void			mgui_set_text					( MGuiElement* element, const char_t* fmt, ... );
+MGUI_EXPORT void			mgui_set_text_s					( MGuiElement* element, const char_t* text );
+MGUI_EXPORT void			mgui_get_text_size				( MGuiElement* element, vectorscreen_t* size );
+MGUI_EXPORT void			mgui_get_text_size_i			( MGuiElement* element, uint16* w, uint16* h );
+MGUI_EXPORT uint32			mgui_get_alignment				( MGuiElement* element );
+MGUI_EXPORT void			mgui_set_alignment				( MGuiElement* element, uint32 alignment );
+MGUI_EXPORT void			mgui_get_text_padding			( MGuiElement* element, uint8* top, uint8* bottom, uint8* left, uint8* right );
+MGUI_EXPORT void			mgui_set_text_padding			( MGuiElement* element, uint8 top, uint8 bottom, uint8 left, uint8 right );
 
-MYLLY_API const char_t*		mgui_get_font_name				( MGuiElement* element );
-MYLLY_API uint8				mgui_get_font_size				( MGuiElement* element );
-MYLLY_API uint8				mgui_get_font_flags				( MGuiElement* element );
-MYLLY_API void				mgui_set_font_name				( MGuiElement* element, const char_t* font );
-MYLLY_API void				mgui_set_font_size				( MGuiElement* element, uint8 size );
-MYLLY_API void				mgui_set_font_flags				( MGuiElement* element, uint8 flags );
-MYLLY_API void				mgui_set_font					( MGuiElement* element, const char_t* font, uint8 size, uint8 flags, uint8 charset );
+MGUI_EXPORT const char_t*	mgui_get_font_name				( MGuiElement* element );
+MGUI_EXPORT uint8			mgui_get_font_size				( MGuiElement* element );
+MGUI_EXPORT uint8			mgui_get_font_flags				( MGuiElement* element );
+MGUI_EXPORT void			mgui_set_font_name				( MGuiElement* element, const char_t* font );
+MGUI_EXPORT void			mgui_set_font_size				( MGuiElement* element, uint8 size );
+MGUI_EXPORT void			mgui_set_font_flags				( MGuiElement* element, uint8 flags );
+MGUI_EXPORT void			mgui_set_font					( MGuiElement* element, const char_t* font, uint8 size, uint8 flags, uint8 charset );
 
-MYLLY_API uint32			mgui_get_flags					( MGuiElement* element );
-MYLLY_API void				mgui_add_flags					( MGuiElement* element, uint32 flags );
-MYLLY_API void				mgui_remove_flags				( MGuiElement* element, uint32 flags );
+MGUI_EXPORT uint32			mgui_get_flags					( MGuiElement* element );
+MGUI_EXPORT void			mgui_add_flags					( MGuiElement* element, uint32 flags );
+MGUI_EXPORT void			mgui_remove_flags				( MGuiElement* element, uint32 flags );
 
-MYLLY_API void				mgui_set_event_handler			( MGuiElement* element, mgui_event_handler_t handler, void* data );
+MGUI_EXPORT void			mgui_set_event_handler			( MGuiElement* element, mgui_event_handler_t handler, void* data );
 
 /* Editbox functions */
-MYLLY_API bool				mgui_editbox_has_text_selected	( MGuiEditbox* editbox );
-MYLLY_API void				mgui_editbox_get_selection		( MGuiEditbox* editbox, char_t* buf, size_t buflen );
-MYLLY_API void				mgui_editbox_select_text		( MGuiEditbox* editbox, uint32 begin, uint32 end );
-MYLLY_API uint32			mgui_editbox_get_cursor_pos		( MGuiEditbox* editbox );
-MYLLY_API void				mgui_editbox_set_cursor_pos		( MGuiEditbox* editbox, uint32 pos );
+MGUI_EXPORT bool			mgui_editbox_has_text_selected	( MGuiEditbox* editbox );
+MGUI_EXPORT void			mgui_editbox_get_selection		( MGuiEditbox* editbox, char_t* buf, size_t buflen );
+MGUI_EXPORT void			mgui_editbox_select_text		( MGuiEditbox* editbox, uint32 begin, uint32 end );
+MGUI_EXPORT uint32			mgui_editbox_get_cursor_pos		( MGuiEditbox* editbox );
+MGUI_EXPORT void			mgui_editbox_set_cursor_pos		( MGuiEditbox* editbox, uint32 pos );
 
 /* Label functions */
-MYLLY_API void				mgui_label_make_text_fit		( MGuiLabel* label );
+MGUI_EXPORT void			mgui_label_make_text_fit		( MGuiLabel* label );
 
 /* Memobox functions */
-MYLLY_API void				mgui_memobox_add_line			( MGuiMemobox* memobox, const char* fmt, ... );
-MYLLY_API void				mgui_memobox_add_line_col		( MGuiMemobox* memobox, const char* fmt, const colour_t* col, ... );
-MYLLY_API void				mgui_memobox_add_line_s			( MGuiMemobox* memobox, const char* text );
-MYLLY_API void				mgui_memobox_add_line_col_s		( MGuiMemobox* memobox, const char* text, const colour_t* col );
-MYLLY_API void				mgui_memobox_clear				( MGuiMemobox* memobox );
-MYLLY_API float				mgui_memobox_get_display_pos	( MGuiMemobox* memobox );
-MYLLY_API void				mgui_memobox_set_display_pos	( MGuiMemobox* memobox, float pos );
-MYLLY_API uint32			mgui_memobox_get_lines			( MGuiMemobox* memobox );
-MYLLY_API void				mgui_memobox_set_lines			( MGuiMemobox* memobox, uint32 lines );
-MYLLY_API uint32			mgui_memobox_get_num_lines		( MGuiMemobox* memobox );
-MYLLY_API uint32			mgui_memobox_get_history		( MGuiMemobox* memobox );
-MYLLY_API void				mgui_memobox_set_history		( MGuiMemobox* memobox, uint32 lines );
-MYLLY_API uint32			mgui_memobox_get_margin			( MGuiMemobox* memobox );
-MYLLY_API void				mgui_memobox_set_margin			( MGuiMemobox* memobox, uint32 margin );
+MGUI_EXPORT void			mgui_memobox_add_line			( MGuiMemobox* memobox, const char* fmt, ... );
+MGUI_EXPORT void			mgui_memobox_add_line_col		( MGuiMemobox* memobox, const char* fmt, const colour_t* col, ... );
+MGUI_EXPORT void			mgui_memobox_add_line_s			( MGuiMemobox* memobox, const char* text );
+MGUI_EXPORT void			mgui_memobox_add_line_col_s		( MGuiMemobox* memobox, const char* text, const colour_t* col );
+MGUI_EXPORT void			mgui_memobox_clear				( MGuiMemobox* memobox );
+MGUI_EXPORT float			mgui_memobox_get_display_pos	( MGuiMemobox* memobox );
+MGUI_EXPORT void			mgui_memobox_set_display_pos	( MGuiMemobox* memobox, float pos );
+MGUI_EXPORT uint32			mgui_memobox_get_lines			( MGuiMemobox* memobox );
+MGUI_EXPORT void			mgui_memobox_set_lines			( MGuiMemobox* memobox, uint32 lines );
+MGUI_EXPORT uint32			mgui_memobox_get_num_lines		( MGuiMemobox* memobox );
+MGUI_EXPORT uint32			mgui_memobox_get_history		( MGuiMemobox* memobox );
+MGUI_EXPORT void			mgui_memobox_set_history		( MGuiMemobox* memobox, uint32 lines );
+MGUI_EXPORT uint32			mgui_memobox_get_margin			( MGuiMemobox* memobox );
+MGUI_EXPORT void			mgui_memobox_set_margin			( MGuiMemobox* memobox, uint32 margin );
 
 /* Scrollbar functions */
-MYLLY_API float				mgui_scrollbar_get_bar_pos		( MGuiScrollbar* scrollbar );
-MYLLY_API void				mgui_scrollbar_set_bar_pos		( MGuiScrollbar* scrollbar, float pos );
-MYLLY_API float				mgui_scrollbar_get_bar_size		( MGuiScrollbar* scrollbar );
-MYLLY_API void				mgui_scrollbar_set_bar_size		( MGuiScrollbar* scrollbar, float size );
-MYLLY_API float				mgui_scrollbar_get_nudge		( MGuiScrollbar* scrollbar );
-MYLLY_API void				mgui_scrollbar_set_nudge		( MGuiScrollbar* scrollbar, float amount );
-MYLLY_API void				mgui_scrollbar_get_track_colour	( MGuiScrollbar* scrollbar, colour_t* col );
-MYLLY_API void				mgui_scrollbar_set_track_colour	( MGuiScrollbar* scrollbar, const colour_t* col );
+MGUI_EXPORT float			mgui_scrollbar_get_bar_pos		( MGuiScrollbar* scrollbar );
+MGUI_EXPORT void			mgui_scrollbar_set_bar_pos		( MGuiScrollbar* scrollbar, float pos );
+MGUI_EXPORT float			mgui_scrollbar_get_bar_size		( MGuiScrollbar* scrollbar );
+MGUI_EXPORT void			mgui_scrollbar_set_bar_size		( MGuiScrollbar* scrollbar, float size );
+MGUI_EXPORT float			mgui_scrollbar_get_nudge		( MGuiScrollbar* scrollbar );
+MGUI_EXPORT void			mgui_scrollbar_set_nudge		( MGuiScrollbar* scrollbar, float amount );
+MGUI_EXPORT void			mgui_scrollbar_get_track_colour	( MGuiScrollbar* scrollbar, colour_t* col );
+MGUI_EXPORT void			mgui_scrollbar_set_track_colour	( MGuiScrollbar* scrollbar, const colour_t* col );
 
 /* Sprite functions */
-MYLLY_API const char_t*		mgui_sprite_get_texture			( MGuiSprite* sprite );
-MYLLY_API void				mgui_sprite_set_texture			( MGuiSprite* sprite, const char_t* texture );
-MYLLY_API void				mgui_sprite_get_texture_size	( MGuiSprite* sprite, vectorscreen_t* size );
-MYLLY_API void				mgui_sprite_get_texture_size_i	( MGuiSprite* sprite, uint16* width, uint16* height );
-MYLLY_API void				mgui_sprite_resize				( MGuiSprite* sprite );
-/*MYLLY_API void				mgui_sprite_get_scale			( MGuiSprite* sprite, vector2_t* scale );
-MYLLY_API void				mgui_sprite_set_scale			( MGuiSprite* sprite, const vector2_t* scale );
-MYLLY_API void				mgui_sprite_get_scale_f			( MGuiSprite* sprite, float* scale_x, float* scale_y );
-MYLLY_API void				mgui_sprite_set_scale_f			( MGuiSprite* sprite, float scale_x, float scale_y );*/
-MYLLY_API void				mgui_sprite_get_uv				( MGuiSprite* sprite, float* u1, float* v1, float* u2, float* v2 );
-MYLLY_API void				mgui_sprite_set_uv				( MGuiSprite* sprite, float u1, float v1, float u2, float v2 );
-/*MYLLY_API float				mgui_sprite_get_rotation		( MGuiSprite* sprite );
-MYLLY_API void				mgui_sprite_set_rotation		( MGuiSprite* sprite, float rotation );
-MYLLY_API void				mgui_sprite_get_rotation_centre	( MGuiSprite* sprite, vectorscreen_t* pos );
-MYLLY_API void				mgui_sprite_set_rotation_centre	( MGuiSprite* sprite, const vectorscreen_t* pos );
-MYLLY_API void				mgui_sprite_get_rotation_centre_i( MGuiSprite* sprite, int16* x, int16* y );
-MYLLY_API void				mgui_sprite_set_rotation_centre_i( MGuiSprite* sprite, int16 x, int16 y );*/
+MGUI_EXPORT const char_t*	mgui_sprite_get_texture			( MGuiSprite* sprite );
+MGUI_EXPORT void			mgui_sprite_set_texture			( MGuiSprite* sprite, const char_t* texture );
+MGUI_EXPORT void			mgui_sprite_get_texture_size	( MGuiSprite* sprite, vectorscreen_t* size );
+MGUI_EXPORT void			mgui_sprite_get_texture_size_i	( MGuiSprite* sprite, uint16* width, uint16* height );
+MGUI_EXPORT void			mgui_sprite_resize				( MGuiSprite* sprite );
+MGUI_EXPORT void			mgui_sprite_get_uv				( MGuiSprite* sprite, float* u1, float* v1, float* u2, float* v2 );
+MGUI_EXPORT void			mgui_sprite_set_uv				( MGuiSprite* sprite, float u1, float v1, float u2, float v2 );
 
 /* Window functions */
-MYLLY_API void				mgui_window_get_title_col		( MGuiWindow* window, colour_t* col );
-MYLLY_API void				mgui_window_set_title_col		( MGuiWindow* window, const colour_t* col );
-MYLLY_API uint32			mgui_window_get_title_col_i		( MGuiWindow* window );
-MYLLY_API void				mgui_window_set_title_col_i		( MGuiWindow* window, uint32 hex );
-MYLLY_API void				mgui_window_get_drag_offset		( MGuiWindow* window, vectorscreen_t* pos );
+MGUI_EXPORT void			mgui_window_get_title_col		( MGuiWindow* window, colour_t* col );
+MGUI_EXPORT void			mgui_window_set_title_col		( MGuiWindow* window, const colour_t* col );
+MGUI_EXPORT uint32			mgui_window_get_title_col_i		( MGuiWindow* window );
+MGUI_EXPORT void			mgui_window_set_title_col_i		( MGuiWindow* window, uint32 hex );
+MGUI_EXPORT void			mgui_window_get_drag_offset		( MGuiWindow* window, vectorscreen_t* pos );
 
 __END_DECLS
 

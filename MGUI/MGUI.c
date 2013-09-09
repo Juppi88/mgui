@@ -25,6 +25,7 @@ rectangle_t			draw_rect;					// System window size as a rectangle
 syswindow_t*		system_window	= NULL;		// Pointer to the system window handle
 MGuiSkin*			defskin			= NULL;		// Pointer to the default (basic) skin
 MGuiSkin*			skin			= NULL;		// Current skin
+MGuiRenderer		renderer_data;				// Renderer interface instance
 MGuiRenderer*		renderer		= NULL;		// Pointer to the renderer interface
 bool				redraw_all		= true;		// Force a scene redraw (use only with a standalone app)
 bool				refresh_all		= false;	// An element has requested a scene redraw
@@ -34,8 +35,18 @@ uint32				params			= 0;		// The parameters MGUI was initialized with
 
 void mgui_initialize( void* wndhandle, uint32 parameters )
 {
-	mgui_input_initialize_hooks();
+	if ( parameters & MGUI_PROCESS_INPUT ||
+		 parameters & MGUI_HOOK_INPUT )
+	{
+		// Initialize the input library here
+		input_initialize( wndhandle );
 
+		if ( parameters & MGUI_HOOK_INPUT )
+			input_enable_hook( true );
+	}
+
+	mgui_input_initialize_hooks();
+	
 	mgui_texturemgr_initialize();
 	mgui_fontmgr_initialize();
 
@@ -79,16 +90,19 @@ void mgui_shutdown( void )
 
 	defskin = NULL;
 
-	if ( skin )
-	{
-		mem_free( skin );
-		skin = NULL;
-	}
+	SAFE_DELETE( skin );
 
 	mgui_fontmgr_shutdown();
 	mgui_texturemgr_shutdown();
 
 	mgui_input_shutdown_hooks();
+
+	if ( params & MGUI_PROCESS_INPUT ||
+		 params & MGUI_HOOK_INPUT )
+	{
+		// If we initialized the input library we should also shut it down.
+		input_shutdown();
+	}
 }
 
 void mgui_process( void )
@@ -96,16 +110,21 @@ void mgui_process( void )
 	node_t* node;
 	MGuiElement* element;
 
+	if ( params & MGUI_PROCESS_INPUT )
+		process_window_messages( system_window, input_process );
+
+	else if ( params & MGUI_HOOK_INPUT )
+		input_process( NULL );
+	
 	tick_count = get_tick_count();
 
 	if ( renderer == NULL ) return;
 	if ( layers == NULL ) return;
-
+	
 	if ( redraw_all )
 	{
-		// Process and render all visible elements
 		renderer->begin();
-
+		
 		list_foreach( layers, node )
 		{
 			element = cast_elem(node);
@@ -162,12 +181,16 @@ void mgui_set_renderer( MGuiRenderer* rend )
 		// If the old renderer still exists, invalidate everything related to it.
 		mgui_fontmgr_invalidate_all();
 		mgui_texturemgr_invalidate_all();
+
+		renderer = NULL;
 	}
 
-	renderer = rend;
-
-	if ( renderer )
+	if ( rend )
 	{
+		// Copy the renderer instance to our internal storage
+		renderer_data = *rend;
+		renderer = &renderer_data;
+
 		// Initialize everything with the new renderer.
 		mgui_texturemgr_initialize_all();
 		mgui_fontmgr_initialize_all();
