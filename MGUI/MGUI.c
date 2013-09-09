@@ -162,8 +162,7 @@ void mgui_process( void )
 		if ( refresh_all )
 		{
 			// Make sure that the window is repainted after this frame.
-			redraw_window( system_window );
-
+			redraw_all = true;
 			refresh_all = false;
 		}
 	}

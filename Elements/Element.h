@@ -173,7 +173,7 @@ uint8			mgui_get_alpha					( MGuiElement* element );
 void			mgui_set_alpha					( MGuiElement* element, uint8 alpha );
 
 const char_t*	mgui_get_text					( MGuiElement* element );
-char_t*			mgui_get_text_buffer			( MGuiElement* element, char_t* buf, size_t* buflen );
+char_t*			mgui_get_text_buffer			( MGuiElement* element, char_t* buf, size_t buflen );
 uint32			mgui_get_text_len				( MGuiElement* element );
 void			mgui_set_text					( MGuiElement* element, const char_t* fmt, ... );
 void			mgui_set_text_s					( MGuiElement* element, const char_t* text );
