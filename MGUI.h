@@ -35,7 +35,8 @@ MGUI_ELEMENT_DECL( MGuiCanvas );
 MGUI_ELEMENT_DECL( MGuiEditbox );
 MGUI_ELEMENT_DECL( MGuiLabel );
 MGUI_ELEMENT_DECL( MGuiMemobox );
-MGUI_ELEMENT_DECL( MGuiScrollbar );
+MGUI_ELEMENT_DECL( MGuiProgressBar );
+MGUI_ELEMENT_DECL( MGuiScrollBar );
 MGUI_ELEMENT_DECL( MGuiSprite );
 MGUI_ELEMENT_DECL( MGuiWindow );
 
@@ -188,7 +189,9 @@ MGUI_EXPORT MGuiLabel*		mgui_create_label				( MGuiElement* parent );
 MGUI_EXPORT MGuiLabel*		mgui_create_label_ex			( MGuiElement* parent, int16 x, int16 y, uint16 w, uint16 h, uint32 flags, uint32 col, const char_t* text );
 MGUI_EXPORT MGuiMemobox*	mgui_create_memobox				( MGuiElement* parent );
 MGUI_EXPORT MGuiMemobox*	mgui_create_memobox_ex			( MGuiElement* parent, int16 x, int16 y, uint16 w, uint16 h, uint32 flags, uint32 col );
-MGUI_EXPORT MGuiScrollbar*	mgui_create_scrollbar			( MGuiElement* parent );
+MGUI_EXPORT MGuiProgressBar* mgui_create_progressbar		( MGuiElement* parent );
+MGUI_EXPORT MGuiProgressBar* mgui_create_progressbar_ex		( MGuiElement* parent, int16 x, int16 y, uint16 w, uint16 h, uint32 flags, uint32 col1, uint32 col2, float max_value );
+MGUI_EXPORT MGuiScrollBar*	mgui_create_scrollbar			( MGuiElement* parent );
 MGUI_EXPORT MGuiSprite*		mgui_create_sprite				( MGuiElement* parent );
 MGUI_EXPORT MGuiSprite*		mgui_create_sprite_ex			( MGuiElement* parent, int16 x, int16 y, uint32 flags, uint32 col, const char_t* texture );
 MGUI_EXPORT MGuiWindow*		mgui_create_window				( MGuiElement* parent );
@@ -288,15 +291,29 @@ MGUI_EXPORT void			mgui_memobox_set_history		( MGuiMemobox* memobox, uint32 line
 MGUI_EXPORT uint32			mgui_memobox_get_margin			( MGuiMemobox* memobox );
 MGUI_EXPORT void			mgui_memobox_set_margin			( MGuiMemobox* memobox, uint32 margin );
 
+/* Progressbar functions */
+MGUI_EXPORT float			mgui_progressbar_get_value		( MGuiProgressBar* bar );
+MGUI_EXPORT void			mgui_progressbar_set_value		( MGuiProgressBar* bar, float value );
+MGUI_EXPORT float			mgui_progressbar_get_max_value	( MGuiProgressBar* bar );
+MGUI_EXPORT void			mgui_progressbar_set_max_value	( MGuiProgressBar* bar, float value );
+MGUI_EXPORT void			mgui_progressbar_get_colour		( MGuiProgressBar* bar, colour_t* col_start, colour_t* col_end );
+MGUI_EXPORT void			mgui_progressbar_set_colour		( MGuiProgressBar* bar, const colour_t* col_start, const colour_t* col_end );
+MGUI_EXPORT void			mgui_progressbar_get_colour_i	( MGuiProgressBar* bar, uint32* col_start, uint32* col_end );
+MGUI_EXPORT void			mgui_progressbar_set_colour_i	( MGuiProgressBar* bar, uint32 col_start, uint32 col_end );
+MGUI_EXPORT float			mgui_progressbar_get_bg_shade	( MGuiProgressBar* bar );
+MGUI_EXPORT void			mgui_progressbar_set_bg_shade	( MGuiProgressBar* bar, float shade );
+MGUI_EXPORT uint8			mgui_progressbar_get_thickness	( MGuiProgressBar* bar );
+MGUI_EXPORT void			mgui_progressbar_set_thickness	( MGuiProgressBar* bar, uint8 thickness );
+
 /* Scrollbar functions */
-MGUI_EXPORT float			mgui_scrollbar_get_bar_pos		( MGuiScrollbar* scrollbar );
-MGUI_EXPORT void			mgui_scrollbar_set_bar_pos		( MGuiScrollbar* scrollbar, float pos );
-MGUI_EXPORT float			mgui_scrollbar_get_bar_size		( MGuiScrollbar* scrollbar );
-MGUI_EXPORT void			mgui_scrollbar_set_bar_size		( MGuiScrollbar* scrollbar, float size );
-MGUI_EXPORT float			mgui_scrollbar_get_nudge		( MGuiScrollbar* scrollbar );
-MGUI_EXPORT void			mgui_scrollbar_set_nudge		( MGuiScrollbar* scrollbar, float amount );
-MGUI_EXPORT void			mgui_scrollbar_get_track_colour	( MGuiScrollbar* scrollbar, colour_t* col );
-MGUI_EXPORT void			mgui_scrollbar_set_track_colour	( MGuiScrollbar* scrollbar, const colour_t* col );
+MGUI_EXPORT float			mgui_scrollbar_get_bar_pos		( MGuiScrollBar* scrollbar );
+MGUI_EXPORT void			mgui_scrollbar_set_bar_pos		( MGuiScrollBar* scrollbar, float pos );
+MGUI_EXPORT float			mgui_scrollbar_get_bar_size		( MGuiScrollBar* scrollbar );
+MGUI_EXPORT void			mgui_scrollbar_set_bar_size		( MGuiScrollBar* scrollbar, float size );
+MGUI_EXPORT float			mgui_scrollbar_get_nudge		( MGuiScrollBar* scrollbar );
+MGUI_EXPORT void			mgui_scrollbar_set_nudge		( MGuiScrollBar* scrollbar, float amount );
+MGUI_EXPORT void			mgui_scrollbar_get_track_colour	( MGuiScrollBar* scrollbar, colour_t* col );
+MGUI_EXPORT void			mgui_scrollbar_set_track_colour	( MGuiScrollBar* scrollbar, const colour_t* col );
 
 /* Sprite functions */
 MGUI_EXPORT const char_t*	mgui_sprite_get_texture			( MGuiSprite* sprite );

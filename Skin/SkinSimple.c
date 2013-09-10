@@ -13,6 +13,7 @@
 #include "Element.h"
 #include "EditBox.h"
 #include "MemoBox.h"
+#include "ProgressBar.h"
 #include "ScrollBar.h"
 #include "Window.h"
 #include "WindowTitlebar.h"
@@ -27,6 +28,7 @@ static void		skin_simple_draw_button				( MGuiElement* element );
 static void		skin_simple_draw_editbox			( MGuiElement* element );
 static void		skin_simple_draw_label				( MGuiElement* element );
 static void		skin_simple_draw_memobox			( MGuiElement* element );
+static void		skin_simple_draw_progressbar		( MGuiElement* element );
 static void		skin_simple_draw_scrollbar			( MGuiElement* element );
 static void		skin_simple_draw_scrollbar_button	( const rectangle_t* r, const colour_t* col, const colour_t* arrowcol, uint32 flags, uint32 dir );
 static void		skin_simple_draw_window				( MGuiElement* element );
@@ -49,6 +51,7 @@ MGuiSkin* mgui_setup_skin_simple( void )
 	skin->draw_editbox			= skin_simple_draw_editbox;
 	skin->draw_label			= skin_simple_draw_label;
 	skin->draw_memobox			= skin_simple_draw_memobox;
+	skin->draw_progressbar		= skin_simple_draw_progressbar;
 	skin->draw_scrollbar		= skin_simple_draw_scrollbar;
 	skin->draw_window			= skin_simple_draw_window;
 	skin->draw_window_titlebar	= skin_simple_draw_window_titlebar;
@@ -365,13 +368,55 @@ static void skin_simple_draw_memobox( MGuiElement* element )
 	}
 }
 
+static void skin_simple_draw_progressbar( MGuiElement* element )
+{
+	struct MGuiProgressBar* progbar;
+	rectangle_t fg, bg;
+	float percentage;
+	uint16 width;
+	static colour_t col_border = { 0x000000FF };
+
+	progbar = (struct MGuiProgressBar*)element;
+
+	percentage = progbar->value / progbar->max_value;
+	math_clampf( percentage, 0, 1 );
+
+	width = (uint16)( percentage * progbar->bounds.uw );
+
+	// Draw the actual progressbar
+	fg = progbar->bounds;
+	fg.uw = width;
+	
+	renderer->set_draw_colour( &progbar->colour_fg );
+	renderer->draw_rect( fg.x, fg.y, fg.uw, fg.uh );
+
+	// Draw the background if it is visible
+	if ( BIT_ON( progbar->flags, FLAG_BACKGROUND ) && percentage < 1 )
+	{
+		bg.x = fg.x + width;
+		bg.y = fg.y;
+		bg.uw = progbar->bounds.uw - width;
+		bg.uh = fg.uh;
+
+		renderer->set_draw_colour( &progbar->colour_bg );
+		renderer->draw_rect( bg.x, bg.y, bg.uw, bg.uh );
+	}
+
+	// Draw borders
+	if ( BIT_ON( progbar->flags, FLAG_BORDER ) && progbar->thickness != 0 )
+	{
+		col_border.a = progbar->colour.a;
+		skin_simple_draw_border( &progbar->bounds, &col_border, BORDER_ALL, progbar->thickness );
+	}
+}
+
 static void skin_simple_draw_scrollbar( MGuiElement* element )
 {
 	rectangle_t* r;
-	struct MGuiScrollbar* bar;
+	struct MGuiScrollBar* bar;
 
 	r = &element->bounds;
-	bar = (struct MGuiScrollbar*)element;
+	bar = (struct MGuiScrollBar*)element;
 
 	// Scrollbar background
 	skin_simple_draw_panel( r, &bar->track_col );

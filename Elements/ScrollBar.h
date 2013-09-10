@@ -24,7 +24,7 @@
 #define SBFLAG_BARPRESSED	0x0020		// Bar is pressed/dragged
 #define SBFLAG_HORIZONTAL	0x0040		// Scrollbar is horizontal
 
-struct MGuiScrollbar
+struct MGuiScrollBar
 {
 	MGuiElement;					// Inherit all generic element properties
 
@@ -41,15 +41,15 @@ struct MGuiScrollbar
 	colour_t		track_col;		// Scrollbar track colour
 };
 
-MGuiScrollbar*	mgui_create_scrollbar			( MGuiElement* parent );
+MGuiScrollBar*	mgui_create_scrollbar			( MGuiElement* parent );
 
-float			mgui_scrollbar_get_bar_pos		( MGuiScrollbar* scrollbar );
-void			mgui_scrollbar_set_bar_pos		( MGuiScrollbar* scrollbar, float pos );
-float			mgui_scrollbar_get_bar_size		( MGuiScrollbar* scrollbar );
-void			mgui_scrollbar_set_bar_size		( MGuiScrollbar* scrollbar, float size );
-float			mgui_scrollbar_get_nudge		( MGuiScrollbar* scrollbar );
-void			mgui_scrollbar_set_nudge		( MGuiScrollbar* scrollbar, float amount );
-void			mgui_scrollbar_get_track_colour	( MGuiScrollbar* scrollbar, colour_t* col );
-void			mgui_scrollbar_set_track_colour	( MGuiScrollbar* scrollbar, const colour_t* col );
+float			mgui_scrollbar_get_bar_pos		( MGuiScrollBar* scrollbar );
+void			mgui_scrollbar_set_bar_pos		( MGuiScrollBar* scrollbar, float pos );
+float			mgui_scrollbar_get_bar_size		( MGuiScrollBar* scrollbar );
+void			mgui_scrollbar_set_bar_size		( MGuiScrollBar* scrollbar, float size );
+float			mgui_scrollbar_get_nudge		( MGuiScrollBar* scrollbar );
+void			mgui_scrollbar_set_nudge		( MGuiScrollBar* scrollbar, float amount );
+void			mgui_scrollbar_get_track_colour	( MGuiScrollBar* scrollbar, colour_t* col );
+void			mgui_scrollbar_set_track_colour	( MGuiScrollBar* scrollbar, const colour_t* col );
 
 #endif /* __MGUI_SCROLLBAR_H */

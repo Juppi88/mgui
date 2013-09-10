@@ -38,9 +38,9 @@ static struct MGuiCallbacks callbacks =
 	NULL  /* on_key_press */
 };
 
-MGuiScrollbar* mgui_create_scrollbar( MGuiElement* parent )
+MGuiScrollBar* mgui_create_scrollbar( MGuiElement* parent )
 {
-	struct MGuiScrollbar* scrollbar;
+	struct MGuiScrollBar* scrollbar;
 
 	scrollbar = mem_alloc_clean( sizeof(*scrollbar) );
 	scrollbar->flags_int |= INTFLAG_NOTEXT;
@@ -68,13 +68,13 @@ static void mgui_scrollbar_render( MGuiElement* scrollbar )
 
 void mgui_scrollbar_on_bounds_change( MGuiElement* scrollbar, bool pos, bool size )
 {
-	struct MGuiScrollbar* bar;
+	struct MGuiScrollBar* bar;
 	uint16 tracksize;
 
 	UNREFERENCED_PARAM( pos );
 	UNREFERENCED_PARAM( size );
 
-	bar = (struct MGuiScrollbar*)scrollbar;
+	bar = (struct MGuiScrollBar*)scrollbar;
 
 	bar->button1.x = bar->bounds.x;
 	bar->button1.y = bar->bounds.y;
@@ -96,18 +96,18 @@ void mgui_scrollbar_on_bounds_change( MGuiElement* scrollbar, bool pos, bool siz
 	mgui_element_request_redraw();
 }
 
-void mgui_scrollbar_get_track_colour( MGuiScrollbar* scrollbar, colour_t* col )
+void mgui_scrollbar_get_track_colour( MGuiScrollBar* scrollbar, colour_t* col )
 {
-	struct MGuiScrollbar* bar;
-	bar = (struct MGuiScrollbar*)scrollbar;
+	struct MGuiScrollBar* bar;
+	bar = (struct MGuiScrollBar*)scrollbar;
 
 	*col = bar->track_col;
 }
 
-void mgui_scrollbar_set_track_colour( MGuiScrollbar* scrollbar, const colour_t* col )
+void mgui_scrollbar_set_track_colour( MGuiScrollBar* scrollbar, const colour_t* col )
 {
-	struct MGuiScrollbar* bar;
-	bar = (struct MGuiScrollbar*)scrollbar;
+	struct MGuiScrollBar* bar;
+	bar = (struct MGuiScrollBar*)scrollbar;
 
 	bar->track_col = *col;
 	bar->track_col.a = bar->colour.a;
