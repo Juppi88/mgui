@@ -379,7 +379,7 @@ static void skin_simple_draw_progressbar( MGuiElement* element )
 	progbar = (struct MGuiProgressBar*)element;
 
 	percentage = progbar->value / progbar->max_value;
-	math_clampf( percentage, 0, 1 );
+	percentage = math_clampf( percentage, 0, 1 );
 
 	width = (uint16)( percentage * progbar->bounds.uw );
 

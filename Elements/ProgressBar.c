@@ -105,9 +105,9 @@ static void mgui_progressbar_update_colours( struct MGuiProgressBar* bar )
 	if ( bar == NULL ) return;
 
 	percentage = bar->value / bar->max_value;
-	math_clampf( percentage, 0, 1 );
+	percentage = math_clampf( percentage, 0, 1 );
 
-	colour_lerp_no_alpha( &bar->colour_fg, &bar->colour_end, &bar->colour_start, percentage );
+	colour_lerp_no_alpha( &bar->colour_fg, &bar->colour_start, &bar->colour_end, percentage );
 	colour_multiply( &bar->colour_bg, &bar->colour_fg, bar->bg_shade );
 
 	mgui_progressbar_on_colour_change( cast_elem(bar) );
@@ -130,6 +130,8 @@ void mgui_progressbar_set_value( MGuiProgressBar* bar, float value )
 	if ( bar == NULL ) return;
 
 	progbar = (struct MGuiProgressBar*)bar;
+
+	value = math_clampf( value, 0, progbar->max_value );
 	progbar->value = value;
 
 	mgui_progressbar_update_colours( progbar );
@@ -153,6 +155,8 @@ void mgui_progressbar_set_max_value( MGuiProgressBar* bar, float value )
 
 	progbar = (struct MGuiProgressBar*)bar;
 	progbar->max_value = value;
+
+	progbar->value = math_clampf( progbar->value, 0, value );
 
 	mgui_progressbar_update_colours( progbar );
 }
@@ -233,7 +237,7 @@ void mgui_progressbar_set_bg_shade( MGuiProgressBar* bar, float shade )
 
 	progbar = (struct MGuiProgressBar*)bar;
 
-	math_clampf( shade, 0, 1 );
+	shade = math_clampf( shade, 0, 1 );
 	progbar->bg_shade = shade;
 
 	mgui_progressbar_update_colours( progbar );
