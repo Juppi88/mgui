@@ -93,6 +93,11 @@ void mgui_opengl_resize( uint32 w, uint32 h )
 	glLoadIdentity();
 }
 
+DRAW_MODE mgui_opengl_set_draw_mode( DRAW_MODE mode )
+{
+	return mode;
+}
+
 void mgui_opengl_set_draw_colour( const colour_t* col )
 {
 	colour[0] = col->r;
@@ -101,6 +106,20 @@ void mgui_opengl_set_draw_colour( const colour_t* col )
 	colour[3] = col->a;
 
 	draw_colour = *col;
+}
+
+void mgui_opengl_set_draw_depth( float z_depth )
+{
+	UNREFERENCED_PARAM( z_depth );
+}
+
+void mgui_opengl_set_draw_transform( const matrix4_t* transform )
+{
+	UNREFERENCED_PARAM( transform );
+}
+
+void mgui_opengl_reset_draw_transform( void )
+{
 }
 
 void mgui_opengl_start_clip( int32 x, int32 y, uint32 w, uint32 h )
@@ -163,9 +182,23 @@ void mgui_opengl_draw_triangle( int32 x1, int32 y1, int32 x2, int32 y2, int32 x3
 	__add_vertex( x3, y3 );
 }
 
-void* mgui_opengl_load_texture( const char* path )
+void mgui_opengl_draw_pixel( int32 x, int32 y )
 {
-	UNREFERENCED_PARAM(path);
+	__add_vertex( x, y );
+	__add_vertex( x+1, y );
+	__add_vertex( x, y+1 );
+
+	__add_vertex( x+1, y );
+	__add_vertex( x+1, y+1 );
+	__add_vertex( x, y+1 );
+}
+
+void* mgui_opengl_load_texture( const char* path, uint32* width, uint32* height )
+{
+	UNREFERENCED_PARAM( path );
+	
+	width = height = 0;
+
 	return NULL;
 }
 
@@ -174,13 +207,17 @@ void mgui_opengl_destroy_texture( void* texture )
 	UNREFERENCED_PARAM(texture);
 }
 
-void mgui_opengl_draw_textured_rect( const void* texture, int32 x, int32 y, uint32 w, uint32 h )
+void mgui_opengl_draw_textured_rect( const void* texture, int32 x, int32 y, uint32 w, uint32 h, float u1, float v1, float u2, float v2 )
 {
-	UNREFERENCED_PARAM(texture);
-	UNREFERENCED_PARAM(x);
-	UNREFERENCED_PARAM(y);
-	UNREFERENCED_PARAM(w);
-	UNREFERENCED_PARAM(h);
+	UNREFERENCED_PARAM( texture );
+	UNREFERENCED_PARAM( x );
+	UNREFERENCED_PARAM( y );
+	UNREFERENCED_PARAM( w );
+	UNREFERENCED_PARAM( h );
+	UNREFERENCED_PARAM( u1 );
+	UNREFERENCED_PARAM( v1 );
+	UNREFERENCED_PARAM( u2 );
+	UNREFERENCED_PARAM( v2 );
 }
 
 // Font loading related functions are platform dependent,
@@ -425,4 +462,18 @@ void mgui_opengl_measure_text( const void* font, const char_t* text, uint32* x_o
 
 	*x_out = (uint32)xout;
 	*y_out = (uint32)y;
+}
+
+void mgui_opengl_screen_pos_to_world( const vector3_t* src, vector3_t* dst )
+{
+	UNREFERENCED_PARAM( src );
+
+	dst->x = dst->y = dst->z = 0.0f;
+}
+
+void mgui_opengl_world_pos_to_screen( const vector3_t* src, vector3_t* dst )
+{
+	UNREFERENCED_PARAM( src );
+
+	dst->x = dst->y = dst->z = 0.0f;
 }

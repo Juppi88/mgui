@@ -20,7 +20,7 @@
 #ifdef _MYLLY_SHARED_LIB
 #define MGUI_EXPORT MYLLY_EXPORT
 #else
-#define MGUI_EXPORT MGUI_EXPORT
+#define MGUI_EXPORT MYLLY_API
 #endif
 
 // Interface types

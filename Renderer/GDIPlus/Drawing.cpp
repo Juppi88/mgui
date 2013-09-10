@@ -104,9 +104,11 @@ void mgui_gdiplus_draw_triangle( int32 x1, int32 y1, int32 x2, int32 y2, int32 x
 	graphics->FillPolygon( &brush, points, 3 );
 }
 
-void* mgui_gdiplus_load_texture( const char* path )
+void* mgui_gdiplus_load_texture( const char* path, uint32* width, uint32* height )
 {
-	UNREFERENCED_PARAM(path);
+	UNREFERENCED_PARAM( path );
+	UNREFERENCED_PARAM( width );
+	UNREFERENCED_PARAM( height );
 	return NULL;
 }
 
@@ -115,13 +117,17 @@ void mgui_gdiplus_destroy_texture( void* texture )
 	UNREFERENCED_PARAM(texture);
 }
 
-void mgui_gdiplus_draw_textured_rect( const void* texture, int32 x, int32 y, uint32 w, uint32 h )
+void mgui_gdiplus_draw_textured_rect( const void* texture, int32 x, int32 y, uint32 w, uint32 h, float u1, float v1, float u2, float v2 )
 {
-	UNREFERENCED_PARAM(texture);
-	UNREFERENCED_PARAM(x);
-	UNREFERENCED_PARAM(y);
-	UNREFERENCED_PARAM(w);
-	UNREFERENCED_PARAM(h);
+	UNREFERENCED_PARAM( texture );
+	UNREFERENCED_PARAM( x );
+	UNREFERENCED_PARAM( y );
+	UNREFERENCED_PARAM( w );
+	UNREFERENCED_PARAM( h );
+	UNREFERENCED_PARAM( u1 );
+	UNREFERENCED_PARAM( v1 );
+	UNREFERENCED_PARAM( u2 );
+	UNREFERENCED_PARAM( v2 );
 }
 
 void* mgui_gdiplus_load_font( const char* name, uint32 size, uint32 flags, uint32 charset, uint32 firstc, uint32 lastc )
