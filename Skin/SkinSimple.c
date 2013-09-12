@@ -42,11 +42,6 @@ MGuiSkin* mgui_setup_skin_simple( void )
 
 	skin = (MGuiSkin*)mem_alloc_clean( sizeof(*skin) );
 
-	skin->texture				= NULL;
-
-	skin->draw_panel			= skin_simple_draw_panel;
-	skin->draw_border			= skin_simple_draw_border;
-	skin->draw_shadow			= skin_simple_draw_shadow;
 	skin->draw_button			= skin_simple_draw_button;
 	skin->draw_editbox			= skin_simple_draw_editbox;
 	skin->draw_label			= skin_simple_draw_label;
@@ -54,7 +49,6 @@ MGuiSkin* mgui_setup_skin_simple( void )
 	skin->draw_progressbar		= skin_simple_draw_progressbar;
 	skin->draw_scrollbar		= skin_simple_draw_scrollbar;
 	skin->draw_window			= skin_simple_draw_window;
-	skin->draw_window_titlebar	= skin_simple_draw_window_titlebar;
 
 	return skin;
 }
@@ -162,7 +156,7 @@ static void skin_simple_draw_button( MGuiElement* element )
 	{
 		renderer->set_draw_colour( &text->colour );
 
-		if ( element->flags & INTFLAG_PRESSED )
+		if ( element->flags_int & INTFLAG_PRESSED )
 		{
 			renderer->draw_text( text->font->data, text->buffer, text->pos.x+1, text->pos.y+1,
 								 text->flags, text->tags, text->num_tags );
@@ -323,7 +317,7 @@ static void skin_simple_draw_memobox( MGuiElement* element )
 	struct MGuiMemobox* memo;
 	struct MGuiMemoLine* line;
 	node_t* node;
-	uint32 i, count;
+	uint32 i, count, colour = 0;
 
 	memo = (struct MGuiMemobox*)element;
 
@@ -360,7 +354,11 @@ static void skin_simple_draw_memobox( MGuiElement* element )
 	{
 		line = (struct MGuiMemoLine*)node;
 
-		renderer->set_draw_colour( &line->colour );
+		if ( line->colour.hex != colour )
+		{
+			renderer->set_draw_colour( &line->colour );
+			colour = line->colour.hex;
+		}
 
 		renderer->draw_text( line->font->data, line->text, line->pos.x, line->pos.y,
 							 line->font->flags & FFLAG_ITALIC ? TFLAG_ITALIC : 0,

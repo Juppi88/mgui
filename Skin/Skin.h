@@ -34,6 +34,7 @@
 #endif
 
 // Element borders
+#define BORDER_NONE		0x0
 #define BORDER_LEFT		0x1
 #define BORDER_RIGHT	0x2
 #define BORDER_TOP		0x4
@@ -47,14 +48,7 @@
 #define ARROW_RIGHT		0x4
 
 // Skin interface
-typedef struct MGuiSkin
-{
-	void*	texture; // Not used right now
-
-	void	( *draw_panel )				( const rectangle_t* r, const colour_t* col );
-	void	( *draw_border )			( const rectangle_t* r, const colour_t* col, uint32 borders, uint32 thickness );
-	void	( *draw_shadow )			( const rectangle_t* r, uint32 offset );
-
+typedef struct MGuiSkin {
 	void	( *draw_button )			( MGuiElement* element );
 	void	( *draw_editbox )			( MGuiElement* element );
 	void	( *draw_label )				( MGuiElement* element );
@@ -62,7 +56,6 @@ typedef struct MGuiSkin
 	void	( *draw_progressbar )		( MGuiElement* element );
 	void	( *draw_scrollbar )			( MGuiElement* element );
 	void	( *draw_window )			( MGuiElement* element );
-	void	( *draw_window_titlebar )	( MGuiElement* element );
 } MGuiSkin;
 
 

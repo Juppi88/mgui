@@ -15,6 +15,6 @@
 
 #include "Skin.h"
 
-MGuiSkin*		mgui_setup_skin_textured			( const char_t* texture );
+MGuiSkin* mgui_setup_skin_textured( const char_t* texture );
 
 #endif /* __MYLLY_GUI_SKINTEXTURED_H */

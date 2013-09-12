@@ -15,6 +15,6 @@
 
 #include "Skin.h"
 
-MGuiSkin*		mgui_setup_skin_simple				( void );
+MGuiSkin* mgui_setup_skin_simple( void );
 
 #endif /* __MYLLY_GUI_SKINSIMPLE_H */

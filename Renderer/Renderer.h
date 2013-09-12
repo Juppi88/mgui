@@ -67,8 +67,7 @@ struct MGuiRenderer
 
 	void*		( *load_texture )			( const char_t* path, uint32* width, uint32* height );
 	void		( *destroy_texture )		( void* texture );
-	void		( *draw_textured_rect )		( const void* texture, int32 x, int32 y, uint32 w, uint32 h,
-											  float u1, float v1, float u2, float v2 );
+	void		( *draw_textured_rect )		( const void* texture, int32 x, int32 y, uint32 w, uint32 h, const float uv[] );
 
 	void*		( *load_font )				( const char_t* font, uint32 size, uint32 flags, uint32 charset,
 											  uint32 firstc, uint32 lastc );

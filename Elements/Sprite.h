@@ -20,8 +20,7 @@ struct MGuiSprite
 {
 	MGuiElement;
 	MGuiTexture*		texture;		// Texture data
-	float				u1, v1;			// Texture coordinates 1
-	float				u2, v2;			// Texture coordinates 2
+	float				uv[4];			// Texture coordinates
 	vector2_t			scale;			// Texture scaling
 	float				rotation;		// Rotation in radians
 	vectorscreen_t		rotation_centre;// Rotation centre

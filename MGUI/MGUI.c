@@ -14,6 +14,7 @@
 #include "Texture.h"
 #include "Renderer.h"
 #include "SkinSimple.h"
+#include "SkinTextured.h"
 #include "Platform/Alloc.h"
 #include "Platform/Timer.h"
 #include "Platform/Window.h"
@@ -205,7 +206,8 @@ void mgui_set_skin( const char_t* skinimg )
 		return;
 	}
 
-	// TODO: Add texture loading
+	skin = mgui_setup_skin_textured( skinimg );
+	if ( skin == NULL ) skin = defskin;
 }
 
 void mgui_screen_pos_to_world( const vector3_t* src, vector3_t* dst )

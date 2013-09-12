@@ -11,124 +11,482 @@
 
 #include "SkinTextured.h"
 #include "Element.h"
+#include "Editbox.h"
+#include "MemoBox.h"
+#include "ProgressBar.h"
+#include "Window.h"
+#include "WindowButton.h"
+#include "WindowTitlebar.h"
 #include "Renderer.h"
+#include "Texture.h"
 #include "Platform/Alloc.h"
 
 extern MGuiRenderer* renderer;
 
-// TODO: Actually finish this some day!
+typedef enum {
+	TEX_TOPLEFT,		// Top left corner
+	TEX_TOP,			// Top border
+	TEX_TOPRIGHT,		// Top right corner
+	TEX_RIGHT,			// Right border
+	TEX_BOTTOMRIGHT,	// Bottom right corner
+	TEX_BOTTOM,			// Bottom border
+	TEX_BOTTOMLEFT,		// Bottom left corner
+	TEX_LEFT,			// Left border
+	TEX_CENTRE,			// Centre area
+	NUM_REGIONS
+} TEXTURE_REGION;
 
-typedef struct
-{
-	uint16 x, y;
-	uint16 w, h;
-	struct { uint16 top, bottom, left, right; } margin;
-} MGuiPrimitive;
+typedef enum {
+	MARGIN_TOP,
+	MARGIN_BOTTOM,
+	MARGIN_LEFT,
+	MARGIN_RIGHT
+} MARGIN;
 
-typedef struct
-{
-	MGuiPrimitive	button_normal;
-	MGuiPrimitive	button_hovered;
-	MGuiPrimitive	button_pressed;
-	MGuiPrimitive	button_inactive;
-	MGuiPrimitive	textbox_normal;
-	MGuiPrimitive	textbox_focus;
-	MGuiPrimitive	textbox_inactive;
-	MGuiPrimitive	window;
-	MGuiPrimitive	window_titlebar;
-	MGuiPrimitive	windowbtn_close_normal;
-	MGuiPrimitive	windowbtn_close_hovered;
-	MGuiPrimitive	windowbtn_close_pressed;
+typedef struct {
+	float	uv[4];				// Texture coordinates
+	uint16	size[2];			// Size of the texture in pixels
+} MGuiTex;
+
+typedef struct {
+	float	uv[NUM_REGIONS][4];	// Texture coordinates for each region
+	uint8	margin[4];			// Border texture size in pixels
+	uint16	size[2];			// Overall texture size in pixels
+} MGuiTexBorder;
+
+typedef struct {
+	MGuiSkin			api;				// Element drawing functions
+	MGuiTexture*		texture;			// Pointer to texture
+	
+	// Texture coordinates for each element
+	struct {
+		MGuiTexBorder	panel;				// Generic panel
+		MGuiTexBorder	button;				// Buttons
+		MGuiTexBorder	button_hover;
+		MGuiTexBorder	button_pressed;
+		MGuiTexBorder	button_inactive;
+		MGuiTexBorder	editbox;			// Editboxes
+		MGuiTexBorder	editbox_focus;
+		MGuiTexBorder	editbox_inactive;
+		MGuiTexBorder	label;				// Labels
+		MGuiTexBorder	progbar;			// Progress bars
+		MGuiTexBorder	progbar_bg;
+		MGuiTexBorder	window;				// Windows
+		MGuiTexBorder	window_titlebar;
+		MGuiTex			window_closebtn;
+		MGuiTex			window_closebtn_hover;
+		MGuiTex			window_closebtn_pressed;
+	} textures;
 } MGuiTexturedSkin;
 
-static void		skin_textured_draw_panel			( const rectangle_t* r, const colour_t* col );
-static void		skin_textured_draw_border			( const rectangle_t* r, const colour_t* col, uint32 borders, uint32 thickness );
-static void		skin_textured_draw_shadow			( const rectangle_t* r, uint offset );
-static void		skin_textured_draw_button			( MGuiElement* element );
-static void		skin_textured_draw_editbox			( MGuiElement* element );
-static void		skin_textured_draw_label			( MGuiElement* element );
-static void		skin_textured_draw_memobox			( MGuiElement* element );
-static void		skin_textured_draw_scrollbar		( MGuiElement* element );
-static void		skin_textured_draw_window			( MGuiElement* element );
-static void		skin_textured_draw_window_titlebar	( MGuiElement* element );
+static void		skin_textured_setup_primitive			( MGuiTexture* texture, MGuiTex* primitive, uint32 x, uint32 y, uint32 x2, uint32 y2 );
+static void		skin_textured_setup_primitive_bordered	( MGuiTexture* texture, MGuiTexBorder* primitive, uint32 x, uint32 y, uint32 x2, uint32 y2, uint8 top, uint8 bottom, uint8 left, uint8 right );
+static void		skin_textured_draw_panel				( MGuiTexture* texture, const MGuiTex* prim, const rectangle_t* r, const colour_t* col );
+static void		skin_textured_draw_bordered_panel		( MGuiTexture* texture, const MGuiTexBorder* prim, const rectangle_t* r, const colour_t* col, uint32 borders, bool panel );
+static void		skin_textured_draw_shadow				( const rectangle_t* r, uint offset );
+static void		skin_textured_draw_button				( MGuiElement* element );
+static void		skin_textured_draw_editbox				( MGuiElement* element );
+static void		skin_textured_draw_label				( MGuiElement* element );
+static void		skin_textured_draw_memobox				( MGuiElement* element );
+static void		skin_textured_draw_progressbar			( MGuiElement* element );
+static void		skin_textured_draw_scrollbar			( MGuiElement* element );
+static void		skin_textured_draw_window				( MGuiElement* element );
+static void		skin_textured_draw_window_titlebar		( MGuiElement* element );
+static void		skin_textured_draw_window_closebtn		( struct MGuiWindowButton* button );
 
-MGuiSkin* mgui_setup_skin_textured( const char_t* texture )
+MGuiSkin* mgui_setup_skin_textured( const char_t* path )
 {
-	MGuiSkin* skin;
+	MGuiTexturedSkin* skin;
+	MGuiTexture* texture;
 
-	// For now
-	// TODO: Load it
-	UNREFERENCED_PARAM( texture );
+	// Try to load the skin first, if it fails there's no point in going further
+	texture = mgui_texture_create( path );
 
+	if ( texture == NULL ) return NULL;
+
+	// Well, the texture exists so let's create the skin instance
 	skin = mem_alloc_clean( sizeof(*skin) );
 
-	skin->texture				= NULL;
+	skin->api.draw_button			= skin_textured_draw_button;
+	skin->api.draw_editbox			= skin_textured_draw_editbox;
+	skin->api.draw_label			= skin_textured_draw_label;
+	skin->api.draw_memobox			= skin_textured_draw_memobox;
+	skin->api.draw_progressbar		= skin_textured_draw_progressbar;
+	skin->api.draw_scrollbar		= skin_textured_draw_scrollbar;
+	skin->api.draw_window			= skin_textured_draw_window;
 
-	skin->draw_panel			= skin_textured_draw_panel;
-	skin->draw_border			= skin_textured_draw_border;
-	skin->draw_shadow			= skin_textured_draw_shadow;
-	skin->draw_button			= skin_textured_draw_button;
-	skin->draw_editbox			= skin_textured_draw_editbox;
-	skin->draw_label			= skin_textured_draw_label;
-	skin->draw_memobox			= skin_textured_draw_memobox;
-	skin->draw_scrollbar		= skin_textured_draw_scrollbar;
-	skin->draw_window			= skin_textured_draw_window;
-	skin->draw_window_titlebar	= skin_textured_draw_window_titlebar;
+	skin->texture = texture;
 
-	return skin;
+	// Generic panel
+	skin_textured_setup_primitive_bordered( texture, &skin->textures.panel, 129, 65, 192, 128, 3, 3, 3, 3 );
+
+	// Button textures
+	skin_textured_setup_primitive_bordered( texture, &skin->textures.button, 193, 65, 224, 87, 2, 2, 2, 2 );
+	skin_textured_setup_primitive_bordered( texture, &skin->textures.button_hover, 225, 65, 256, 87, 2, 2, 2, 2 );
+	skin_textured_setup_primitive_bordered( texture, &skin->textures.button_pressed, 193, 88, 224, 109, 2, 2, 2, 2 );
+	skin_textured_setup_primitive_bordered( texture, &skin->textures.button_inactive, 225, 88, 256, 109, 2, 2, 2, 2 );
+
+	// Editbox textures
+	skin_textured_setup_primitive_bordered( texture, &skin->textures.editbox, 257, 0, 384, 21, 3, 3, 3, 3 );
+	skin_textured_setup_primitive_bordered( texture, &skin->textures.editbox_focus, 257, 22, 384, 43, 3, 3, 3, 3 );
+	skin_textured_setup_primitive_bordered( texture, &skin->textures.editbox_inactive, 257, 44, 384, 64, 3, 3, 3, 3 );
+
+	// Label textures
+	skin_textured_setup_primitive_bordered( texture, &skin->textures.label, 257, 65, 320, 107, 1, 1, 1, 1 );
+
+	// Progressbar textures
+	skin_textured_setup_primitive_bordered( texture, &skin->textures.progbar, 257, 108, 289, 128, 2, 2, 2, 2 );
+	skin_textured_setup_primitive_bordered( texture, &skin->textures.progbar_bg, 290, 108, 320, 128, 1, 1, 1, 1 );
+
+	// Window textures
+	skin_textured_setup_primitive_bordered( texture, &skin->textures.window, 0, 26, 128, 128, 5, 5, 5, 5 );
+	skin_textured_setup_primitive_bordered( texture, &skin->textures.window_titlebar, 0, 0, 128, 25, 5, 2, 5, 5 );
+	skin_textured_setup_primitive( texture, &skin->textures.window_closebtn, 193, 110, 213, 128 );
+	skin_textured_setup_primitive( texture, &skin->textures.window_closebtn_hover, 214, 110, 234, 128 );
+	skin_textured_setup_primitive( texture, &skin->textures.window_closebtn_pressed, 235, 110, 255, 128 );
+
+	return (MGuiSkin*)skin;
 }
 
-static void skin_textured_draw_panel( const rectangle_t* r, const colour_t* col )
+static MYLLY_INLINE void skin_textured_init_coordinates( uint32 tex_width, uint32 tex_height, float uv[4], uint32 x, uint32 y, uint32 w, uint32 h )
 {
-	renderer->set_draw_colour( col );
-	renderer->draw_rect( r->x, r->y, r->w, r->h );
+	uv[0] = (float)x / tex_width;
+	uv[1] = (float)y / tex_height;
+	uv[2] = (float)( x + w ) / tex_width;
+	uv[3] = (float)( y + h ) / tex_height;
 }
 
-static void skin_textured_draw_border( const rectangle_t* r, const colour_t* col, uint32 borders, uint32 thickness )
+static void skin_textured_setup_primitive( MGuiTexture* texture, MGuiTex* primitive, uint32 x, uint32 y, uint32 x2, uint32 y2 )
+{
+	uint32 width = texture->width;
+	uint32 height = texture->height;
+	uint32 w = x2 - x, h = y2 - y;
+
+	primitive->size[0] = (uint16)w;
+	primitive->size[1] = (uint16)h;
+
+	skin_textured_init_coordinates( width, height, primitive->uv, x, y, w, h );
+}
+
+static void skin_textured_setup_primitive_bordered( MGuiTexture* texture, MGuiTexBorder* primitive, uint32 x, uint32 y, uint32 x2, uint32 y2, uint8 top, uint8 bottom, uint8 left, uint8 right )
+{
+	uint32 width = texture->width;
+	uint32 height = texture->height;
+	uint32 w = x2 - x, h = y2 - y;
+
+	primitive->size[0] = (uint16)w;
+	primitive->size[1] = (uint16)h;
+
+	primitive->margin[MARGIN_TOP] = top;
+	primitive->margin[MARGIN_BOTTOM] = bottom;
+	primitive->margin[MARGIN_LEFT] = left;
+	primitive->margin[MARGIN_RIGHT] = right;
+
+	skin_textured_init_coordinates( width, height, primitive->uv[TEX_TOP], x+left, y, w-left-right, top );
+	skin_textured_init_coordinates( width, height, primitive->uv[TEX_TOPRIGHT], x+w-right, y, right, top );
+	skin_textured_init_coordinates( width, height, primitive->uv[TEX_RIGHT], x+w-right, y+top, right, h-top-bottom );
+	skin_textured_init_coordinates( width, height, primitive->uv[TEX_BOTTOMRIGHT], x+w-right, y+h-bottom, right, bottom );
+	skin_textured_init_coordinates( width, height, primitive->uv[TEX_BOTTOM], x+left, y+h-bottom, w-left-right, bottom );
+	skin_textured_init_coordinates( width, height, primitive->uv[TEX_BOTTOMLEFT], x, y+h-bottom, left, bottom );
+	skin_textured_init_coordinates( width, height, primitive->uv[TEX_LEFT], x, y+top, left, h-top-bottom );
+	skin_textured_init_coordinates( width, height, primitive->uv[TEX_TOPLEFT], x, y, left, top );
+	skin_textured_init_coordinates( width, height, primitive->uv[TEX_CENTRE], x+left, y+top, w-left-right, h-top-bottom );
+}
+
+static void skin_textured_draw_panel( MGuiTexture* texture, const MGuiTex* prim, const rectangle_t* r, const colour_t* col )
 {
 	renderer->set_draw_colour( col );
+	renderer->draw_textured_rect( texture->data, r->x, r->y, r->w, r->h, prim->uv );
+}
 
-	if ( borders & BORDER_LEFT )
-		renderer->draw_rect( r->x, r->y, thickness, r->h );
+static void skin_textured_draw_bordered_panel( MGuiTexture* texture, const MGuiTexBorder* prim, const rectangle_t* r,
+											   const colour_t* col, uint32 borders, bool panel )
+{
+	const float* uv;
+	uint32 top = ( borders & BORDER_TOP ) ? prim->margin[MARGIN_TOP] : 0,
+		   bottom = ( borders & BORDER_BOTTOM ) ? prim->margin[MARGIN_BOTTOM] : 0,
+		   left = ( borders & BORDER_LEFT ) ? prim->margin[MARGIN_LEFT] : 0,
+		   right = ( borders & BORDER_RIGHT ) ? prim->margin[MARGIN_RIGHT] : 0;
 
-	if ( borders & BORDER_RIGHT )
-		renderer->draw_rect( r->x + r->w-thickness, r->y, thickness, r->h );
+	renderer->set_draw_colour( col );
 
-	if ( borders & BORDER_TOP )
-		renderer->draw_rect( r->x, r->y, r->w, thickness );
+	// Left border
+	if ( left != 0 )
+	{
+		uv = prim->uv[TEX_LEFT];
+		renderer->draw_textured_rect( texture->data, r->x, r->y + top, left, r->h - top - bottom, uv );
+	}
 
-	if ( borders & BORDER_BOTTOM )
-		renderer->draw_rect( r->x, r->y + r->h-thickness, r->w, thickness );
+	// Right border
+	if ( right != 0 )
+	{
+		uv = prim->uv[TEX_RIGHT];
+		renderer->draw_textured_rect( texture->data, r->x + r->w - right, r->y + top, right, r->h - top - bottom, uv );
+	}
+
+	// Top border + corners
+	if ( top != 0 )
+	{
+		uv = prim->uv[TEX_TOP];
+		renderer->draw_textured_rect( texture->data, r->x + left, r->y, r->w - left - right, top, uv );
+
+		uv = prim->uv[TEX_TOPLEFT];
+		renderer->draw_textured_rect( texture->data, r->x, r->y, left, top, uv );
+
+		uv = prim->uv[TEX_TOPRIGHT];
+		renderer->draw_textured_rect( texture->data, r->x + r->w - right, r->y, right, top, uv );
+	}
+
+	// Bottom border + corners
+	if ( bottom != 0 )
+	{
+		uv = prim->uv[TEX_BOTTOM];
+		renderer->draw_textured_rect( texture->data, r->x + left, r->y + r->h - bottom, r->w - left - right, bottom, uv );
+
+		uv = prim->uv[TEX_BOTTOMLEFT];
+		renderer->draw_textured_rect( texture->data, r->x, r->y + r->h - bottom, left, bottom, uv );
+
+		uv = prim->uv[TEX_BOTTOMRIGHT];
+		renderer->draw_textured_rect( texture->data, r->x + r->w - right, r->y + r->h - bottom, right, bottom, uv );
+	}
+
+	// Background panel
+	if ( panel )
+	{
+		uv = prim->uv[TEX_CENTRE];
+		renderer->draw_textured_rect( texture->data, r->x + left, r->y + top, r->w - left - right, r->h - top - bottom, uv );
+	}
 }
 
 static void skin_textured_draw_shadow( const rectangle_t* r, uint offset )
 {
 	static const colour_t c = { 0x0A0A0A32 };
 
-	renderer->set_draw_colour( &c );
+	UNREFERENCED_PARAM( r );
+	UNREFERENCED_PARAM( offset );
 
-	renderer->draw_rect( r->x + r->w, r->y + offset, offset, r->h - offset );
-	renderer->draw_rect( r->x + offset, r->y + r->h, r->w, offset );
+	//renderer->set_draw_colour( &c );
+
+	//renderer->draw_rect( r->x + r->w, r->y + offset, offset, r->h - offset );
+	//renderer->draw_rect( r->x + offset, r->y + r->h, r->w, offset );
 }
 
 static void skin_textured_draw_button( MGuiElement* element )
 {
-	UNREFERENCED_PARAM( element );
+	MGuiTexturedSkin* skin = (MGuiTexturedSkin*)element->skin;
+	MGuiText* text = element->text;
+	MGuiTexBorder* primitive;
+	colour_t col;
+	int32 x, y;
+
+	// Button inactive
+	if ( element->flags & FLAG_DISABLED )
+		primitive = &skin->textures.button_inactive;
+
+	// Button pressed
+	else if ( element->flags_int & INTFLAG_PRESSED )
+		primitive = &skin->textures.button_pressed;
+
+	// Button hovered
+	else if ( element->flags_int & INTFLAG_HOVER )
+		primitive = &skin->textures.button_hover;
+
+	// Button idle
+	else primitive = &skin->textures.button;
+
+	// Draw button
+	skin_textured_draw_bordered_panel( skin->texture, primitive, &element->bounds, &element->colour,
+									   element->flags & FLAG_BORDER ? BORDER_ALL : BORDER_NONE, element->flags & FLAG_BACKGROUND );
+	
+	// Draw text
+	if ( text != NULL )
+	{
+		x = text->pos.x, y = text->pos.y;
+		col = text->colour;
+
+		if ( element->flags_int & INTFLAG_PRESSED )
+		{
+			x += 1;
+			y += 1;
+		}
+		else if ( element->flags_int & INTFLAG_HOVER )
+		{
+			colour_multiply( &col, &col, 1.2f );
+			col.a = text->colour.a;
+		}
+
+		renderer->set_draw_colour( &col );
+		renderer->draw_text( text->font->data, text->buffer, x, y,
+							 text->flags, text->tags, text->num_tags );
+	}
 }
 
 static void skin_textured_draw_editbox( MGuiElement* element )
 {
-	UNREFERENCED_PARAM( element );
+	MGuiTexturedSkin* skin = (MGuiTexturedSkin*)element->skin;
+	struct MGuiEditbox* editbox = (struct MGuiEditbox*)element;
+	MGuiText* text = element->text;
+	MGuiTexBorder* primitive;
+	colour_t col;
+	char_t* tmp;
+
+	// Editbox inactive
+	if ( editbox->flags & FLAG_DISABLED )
+		primitive = &skin->textures.editbox_inactive;
+
+	// Editbox has focus
+	else if ( editbox->flags_int & INTFLAG_FOCUS )
+		primitive = &skin->textures.editbox_focus;
+
+	// Editbox is idle
+	else primitive = &skin->textures.editbox;
+
+	// Draw editbox
+	skin_textured_draw_bordered_panel( skin->texture, primitive, &editbox->bounds, &editbox->colour,
+									   editbox->flags & FLAG_BORDER ? BORDER_ALL : BORDER_NONE, editbox->flags & FLAG_BACKGROUND );
+
+	// Draw selection
+	if ( editbox->flags_int & INTFLAG_FOCUS )
+	{
+		// Draw the cursor, also make sure it's within the editbox boundaries
+		if ( ( editbox->cursor_visible || BIT_OFF( editbox->flags, FLAG_ANIMATION ) ) &&
+			   editbox->cursor.x < editbox->bounds.x + editbox->bounds.w )
+		{
+			renderer->set_draw_colour( &editbox->text->colour );
+			renderer->draw_rect( editbox->cursor.x, editbox->cursor.y, editbox->cursor.w, editbox->cursor.h );
+		}
+
+		// Draw the selection. Invert the background colour.
+		if ( mgui_editbox_has_text_selected( (MGuiEditbox*)editbox ) )
+		{
+			col = editbox->colour; col.a = 90;
+			colour_invert( &col, &col );
+
+			renderer->set_draw_colour( &col );
+			renderer->draw_rect( editbox->selection.x, editbox->selection.y, editbox->selection.w, editbox->selection.h );
+		}
+	}
+
+	if ( text != NULL )
+	{
+		// This is a really ugly hack to make mgui_get_text return the correct buffer:
+		// We replace the MGuiText buffer with our own (with masked input etc cool)
+		// while we render, and put the original buffer back afterwards
+		tmp = editbox->text->buffer;
+		editbox->text->buffer = editbox->buffer;
+
+		renderer->set_draw_colour( &text->colour );
+		renderer->draw_text( text->font->data, text->buffer, text->pos.x, text->pos.y,
+							 text->flags, text->tags, text->num_tags );
+
+		// Really ugly hack cleanup
+		editbox->text->buffer = tmp;
+	}
 }
 
 static void skin_textured_draw_label( MGuiElement* element )
 {
-	UNREFERENCED_PARAM( element );
+	MGuiTexturedSkin* skin = (MGuiTexturedSkin*)element->skin;
+	MGuiText* text = element->text;
+
+	// Draw background and borders
+	if ( element->flags & FLAG_BORDER|FLAG_BACKGROUND )
+	{
+		skin_textured_draw_bordered_panel( skin->texture, &skin->textures.label, &element->bounds, &element->colour,
+										   element->flags & FLAG_BORDER ? BORDER_ALL : BORDER_NONE, element->flags & FLAG_BACKGROUND );
+	}
+
+	// Draw text
+	if ( text != NULL )
+	{
+		renderer->set_draw_colour( &text->colour );
+		renderer->draw_text( text->font->data, text->buffer, text->pos.x, text->pos.y,
+							 text->flags, text->tags, text->num_tags );
+	}
 }
 
 static void skin_textured_draw_memobox( MGuiElement* element )
 {
-	UNREFERENCED_PARAM( element );
+	MGuiTexturedSkin* skin = (MGuiTexturedSkin*)element->skin;
+	struct MGuiMemobox* memo = (struct MGuiMemobox*)element;
+	struct MGuiMemoLine* line;
+	node_t* node;
+	uint32 i, count, colour = 0;
+
+	// Draw memobox background and border
+	if ( memo->flags & FLAG_BORDER|FLAG_BACKGROUND )
+	{
+		skin_textured_draw_bordered_panel( skin->texture, &skin->textures.panel, &memo->bounds, &memo->colour,
+										   memo->flags & FLAG_BORDER ? BORDER_ALL : BORDER_NONE, memo->flags & FLAG_BACKGROUND );
+	}
+
+	// Draw memobox lines
+	if ( memo->lines->size == 0 ) return;
+
+	count = memo->visible_lines;
+	if ( count == 0 ) count = 0xFFFFFFFF;
+
+	for ( node = memo->first_line, i = 0;
+		  node != list_end(memo->lines) && i < count && node;
+		  node = node->prev, i++ )
+	{
+		line = (struct MGuiMemoLine*)node;
+
+		if ( line->colour.hex != colour )
+		{
+			renderer->set_draw_colour( &line->colour );
+			colour = line->colour.hex;
+		}
+
+		renderer->draw_text( line->font->data, line->text, line->pos.x, line->pos.y,
+							 line->font->flags & FFLAG_ITALIC ? TFLAG_ITALIC : 0,
+							 line->tags, line->ntags );
+	}
+}
+
+static void skin_textured_draw_progressbar( MGuiElement* element )
+{
+	struct MGuiProgressBar* progbar = (struct MGuiProgressBar*)element;
+	MGuiTexturedSkin* skin = (MGuiTexturedSkin*)element->skin;
+	rectangle_t fg, bg;
+	float percentage;
+	uint16 width;
+
+	percentage = progbar->value / progbar->max_value;
+	percentage = math_clampf( percentage, 0, 1 );
+
+	// Special case (progress = 100%)
+	if ( percentage == 1 )
+	{
+		skin_textured_draw_bordered_panel( skin->texture, &skin->textures.progbar, &progbar->bounds, &progbar->colour_fg,
+										   progbar->flags & FLAG_BORDER ? BORDER_ALL : BORDER_NONE, progbar->flags & FLAG_BACKGROUND );
+		return;
+	}
+
+	// Special case (progress = 0%)
+	if ( percentage == 0 )
+	{
+		skin_textured_draw_bordered_panel( skin->texture, &skin->textures.progbar_bg, &progbar->bounds, &progbar->colour_bg,
+										   progbar->flags & FLAG_BORDER ? BORDER_ALL : BORDER_NONE, progbar->flags & FLAG_BACKGROUND );
+		return;
+	}
+
+	// Progress is between 0% and 100%, draw bar and background
+	width = (uint16)( percentage * progbar->bounds.uw );
+
+	fg = progbar->bounds;
+	fg.uw = width;
+
+	bg.x = fg.x + width;
+	bg.y = fg.y;
+	bg.uw = progbar->bounds.uw - width;
+	bg.uh = fg.uh;
+
+	skin_textured_draw_bordered_panel( skin->texture, &skin->textures.progbar, &fg, &progbar->colour_fg,
+									   progbar->flags & FLAG_BORDER ? BORDER_ALL : BORDER_NONE, progbar->flags & FLAG_BACKGROUND );
+
+	skin_textured_draw_bordered_panel( skin->texture, &skin->textures.progbar_bg, &bg, &progbar->colour_bg,
+									   progbar->flags & FLAG_BORDER ? BORDER_ALL&(~BORDER_LEFT) : BORDER_NONE, progbar->flags & FLAG_BACKGROUND );
 }
 
 static void skin_textured_draw_scrollbar( MGuiElement* element )
@@ -138,10 +496,63 @@ static void skin_textured_draw_scrollbar( MGuiElement* element )
 
 static void skin_textured_draw_window( MGuiElement* element )
 {
-	UNREFERENCED_PARAM( element );
+	struct MGuiWindow* window = (struct MGuiWindow*)element;
+	MGuiTexturedSkin* skin = (MGuiTexturedSkin*)element->skin;
+	MGuiText* text;
+	bool titlebar = false;
+
+	renderer->set_draw_colour( &window->colour );
+
+	// Draw titlebar
+	if ( ( window->flags & FLAG_WINDOW_TITLEBAR ) && window->titlebar != NULL )
+	{
+		skin_textured_draw_bordered_panel( skin->texture, &skin->textures.window_titlebar, &window->titlebar->bounds,
+										   &window->titlebar->colour, BORDER_ALL, true );
+
+		titlebar = true;
+		text = window->titlebar->text;
+
+		renderer->set_draw_colour( &text->colour );
+		renderer->draw_text( text->font->data, text->buffer, text->pos.x, text->pos.y,
+							 text->flags, text->tags, text->num_tags );
+	}
+
+	// Draw closebutton
+	if ( ( window->flags & FLAG_WINDOW_CLOSEBTN ) && window->closebtn != NULL )
+	{
+		skin_textured_draw_window_closebtn( window->closebtn );
+	}
+
+	// Draw borders and background panel
+	if ( window->flags & FLAG_BORDER )
+	{
+		skin_textured_draw_bordered_panel( skin->texture, &skin->textures.window, &window->bounds, &window->colour,
+										   titlebar ? BORDER_ALL&(~BORDER_TOP) : BORDER_ALL, BIT_ON( window->flags, FLAG_BACKGROUND ) );
+	}
+
+	// Draw only the background panel
+	else if ( window->flags & FLAG_BACKGROUND )
+	{
+		skin_textured_draw_bordered_panel( skin->texture, &skin->textures.window, &window->bounds,
+										   &window->colour, BORDER_NONE, true );
+	}
 }
 
-static void skin_textured_draw_window_titlebar( MGuiElement* element )
+static void skin_textured_draw_window_closebtn( struct MGuiWindowButton* button )
 {
-	UNREFERENCED_PARAM( element );
+	MGuiTexturedSkin* skin = (MGuiTexturedSkin*)button->window->skin;
+	MGuiTex* texture;
+
+	// Button pressed
+	if ( button->flags_int & INTFLAG_PRESSED )
+		texture = &skin->textures.window_closebtn_pressed;
+
+	// Button hovered
+	else if ( button->flags_int & INTFLAG_HOVER )
+		texture = &skin->textures.window_closebtn_hover;
+
+	// Button idle
+	else texture = &skin->textures.window_closebtn;
+
+	skin_textured_draw_panel( skin->texture, texture, &button->bounds, &button->colour );
 }

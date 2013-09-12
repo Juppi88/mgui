@@ -48,8 +48,8 @@ MGuiSprite* mgui_create_sprite( MGuiElement* parent )
 
 	sprite->type = GUI_SPRITE;
 
-	sprite->u1 = 0.0f; sprite->v1 = 0.0f;
-	sprite->u2 = 1.0f; sprite->v2 = 1.0f;
+	sprite->uv[0] = 0.0f; sprite->uv[1] = 0.0f;
+	sprite->uv[2] = 1.0f; sprite->uv[3] = 1.0f;
 	sprite->scale.x = 1.0f;
 	sprite->scale.y = 1.0f;
 
@@ -86,8 +86,7 @@ static void mgui_sprite_render( MGuiElement* sprite )
 	r = &sprite->bounds;
 
 	renderer->set_draw_colour( &sprite->colour );
-	renderer->draw_textured_rect( _sprite->texture->data, r->x, r->y, r->w, r->h,
-								  _sprite->u1, _sprite->v1, _sprite->u2, _sprite->v2 );
+	renderer->draw_textured_rect( _sprite->texture->data, r->x, r->y, r->w, r->h, _sprite->uv );
 }
 
 const char_t* mgui_sprite_get_texture( MGuiSprite* sprite )
@@ -167,10 +166,10 @@ void mgui_sprite_get_uv( MGuiSprite* sprite, float* u1, float* v1, float* u2, fl
 		return;
 	}
 
-	*u1 = _sprite->u1;
-	*v1 = _sprite->v1;
-	*u2 = _sprite->u2;
-	*v2 = _sprite->v2;
+	*u1 = _sprite->uv[0];
+	*v1 = _sprite->uv[1];
+	*u2 = _sprite->uv[2];
+	*v2 = _sprite->uv[3];
 }
 
 void mgui_sprite_set_uv( MGuiSprite* sprite, float u1, float v1, float u2, float v2 )
@@ -179,8 +178,8 @@ void mgui_sprite_set_uv( MGuiSprite* sprite, float u1, float v1, float u2, float
 
 	if ( sprite == NULL ) return;
 
-	_sprite->u1 = u1;
-	_sprite->v1 = v1;
-	_sprite->u2 = u2;
-	_sprite->v2 = v2;
+	_sprite->uv[0] = u1;
+	_sprite->uv[1] = v1;
+	_sprite->uv[2] = u2;
+	_sprite->uv[3] = v2;
 }
