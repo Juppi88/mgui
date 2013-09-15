@@ -99,6 +99,7 @@ enum MGUI_FONT_FLAGS
 	FFLAG_ULINE		= 1 << 2,	/* Underlined font */
 	FFLAG_STRIKE	= 1 << 3,	/* Strike out */
 	FFLAG_NOAA		= 1 << 4,	/* Disable edge smoothing (if possible) */
+	FFLAG_OUTLINE	= 1 << 5,	/* Create outlined font */
 };
 
 enum MGUI_FONT_CHARSET
