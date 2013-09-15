@@ -1189,7 +1189,13 @@ void mgui_set_font_name( MGuiElement* element, const char_t* font )
 	element->font = mgui_font_set_font( element->font, font );
 
 	if ( element->text && element->text->buffer )
+	{
+		element->text->font = element->font;
 		mgui_text_update_dimensions( element->text );
+	}
+
+	if ( element->callbacks->on_text_change )
+		element->callbacks->on_text_change( element );
 }
 
 void mgui_set_font_size( MGuiElement* element, uint8 size )
@@ -1200,7 +1206,13 @@ void mgui_set_font_size( MGuiElement* element, uint8 size )
 	element->font = mgui_font_set_size( element->font, size );
 
 	if ( element->text && element->text->buffer )
+	{
+		element->text->font = element->font;
 		mgui_text_update_dimensions( element->text );
+	}
+
+	if ( element->callbacks->on_text_change )
+		element->callbacks->on_text_change( element );
 }
 
 void mgui_set_font_flags( MGuiElement* element, uint8 flags )
@@ -1215,8 +1227,12 @@ void mgui_set_font_flags( MGuiElement* element, uint8 flags )
 		if ( flags & FFLAG_BOLD ) element->text->flags |= TFLAG_BOLD;
 		if ( flags & FFLAG_ITALIC ) element->text->flags |= TFLAG_ITALIC;
 
+		element->text->font = element->font;
 		mgui_text_update_dimensions( element->text );
 	}
+
+	if ( element->callbacks->on_text_change )
+		element->callbacks->on_text_change( element );
 }
 
 void mgui_set_font( MGuiElement* element, const char_t* font, uint8 size, uint8 flags, uint8 charset )
@@ -1233,13 +1249,15 @@ void mgui_set_font( MGuiElement* element, const char_t* font, uint8 size, uint8 
 
 	if ( element->text )
 	{
-		element->text->font = element->font;
-
 		if ( flags & FFLAG_BOLD ) element->text->flags |= TFLAG_BOLD;
 		if ( flags & FFLAG_ITALIC ) element->text->flags |= TFLAG_ITALIC;
 
+		element->text->font = element->font;
 		mgui_text_update_dimensions( element->text );
 	}
+
+	if ( element->callbacks->on_text_change )
+		element->callbacks->on_text_change( element );
 }
 
 uint32 mgui_get_flags( MGuiElement* element )

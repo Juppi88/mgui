@@ -29,6 +29,7 @@ static void		mgui_memobox_destroy			( MGuiElement* memobox );
 static void		mgui_memobox_render				( MGuiElement* memobox );
 static void		mgui_memobox_on_bounds_change	( MGuiElement* memobox, bool pos, bool size );
 static void		mgui_memobox_on_flags_change	( MGuiElement* memobox, uint32 old );
+static void		mgui_memobox_on_text_change		( MGuiElement* memobox );
 
 static struct MGuiCallbacks callbacks =
 {
@@ -39,7 +40,7 @@ static struct MGuiCallbacks callbacks =
 	mgui_memobox_on_bounds_change,
 	mgui_memobox_on_flags_change,
 	NULL, /* on_colour_change */
-	NULL, /* on_text_change */
+	mgui_memobox_on_text_change,
 	NULL, /* on_mouse_enter */
 	NULL, /* on_mouse_leave */
 	NULL, /* on_mouse_click */
@@ -152,6 +153,11 @@ static void mgui_memobox_on_flags_change( MGuiElement* memobox, uint32 old )
 	{
 		mgui_memobox_update_display_positions( (struct MGuiMemobox*)memobox );
 	}
+}
+
+static void mgui_memobox_on_text_change( MGuiElement* memobox )
+{
+	mgui_memobox_refresh_lines( (struct MGuiMemobox*)memobox );
 }
 
 void mgui_memobox_add_line( MGuiMemobox* memobox, const char* fmt, ... )

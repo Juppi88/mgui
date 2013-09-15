@@ -557,7 +557,7 @@ static void mgui_text_parse_format_tags2( MGuiText* text, uint32 num_tags )
 
 uint32 mgui_text_parse_and_get_line( const char_t* text, MGuiFont* font, const colour_t* def, uint32 max_width, char_t** buf_in, MGuiFormatTag** tags_in )
 {
-	uint32 width = 0, w, h, i, flags;
+	uint32 width = 0, w, h, i = 0, flags;
 	uint32 space = 0, ntag = 0, len = 0, index = 0;
 	bool has_tags = false;
 	const char_t *s, *last_space = NULL;
@@ -581,6 +581,8 @@ uint32 mgui_text_parse_and_get_line( const char_t* text, MGuiFont* font, const c
 			tmptags[0].colour.hex = prev_tag.colour.hex;
 			tmptags[0].flags = prev_tag.flags;
 			tmptags[0].index = 0;
+
+			has_tags = true;
 		}
 	}
 	else
@@ -625,34 +627,6 @@ uint32 mgui_text_parse_and_get_line( const char_t* text, MGuiFont* font, const c
 		if ( tags_in && mgui_text_parse_tag( &s, tmptags, &ntag, &index, def ) )
 		{
 			has_tags = true;
-			flags = tmptags[ntag].flags;
-
-			prev_tag.index = tmptags[ntag].index;
-
-			if ( flags & TAG_COLOUR )
-			{
-				prev_tag.flags |= TAG_COLOUR;
-				prev_tag.flags &= ~TAG_COLOUR_END;
-				prev_tag.colour.hex = tmptags[ntag].colour.hex;
-			}
-			else if ( flags & TAG_COLOUR_END )
-			{
-				prev_tag.flags &= ~TAG_COLOUR;
-				prev_tag.flags |= TAG_COLOUR_END;
-				prev_tag.colour.hex = tmptags[ntag].colour.hex;
-			}
-
-			if ( flags & TAG_UNDERLINE )
-			{
-				prev_tag.flags |= TAG_UNDERLINE;
-				prev_tag.flags &= ~TAG_UNDERLINE_END;
-			}
-			else if ( flags & TAG_UNDERLINE_END )
-			{
-				prev_tag.flags &= ~TAG_UNDERLINE;
-				prev_tag.flags |= TAG_UNDERLINE_END;
-			}
-
 			continue;
 		}
 
@@ -688,7 +662,7 @@ uint32 mgui_text_parse_and_get_line( const char_t* text, MGuiFont* font, const c
 	*buf_in = mstrdup( tmpbuf, len );
 	ptr = *s ? s : NULL;
 
-	// Allocate memory for tags and copy the tags
+	// Allocate permanent memory for tags and copy the tags
 	if ( tags_in && has_tags )
 	{
 		*tags_in = mem_alloc( ( ntag + 1 ) * sizeof(MGuiFormatTag) );
@@ -696,6 +670,37 @@ uint32 mgui_text_parse_and_get_line( const char_t* text, MGuiFont* font, const c
 		for ( i = 0; i < ntag+1; ++i )
 		{
 			(*tags_in)[i] = tmptags[i];
+		}
+	}
+
+	// Remember the last tag, just in case we continue processing this string 
+	if ( has_tags )
+	{
+		flags = tmptags[ntag].flags;
+		prev_tag.index = tmptags[ntag].index;
+
+		if ( flags & TAG_COLOUR )
+		{
+			prev_tag.flags |= TAG_COLOUR;
+			prev_tag.flags &= ~TAG_COLOUR_END;
+			prev_tag.colour.hex = tmptags[ntag].colour.hex;
+		}
+		else if ( flags & TAG_COLOUR_END )
+		{
+			prev_tag.flags &= ~TAG_COLOUR;
+			prev_tag.flags |= TAG_COLOUR_END;
+			prev_tag.colour.hex = tmptags[ntag].colour.hex;
+		}
+
+		if ( flags & TAG_UNDERLINE )
+		{
+			prev_tag.flags |= TAG_UNDERLINE;
+			prev_tag.flags &= ~TAG_UNDERLINE_END;
+		}
+		else if ( flags & TAG_UNDERLINE_END )
+		{
+			prev_tag.flags &= ~TAG_UNDERLINE;
+			prev_tag.flags |= TAG_UNDERLINE_END;
 		}
 	}
 
