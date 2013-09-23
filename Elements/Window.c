@@ -16,6 +16,8 @@
 #include "Font.h"
 #include "Platform/Alloc.h"
 
+// --------------------------------------------------
+
 // Window callback handlers
 static void		mgui_window_render				( MGuiElement* window );
 static void		mgui_window_get_clip_region		( MGuiElement* window, rectangle_t** rect );
@@ -24,6 +26,8 @@ static void		mgui_window_on_flags_change		( MGuiElement* window, uint32 old );
 static void		mgui_window_on_colour_change	( MGuiElement* window );
 static void		mgui_window_on_mouse_click		( MGuiElement* window, int16 x, int16 y, MOUSEBTN button );
 static void		mgui_window_on_mouse_drag		( MGuiElement* window, int16 x, int16 y );
+
+// --------------------------------------------------
 
 static struct MGuiCallbacks callbacks =
 {
@@ -44,6 +48,8 @@ static struct MGuiCallbacks callbacks =
 	NULL, /* on_character */
 	NULL  /* on_key_press */
 };
+
+// --------------------------------------------------
 
 MGuiWindow* mgui_create_window( MGuiElement* parent )
 {

@@ -14,12 +14,18 @@
 #include "Renderer.h"
 #include "Platform/Alloc.h"
 
+// --------------------------------------------------
+
 extern vectorscreen_t draw_size;
 extern MGuiRenderer* renderer;
+
+// --------------------------------------------------
 
 // Canvas callback handlers
 static void		mgui_canvas_render				( MGuiElement* canvas );
 static void		mgui_canvas_on_bounds_change	( MGuiElement* canvas, bool pos, bool size );
+
+// --------------------------------------------------
 
 static struct MGuiCallbacks callbacks =
 {
@@ -40,6 +46,8 @@ static struct MGuiCallbacks callbacks =
 	NULL, /* on_character */
 	NULL  /* on_key_press */
 };
+
+// --------------------------------------------------
 
 MGuiCanvas* mgui_create_canvas( MGuiElement* parent )
 {

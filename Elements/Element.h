@@ -16,17 +16,17 @@
 #include "MGUI.h"
 #include "Text.h"
 #include "Skin.h"
+#include "Renderer.h"
 #include "Input/Input.h"
 
 /* The following are internal flags and should not be used by the library user */
 enum MGUI_INTERNAL_FLAGS {
-	INTFLAG_BACKBUFFER	= 1 << 0,	/* Cache this element into a backbuffer */
-	INTFLAG_REFRESH		= 1 << 1,	/* Backbuffer needs refreshing */
-	INTFLAG_FOCUS		= 1 << 2,	/* This element has captured focus */
-	INTFLAG_HOVER		= 1 << 3,	/* The element is hovered over by a mouse cursor */
-	INTFLAG_PRESSED		= 1 << 4,	/* The element is pressed down */
-	INTFLAG_NOTEXT		= 1 << 5,	/* Element has no text */
-	INTFLAG_LAYER		= 1 << 6,	/* This element is a main GUI layer */
+	INTFLAG_REFRESH		= 1 << 0,	/* Cache texture needs refreshing */
+	INTFLAG_FOCUS		= 1 << 1,	/* This element has captured focus */
+	INTFLAG_HOVER		= 1 << 2,	/* The element is hovered over by a mouse cursor */
+	INTFLAG_PRESSED		= 1 << 3,	/* The element is pressed down */
+	INTFLAG_NOTEXT		= 1 << 4,	/* Element has no text */
+	INTFLAG_LAYER		= 1 << 5,	/* This element is a main GUI layer */
 };
 
 typedef enum MGUI_TYPE {
@@ -69,6 +69,7 @@ struct MGuiElement
 	MGuiText*				text;			// Text on this element (label, title etc)
 	MGuiFont*				font;			// Default font used for all the text on this element
 	MGuiSkin*				skin;			// Skin to be used for rendering
+	MGuiCache*				cache;			// Texture cache for rendering
 	mgui_event_handler_t	event_handler;	// User event handler callback
 	void*					event_data;		// User-specified data to be passed via event_handler
 
@@ -109,9 +110,12 @@ struct MGuiElement
 void			mgui_element_create				( MGuiElement* element, MGuiElement* parent );
 void			mgui_element_destroy			( MGuiElement* element );
 void			mgui_element_render				( MGuiElement* element );
+void			mgui_element_render_cache		( MGuiElement* element, bool draw_self );
 void			mgui_element_process			( MGuiElement* element );
+void			mgui_element_initialize			( MGuiElement* element );
+void			mgui_element_invalidate			( MGuiElement* element );
 
-void			mgui_element_request_redraw		( void );
+void			mgui_element_request_redraw		( MGuiElement* element );
 
 MGuiElement*	mgui_get_element_at				( int16 x, int16 y );
 

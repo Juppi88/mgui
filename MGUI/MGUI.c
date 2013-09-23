@@ -20,6 +20,8 @@
 #include "Platform/Window.h"
 #include "InputHook.h"
 
+// --------------------------------------------------
+
 vectorscreen_t		draw_size;					// System window size
 rectangle_t			draw_rect;					// System window size as a rectangle
 
@@ -30,9 +32,17 @@ MGuiRenderer		renderer_data;				// Renderer interface instance
 MGuiRenderer*		renderer		= NULL;		// Pointer to the renderer interface
 bool				redraw_all		= true;		// Force a scene redraw (use only with a standalone app)
 bool				refresh_all		= false;	// An element has requested a scene redraw
+bool				redraw_cache	= false;	// An element has requested a cache redraw
 list_t*				layers			= NULL;		// A list of rendered layers
 uint32				tick_count		= 0;		// Current tick count
 uint32				params			= 0;		// The parameters MGUI was initialized with
+
+// --------------------------------------------------
+
+static void mgui_initialize_elements( void );
+static void mgui_invalidate_elements( void );
+
+// --------------------------------------------------
 
 void mgui_initialize( void* wndhandle, uint32 parameters )
 {
@@ -106,6 +116,33 @@ void mgui_shutdown( void )
 	}
 }
 
+void mgui_pre_process( void )
+{
+	node_t* node;
+	MGuiElement* element;
+
+	// Do we have cached textures to refresh?
+	if ( !redraw_cache ) return;
+	if ( renderer == NULL || layers == NULL ) return;
+
+	renderer->begin();
+	renderer->set_draw_mode( DRAWING_2D );
+
+	list_foreach( layers, node )
+	{
+		element = cast_elem(node);
+
+		if ( element->flags_int & INTFLAG_REFRESH &&
+			 element->flags & FLAG_VISIBLE )
+		{
+			mgui_element_render_cache( element, false );
+		}
+	}
+
+	renderer->end();
+	redraw_cache = false;
+}
+
 void mgui_process( void )
 {
 	node_t* node;
@@ -122,6 +159,7 @@ void mgui_process( void )
 	if ( renderer == NULL ) return;
 	if ( layers == NULL ) return;
 	
+	// Redraw the scene, process and render all elements.
 	if ( redraw_all )
 	{
 		renderer->begin();
@@ -132,23 +170,23 @@ void mgui_process( void )
 
 			if ( element->flags & FLAG_VISIBLE )
 			{
-				mgui_element_process( element );
 				mgui_element_render( element );
+				mgui_element_process( element );
 			}
 		}
 
 		renderer->end();
 	}
+
+	// Do processing only, don't render anything.
 	else
 	{
-		// Do processing only, don't render anything
 		list_foreach( layers, node )
 		{
 			element = cast_elem(node);
+
 			if ( element->flags & FLAG_VISIBLE )
-			{
 				mgui_element_process( element );
-			}
 		}
 	}
 
@@ -181,6 +219,7 @@ void mgui_set_renderer( MGuiRenderer* rend )
 		// If the old renderer still exists, invalidate everything related to it.
 		mgui_fontmgr_invalidate_all();
 		mgui_texturemgr_invalidate_all();
+		mgui_invalidate_elements();
 
 		renderer = NULL;
 	}
@@ -194,6 +233,7 @@ void mgui_set_renderer( MGuiRenderer* rend )
 		// Initialize everything with the new renderer.
 		mgui_texturemgr_initialize_all();
 		mgui_fontmgr_initialize_all();
+		mgui_initialize_elements();
 	}
 }
 
@@ -218,4 +258,30 @@ void mgui_screen_pos_to_world( const vector3_t* src, vector3_t* dst )
 void mgui_world_pos_to_screen( const vector3_t* src, vector3_t* dst )
 {
 	if ( renderer ) renderer->world_pos_to_screen( src, dst );
+}
+
+static void mgui_initialize_elements( void )
+{
+	node_t* node;
+
+	if ( layers == NULL ) return;
+
+	// Initialize all renderer dependent resources.
+	list_foreach( layers, node )
+	{
+		mgui_element_initialize( cast_elem(node) );
+	}
+}
+
+static void mgui_invalidate_elements( void )
+{
+	node_t* node;
+
+	if ( layers == NULL ) return;
+
+	// Invalidate all renderer dependent resources.
+	list_foreach( layers, node )
+	{
+		mgui_element_invalidate( cast_elem(node) );
+	}
 }

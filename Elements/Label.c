@@ -13,8 +13,12 @@
 #include "Skin.h"
 #include "Platform/Alloc.h"
 
+// --------------------------------------------------
+
 // Label callback handlers
 static void			mgui_label_render			( MGuiElement* label );
+
+// --------------------------------------------------
 
 static struct MGuiCallbacks callbacks =
 {
@@ -35,6 +39,8 @@ static struct MGuiCallbacks callbacks =
 	NULL, /* on_character */
 	NULL  /* on_key_press */
 };
+
+// --------------------------------------------------
 
 MGuiLabel* mgui_create_label( MGuiElement* parent )
 {

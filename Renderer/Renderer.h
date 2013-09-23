@@ -46,41 +46,73 @@ typedef struct {
 	colour_t	colour;		// The colour that should be used with this tag
 } MGuiFormatTag;
 
+typedef struct {
+	uint32	width;		// Width of the target texture
+	uint32	height;		// Height of the target texture
+} MGuiCache;
+
 struct MGuiRenderer
 {
-	void		( *begin )					( void );
-	void		( *end )					( void );
-	void		( *resize )					( uint32 w, uint32 h );
+	// --------------------------------------------------
+	// Scene begin/end
+	// --------------------------------------------------
+	void			( *begin )					( void );
+	void			( *end )					( void );
+	void			( *resize )					( uint32 w, uint32 h );
 
-	DRAW_MODE	( *set_draw_mode )			( DRAW_MODE mode );
-	void		( *set_draw_colour )		( const colour_t* col );
-	void		( *set_draw_depth )			( float z_depth );
-	void		( *set_draw_transform )		( const matrix4_t* mat );	
-	void		( *reset_draw_transform )	( void );
+	// --------------------------------------------------
+	// Draw modes
+	// --------------------------------------------------
+	DRAW_MODE		( *set_draw_mode )			( DRAW_MODE mode );
+	void			( *set_draw_colour )		( const colour_t* col );
+	void			( *set_draw_depth )			( float z_depth );
+	void			( *set_draw_transform )		( const matrix4_t* mat );	
+	void			( *reset_draw_transform )	( void );
 
-	void		( *start_clip )				( int32 x, int32 y, uint32 w, uint32 h );
-	void		( *end_clip )				( void );
+	void			( *start_clip )				( int32 x, int32 y, uint32 w, uint32 h );
+	void			( *end_clip )				( void );
 
-	void		( *draw_rect )				( int32 x, int32 y, uint32 w, uint32 h );
-	void		( *draw_triangle )			( int32 x1, int32 y1, int32 x2, int32 y2, int32 x3, int32 y3 );
-	void		( *draw_pixel )				( int32 x, int32 y );
+	// --------------------------------------------------
+	// Primitive rendering
+	// --------------------------------------------------
+	void			( *draw_rect )				( int32 x, int32 y, uint32 w, uint32 h );
+	void			( *draw_triangle )			( int32 x1, int32 y1, int32 x2, int32 y2, int32 x3, int32 y3 );
+	void			( *draw_pixel )				( int32 x, int32 y );
 
-	void*		( *load_texture )			( const char_t* path, uint32* width, uint32* height );
-	void		( *destroy_texture )		( void* texture );
-	void		( *draw_textured_rect )		( const void* texture, int32 x, int32 y, uint32 w, uint32 h, const float uv[] );
+	// --------------------------------------------------
+	// Textures and textured primitive rendering
+	// --------------------------------------------------
+	void*			( *load_texture )			( const char_t* path, uint32* width, uint32* height );
+	void			( *destroy_texture )		( void* texture );
+	void			( *draw_textured_rect )		( const void* texture, int32 x, int32 y, uint32 w, uint32 h, const float uv[] );
 
-	void*		( *load_font )				( const char_t* font, uint32 size, uint32 flags, uint32 charset,
-											  uint32 firstc, uint32 lastc );
+	// --------------------------------------------------
+	// Text rendering and fonts
+	// --------------------------------------------------
+	void*			( *load_font )				( const char_t* font, uint32 size, uint32 flags, uint32 charset,
+												  uint32 firstc, uint32 lastc );
 
-	void		( *destroy_font )			( void* font );
+	void			( *destroy_font )			( void* font );
 
-	void		( *draw_text )				( const void* font, const char_t* text, int32 x, int32 y,
-											  uint32 flags, const MGuiFormatTag tags[], uint32 ntags );
+	void			( *draw_text )				( const void* font, const char_t* text, int32 x, int32 y,
+												  uint32 flags, const MGuiFormatTag tags[], uint32 ntags );
 
-	void		( *measure_text )			( const void* font, const char_t* text, uint32* w, uint32* h );
+	void			( *measure_text )			( const void* font, const char_t* text, uint32* w, uint32* h );
 
-	void		( *screen_pos_to_world )	( const vector3_t* src, vector3_t* dst );
-	void		( *world_pos_to_screen )	( const vector3_t* src, vector3_t* dst );
+	// --------------------------------------------------
+	// Cached rendering
+	// --------------------------------------------------
+	MGuiCache*		( *create_render_target )	( uint32 width, uint32 height );
+	void			( *destroy_render_target )	( MGuiCache* target );
+	void			( *draw_render_target )		( const MGuiCache* target, int32 x, int32 y, uint32 w, uint32 h );
+	void			( *enable_render_target )	( const MGuiCache* target, int32 x, int32 y );
+	void			( *disable_render_target )	( const MGuiCache* target );
+
+	// --------------------------------------------------
+	// Utility functions
+	// --------------------------------------------------
+	void			( *screen_pos_to_world )	( const vector3_t* src, vector3_t* dst );
+	void			( *world_pos_to_screen )	( const vector3_t* src, vector3_t* dst );
 };
 
 #endif /* __MYLLY_GUI_RENDERER_H */

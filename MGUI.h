@@ -83,12 +83,13 @@ enum MGUI_FLAGS
 	FLAG_TEXT_TAGS			= 1 << 15,	/* Text can be formatted using tags */
 	FLAG_DEPTH_TEST			= 1 << 16,	/* Enable depth testing (useful for 3D text) */
 	FLAG_3D_ENTITY			= 1 << 17,	/* This element is fully 3D, use mgui_set_3d_* to manipulate */
+	FLAG_CACHE_TEXTURE		= 1 << 18,	/* Use a cache texture */
 
 	// Element specific flags
-	FLAG_WINDOW_TITLEBAR	= 1 << 20,	/* Enable window titlebar */
-	FLAG_WINDOW_CLOSEBTN	= 1 << 21,	/* Enable window close button */
-	FLAG_EDIT_MASKINPUT		= 1 << 20,	/* Mask user input in editbox */
-	FLAG_MEMO_TOPBOTTOM		= 1 << 20,	/* Memobox order is top to bottom */
+	FLAG_WINDOW_TITLEBAR	= 1 << 24,	/* Enable window titlebar */
+	FLAG_WINDOW_CLOSEBTN	= 1 << 25,	/* Enable window close button */
+	FLAG_EDIT_MASKINPUT		= 1 << 24,	/* Mask user input in editbox */
+	FLAG_MEMO_TOPBOTTOM		= 1 << 24,	/* Memobox order is top to bottom */
 };
 
 enum MGUI_FONT_FLAGS
@@ -157,6 +158,7 @@ __BEGIN_DECLS
 /* Library initialization and processing */
 MGUI_EXPORT void			mgui_initialize					( void* wndhandle, uint32 params );
 MGUI_EXPORT void			mgui_shutdown					( void );
+MGUI_EXPORT void			mgui_pre_process				( void );
 MGUI_EXPORT void			mgui_process					( void );
 MGUI_EXPORT void			mgui_force_redraw				( void );
 

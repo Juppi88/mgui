@@ -16,7 +16,11 @@
 #include "Platform/Alloc.h"
 #include <stdio.h>
 
+// --------------------------------------------------
+
 extern MGuiRenderer* renderer;
+
+// --------------------------------------------------
 
 static bool is_valid_colour_tag( const char* text );
 static bool is_valid_uline_tag( const char* text );
@@ -25,6 +29,8 @@ static bool parse_colour_tag( const char_t* text, uint32* in );
 static bool parse_end_tag( const char_t* text, char_t* in );
 static bool mgui_text_parse_tag( const char_t** ptext, MGuiFormatTag tags[], uint32* ntag, uint32* index, const colour_t* def );
 static void mgui_text_parse_format_tags2( MGuiText* text, uint32 num_tags );
+
+// --------------------------------------------------
 
 MGuiText* mgui_text_create( void )
 {

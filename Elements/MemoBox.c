@@ -15,7 +15,11 @@
 #include "Platform/Alloc.h"
 #include "Stringy/Stringy.h"
 
+// --------------------------------------------------
+
 extern MGuiRenderer* renderer;
+
+// --------------------------------------------------
 
 static void		mgui_memobox_update_display_positions			( struct MGuiMemobox* memobox );
 static void		mgui_memobox_update_display_positions_topbottom	( struct MGuiMemobox* memobox );
@@ -30,6 +34,8 @@ static void		mgui_memobox_render				( MGuiElement* memobox );
 static void		mgui_memobox_on_bounds_change	( MGuiElement* memobox, bool pos, bool size );
 static void		mgui_memobox_on_flags_change	( MGuiElement* memobox, uint32 old );
 static void		mgui_memobox_on_text_change		( MGuiElement* memobox );
+
+// --------------------------------------------------
 
 static struct MGuiCallbacks callbacks =
 {
@@ -50,6 +56,8 @@ static struct MGuiCallbacks callbacks =
 	NULL, /* on_character */
 	NULL  /* on_key_press */
 };
+
+// --------------------------------------------------
 
 MGuiMemobox* mgui_create_memobox( MGuiElement* parent )
 {
@@ -251,7 +259,7 @@ void mgui_memobox_clear( MGuiMemobox* memobox )
 		mem_free( line );
 	}
 
-	mgui_element_request_redraw();
+	mgui_element_request_redraw( memobox );
 }
 
 float mgui_memobox_get_display_pos( MGuiMemobox* memobox )
@@ -484,7 +492,7 @@ static void mgui_memobox_process_new_line( struct MGuiMemobox* memobox, struct M
 	}
 
 	mgui_memobox_update_display_positions( memobox );
-	mgui_element_request_redraw();
+	mgui_element_request_redraw( cast_elem(memobox) );
 }
 
 static void mgui_memobox_wrap_line( struct MGuiMemobox* memobox, struct MGuiMemoRaw* raw )

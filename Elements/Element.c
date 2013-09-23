@@ -19,12 +19,18 @@
 #include <stdio.h>
 #include <stdarg.h>
 
+// --------------------------------------------------
+
 extern vectorscreen_t draw_size;
 extern list_t* layers;
 extern MGuiRenderer* renderer;
 
+// --------------------------------------------------
+
 static MYLLY_INLINE MGuiElement*	mgui_get_element_at_test_self		( MGuiElement* element, int16 x, int16 y );
 static MYLLY_INLINE MGuiElement*	mgui_get_element_at_test_bounds		( MGuiElement* element, int16 x, int16 y );
+
+// --------------------------------------------------
 
 void mgui_element_create( MGuiElement* element, MGuiElement* parent )
 {
@@ -56,10 +62,8 @@ void mgui_element_create( MGuiElement* element, MGuiElement* parent )
 		element->flags_int |= INTFLAG_LAYER;
 	}
 
-	if ( element->text )
-	{
+	if ( element->text != NULL )
 		element->text->colour.a = element->colour.a;
-	}
 }
 
 void mgui_element_destroy( MGuiElement* element )
@@ -95,25 +99,106 @@ void mgui_element_destroy( MGuiElement* element )
 	mem_free( element );
 }
 
+void mgui_element_render_cache( MGuiElement* element, bool draw_self )
+{
+	node_t* node;
+	rectangle_t* r;
+	static colour_t cache_colour = { 0xFFFFFFFF };
+
+	if ( element == NULL ) return;
+	if ( BIT_OFF( element->flags, FLAG_VISIBLE ) ) return;
+
+	// Did we get a request from upstairs to draw ourselves?
+	// Do it anyway if we have a cache, otherwise just pass the order on.
+	if ( !draw_self && element->cache == NULL )
+	{
+		element->flags_int &= ~INTFLAG_REFRESH;
+		if ( element->children == NULL ) return;
+		
+		list_foreach( element->children, node )
+		{
+			mgui_element_render_cache( cast_elem(node), false );
+		}
+		return;
+	}
+
+	// Get element boundaries
+	r = element->callbacks->get_clip_region ?
+		element->callbacks->get_clip_region( element, &r ), r :
+		&element->bounds;
+
+	// Can we just draw the element from the old cache?
+	if ( element->cache && BIT_OFF( element->flags_int, INTFLAG_REFRESH ) )
+	{
+		cache_colour.a = element->colour.a;
+
+		renderer->set_draw_colour( &cache_colour );
+		renderer->draw_render_target( element->cache, r->x, r->y, r->w, r->h );
+		return;
+	}
+
+	// If not, we'll really have to draw everything again.
+	if ( element->cache != NULL )
+		renderer->enable_render_target( element->cache, r->x, r->y );
+
+	// Set clipping region and toggle clip mode.
+	if ( element->flags & FLAG_CLIP )
+		renderer->start_clip( r->x, r->y, r->w, r->h );
+
+	// Render the element itself
+	if ( element->callbacks->render )
+		element->callbacks->render( element );
+
+	// If the element has any children, draw them now.
+	if ( element->children )
+	{
+		list_foreach( element->children, node )
+		{
+			mgui_element_render_cache( (MGuiElement*)node, true );
+		}
+	}
+
+	// Disable clip mode.
+	if ( element->flags & FLAG_CLIP )
+		renderer->end_clip();
+
+	// Disable render target.
+	if ( element->cache != NULL )
+	{
+		element->flags_int &= ~INTFLAG_REFRESH;
+		renderer->disable_render_target( element->cache );
+
+		if ( draw_self )
+			renderer->draw_render_target( element->cache, r->x, r->y, r->w, r->h );
+	}
+
+	// Re-enable parent clipping if necessary.
+	element = element->parent;
+
+	if ( element && element->flags & FLAG_CLIP )
+	{
+		r = element->callbacks->get_clip_region ?
+			element->callbacks->get_clip_region( element, &r ), r :
+			&element->bounds;
+
+		renderer->start_clip( r->x, r->y, r->w, r->h );
+	}
+}
+
 void mgui_element_render( MGuiElement* element )
 {
 	node_t* node;
 	rectangle_t* r;
 	DRAW_MODE draw_mode = DRAWING_INVALID;
+	static colour_t cache_colour = { 0xFFFFFFFF };
 
 	if ( element == NULL ) return;
 	if ( BIT_OFF( element->flags, FLAG_VISIBLE ) ) return;
 
-	// Set clipping region and toggle clip mode.
-	if ( BIT_ON( element->flags, FLAG_CLIP ) )
-	{
-		if ( element->callbacks->get_clip_region )
-			element->callbacks->get_clip_region( element, &r );
-		else
-			r = &element->bounds;
-
-		renderer->start_clip( r->x, r->y, r->w, r->h );
-	}
+	// Get element boundaries
+	r = element->callbacks->get_clip_region ?
+		element->callbacks->get_clip_region( element, &r ), r :
+		&element->bounds;
 
 	// If the element is a 3D element, toggle special drawing mode.
 	// Make sure the element is also a root element (to avoid some dodgy results)
@@ -134,17 +219,41 @@ void mgui_element_render( MGuiElement* element )
 		}
 	}
 
-	// Render the element itself
-	if ( element->callbacks->render )
-		element->callbacks->render( element );
-
-	// If the element has children, draw them now.
-	if ( element->children )
+	// Do we have a cache texture?
+	if ( element->cache != NULL )
 	{
-		list_foreach( element->children, node )
+		cache_colour.a = element->colour.a;
+
+		renderer->set_draw_colour( &cache_colour );
+		renderer->draw_render_target( element->cache, r->x, r->y, r->w, r->h );
+
+		// This fixes a bug which didn't update the element's cache in some cases
+		// after it was made visible. It's not really ideal but it seems to work.
+		if ( element->flags_int & INTFLAG_REFRESH )
+			mgui_element_request_redraw( element );
+	}
+	else
+	{
+		// Set clipping region and toggle clip mode.
+		if ( BIT_ON( element->flags, FLAG_CLIP ) )
+			renderer->start_clip( r->x, r->y, r->w, r->h );
+
+		// Render the element itself
+		if ( element->callbacks->render )
+			element->callbacks->render( element );
+
+		// If the element has children, draw them now.
+		if ( element->children )
 		{
-			mgui_element_render( (MGuiElement*)node );
+			list_foreach( element->children, node )
+			{
+				mgui_element_render( cast_elem(node) );
+			}
 		}
+
+		// Disable clip mode.
+		if ( element->flags & FLAG_CLIP )
+			renderer->end_clip();
 	}
 
 	// Reset draw modes back to original.
@@ -157,21 +266,14 @@ void mgui_element_render( MGuiElement* element )
 	if ( element->flags & FLAG_3D_ENTITY )
 		renderer->reset_draw_transform();
 
-	// Disable current cliping.
-	if ( BIT_ON( element->flags, FLAG_CLIP ) )
-	{
-		renderer->end_clip();
-	}
-
 	// Re-enable parent clipping if necessary.
 	element = element->parent;
 
 	if ( element && BIT_ON( element->flags, FLAG_CLIP ) )
 	{
-		if ( element->callbacks->get_clip_region )
-			element->callbacks->get_clip_region( element, &r );
-		else
-			r = &element->bounds;
+		r = element->callbacks->get_clip_region ?
+			element->callbacks->get_clip_region( element, &r ), r :
+			&element->bounds;
 
 		renderer->start_clip( r->x, r->y, r->w, r->h );
 	}
@@ -180,29 +282,87 @@ void mgui_element_render( MGuiElement* element )
 void mgui_element_process( MGuiElement* element )
 {
 	node_t* node;
-	MGuiElement* child;
 
 	if ( element == NULL ) return;
 	if ( BIT_OFF( element->flags, FLAG_VISIBLE ) ) return;
 
 	if ( element->callbacks->process )
-	{
 		element->callbacks->process( element );
-	}
 
 	if ( !element->children ) return;
 
 	list_foreach( element->children, node )
 	{
-		child = cast_elem(node);
-		mgui_element_process( child );
+		mgui_element_process( cast_elem(node) );
 	}
 }
 
-void mgui_element_request_redraw( void )
+void mgui_element_initialize( MGuiElement* element )
+{
+	node_t* node;
+
+	if ( element == NULL ) return;
+
+	// Intialize all resources with the renderer
+	if ( element->flags & FLAG_CACHE_TEXTURE )
+	{
+		if ( element->cache == NULL )
+			element->cache = renderer->create_render_target( element->bounds.w, element->bounds.h );
+	}
+
+	if ( !element->children ) return;
+
+	// Do it for all the child elements as well
+	list_foreach( element->children, node )
+	{
+		mgui_element_initialize( cast_elem(node) );
+	}
+}
+
+void mgui_element_invalidate( MGuiElement* element )
+{
+	node_t* node;
+
+	if ( element == NULL ) return;
+
+	// Intialize all resources with the renderer
+	if ( element->flags & FLAG_CACHE_TEXTURE )
+	{
+		if ( element->cache != NULL )
+		{
+			renderer->destroy_render_target( element->cache );
+			element->cache = NULL;
+		}
+	}
+
+	if ( !element->children ) return;
+
+	// Do it for all the child elements as well
+	list_foreach( element->children, node )
+	{
+		mgui_element_invalidate( cast_elem(node) );
+	}
+}
+
+void mgui_element_request_redraw( MGuiElement* element )
 {
 	extern bool refresh_all;
+	extern bool redraw_cache;
+
 	refresh_all = true;
+
+	// Invalidate this element and all its predecessors
+	if ( element != NULL )
+	{
+		while ( element )
+		{
+			if ( element->cache != NULL )
+				redraw_cache = true;
+
+			element->flags_int |= INTFLAG_REFRESH;
+			element = element->parent;
+		}
+	}
 }
 
 MGuiElement* mgui_get_element_at( int16 x, int16 y )
@@ -1270,6 +1430,7 @@ uint32 mgui_get_flags( MGuiElement* element )
 void mgui_add_flags( MGuiElement* element, uint32 flags )
 {
 	uint32 old;
+	extern bool redraw_cache;
 
 	if ( element == NULL ) return;
 
@@ -1299,6 +1460,15 @@ void mgui_add_flags( MGuiElement* element, uint32 flags )
 	if ( flags & FLAG_TEXT_SHADOW && element->text )
 		element->text->flags |= TFLAG_SHADOW;
 
+	// Enable caching into a texture.
+	if ( flags & FLAG_CACHE_TEXTURE )
+	{
+		element->flags_int |= INTFLAG_REFRESH;
+
+		if ( element->cache == NULL && renderer != NULL )
+			element->cache = renderer->create_render_target( element->bounds.w, element->bounds.h );
+	}
+
 	old = element->flags;
 	element->flags |= flags;
 
@@ -1315,7 +1485,7 @@ void mgui_remove_flags( MGuiElement* element, uint32 flags )
 	old = element->flags;
 	element->flags &= ~flags;
 
-	if ( element->text )
+	if ( element->text != NULL )
 	{
 		// Disable text tag bit.
 		if ( flags & FLAG_TEXT_TAGS )
@@ -1333,6 +1503,16 @@ void mgui_remove_flags( MGuiElement* element, uint32 flags )
 	// Set default z depth.
 	if ( flags & FLAG_DEPTH_TEST )
 		element->z_depth = 1.0f;
+
+	// Destroy render cache
+	if ( flags & FLAG_CACHE_TEXTURE )
+	{
+		if ( element->cache != NULL && renderer != NULL )
+		{
+			renderer->destroy_render_target( element->cache );
+			element->cache = NULL;
+		}
+	}
 
 	if ( element->callbacks->on_flags_change )
 		element->callbacks->on_flags_change( element, old );

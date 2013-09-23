@@ -93,7 +93,7 @@ void mgui_scrollbar_on_bounds_change( MGuiElement* scrollbar, bool pos, bool siz
 	bar->bar.h = (uint16)( bar->bar_size * tracksize );
 	bar->bar.y = bar->bounds.y + bar->bounds.w + (uint16)( ( tracksize - bar->bar.h ) * bar->bar_position );
 
-	mgui_element_request_redraw();
+	mgui_element_request_redraw( scrollbar );
 }
 
 void mgui_scrollbar_get_track_colour( MGuiScrollBar* scrollbar, colour_t* col )

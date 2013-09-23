@@ -13,10 +13,14 @@
 #include "Skin.h"
 #include "Platform/Alloc.h"
 
+// --------------------------------------------------
+
 // Progressbar callback handlers and static methods
 static void		mgui_progressbar_render				( MGuiElement* bar );
 static void		mgui_progressbar_on_colour_change	( MGuiElement* bar );
 static void		mgui_progressbar_update_colours		( struct MGuiProgressBar* bar );
+
+// --------------------------------------------------
 
 static struct MGuiCallbacks callbacks =
 {
@@ -37,6 +41,8 @@ static struct MGuiCallbacks callbacks =
 	NULL, /* on_character */
 	NULL  /* on_key_press */
 };
+
+// --------------------------------------------------
 
 MGuiProgressBar* mgui_create_progressbar( MGuiElement* parent )
 {

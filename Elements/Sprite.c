@@ -12,10 +12,16 @@
 #include "Sprite.h"
 #include "Platform/Alloc.h"
 
+// --------------------------------------------------
+
 extern MGuiRenderer* renderer;
+
+// --------------------------------------------------
 
 // Sprite callback handlers
 static void mgui_sprite_render( MGuiElement* sprite );
+
+// --------------------------------------------------
 
 static struct MGuiCallbacks callbacks =
 {
@@ -36,6 +42,8 @@ static struct MGuiCallbacks callbacks =
 	NULL, /* on_character */
 	NULL  /* on_key_press */
 };
+
+// --------------------------------------------------
 
 MGuiSprite* mgui_create_sprite( MGuiElement* parent )
 {

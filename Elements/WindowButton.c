@@ -17,12 +17,18 @@
 #include "Input/Input.h"
 #include "Platform/Alloc.h"
 
+// --------------------------------------------------
+
 extern MGuiFont* wndbutton_font; // Font used for the close button X
+
+// --------------------------------------------------
 
 // Window button callback handlers
 static void		mgui_windowbutton_on_bounds_change	( MGuiElement* button, bool pos, bool size );
 static void		mgui_windowbutton_on_colour_change	( MGuiElement* button );
 static void		mgui_windowbutton_on_mouse_release	( MGuiElement* button, int16 x, int16 y, MOUSEBTN mousebtn );
+
+// --------------------------------------------------
 
 static struct MGuiCallbacks callbacks =
 {
@@ -43,6 +49,8 @@ static struct MGuiCallbacks callbacks =
 	NULL, /* on_character */
 	NULL  /* on_key_press */
 };
+
+// --------------------------------------------------
 
 MGuiWindowButton* mgui_create_windowbutton( MGuiWindow* parent )
 {

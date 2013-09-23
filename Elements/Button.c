@@ -15,9 +15,13 @@
 #include "Input/Input.h"
 #include "Platform/Alloc.h"
 
+// --------------------------------------------------
+
 // Button callback handlers
 static void		mgui_button_render			( MGuiElement* button );
 static void		mgui_button_on_key_press	( MGuiElement* button, uint32 key, bool down );
+
+// --------------------------------------------------
 
 static struct MGuiCallbacks callbacks =
 {
@@ -38,6 +42,8 @@ static struct MGuiCallbacks callbacks =
 	NULL, /* on_character */
 	mgui_button_on_key_press
 };
+
+// --------------------------------------------------
 
 MGuiButton* mgui_create_button( MGuiElement* parent )
 {
@@ -116,5 +122,5 @@ static void mgui_button_on_key_press( MGuiElement* button, uint32 key, bool down
 		}
 	}
 
-	mgui_element_request_redraw();
+	mgui_element_request_redraw( button );
 }

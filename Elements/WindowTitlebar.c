@@ -15,10 +15,14 @@
 #include "Font.h"
 #include "Platform/Alloc.h"
 
+// --------------------------------------------------
+
 // Window titlebar callback handlers
 static void		mgui_titlebar_destroy			( MGuiElement* element );
 static void		mgui_titlebar_on_mouse_click	( MGuiElement* element, int16 x, int16 y, MOUSEBTN button );
 static void		mgui_titlebar_on_mouse_drag		( MGuiElement* element, int16 x, int16 y );
+
+// --------------------------------------------------
 
 static struct MGuiCallbacks callbacks =
 {
@@ -39,6 +43,8 @@ static struct MGuiCallbacks callbacks =
 	NULL, /* on_character */
 	NULL  /* on_key_press */
 };
+
+// --------------------------------------------------
 
 MGuiTitlebar* mgui_create_titlebar( MGuiWindow* parent )
 {
