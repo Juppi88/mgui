@@ -27,6 +27,7 @@ static struct MGuiCallbacks callbacks =
 {
 	NULL, /* destroy */
 	mgui_sprite_render,
+	NULL, /* post_render */
 	NULL, /* process */
 	NULL, /* get_clip_region */
 	NULL, /* on_bounds_change */

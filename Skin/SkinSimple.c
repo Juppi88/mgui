@@ -258,7 +258,7 @@ static void skin_simple_draw_editbox( MGuiElement* element )
 		/*if ( BIT_ON( editbox->flags_int, INTFLAG_FOCUS ) && mgui_editbox_has_text_selected( (MGuiEditbox*)editbox ) )
 		{
 			c = text->colour;
-			colour_invert_noalpha( &c, &c );
+			colour_invert_no_alpha( &c, &c );
 		}
 		else*/
 		{
@@ -525,6 +525,18 @@ static void skin_simple_draw_window( MGuiElement* element )
 			skin_simple_draw_border( &border, &window->titlebar->colour, BORDER_ALL&(~BORDER_TOP), 2 );
 			skin_simple_draw_border( &window->window_bounds, &col, BORDER_ALL, 1 );
 		}
+
+		if ( element->flags & FLAG_WINDOW_RESIZABLE )
+		{
+			r = &window->window_bounds;
+
+			col = window->titlebar->colour;
+
+			renderer->set_draw_colour( &col );
+			renderer->draw_triangle( r->x+r->w-2, r->y+r->h-10,
+									 r->x+r->w-2, r->y+r->h-2,
+									 r->x+r->w-10, r->y+r->h-2 );
+		}
 	}
 	else
 	{
@@ -540,6 +552,19 @@ static void skin_simple_draw_window( MGuiElement* element )
 			col.a = element->colour.a;
 
 			skin_simple_draw_border( r, &col, BORDER_ALL, 2 );
+		}
+
+		if ( element->flags & FLAG_WINDOW_RESIZABLE )
+		{
+			r = &window->window_bounds;
+
+			colour_subtract_scalar( &col, &element->colour, 40 );
+			col.a = element->colour.a;
+
+			renderer->set_draw_colour( &col );
+			renderer->draw_triangle( r->x+r->w-2, r->y+r->h-10,
+									 r->x+r->w-2, r->y+r->h-2,
+									 r->x+r->w-10, r->y+r->h-2 );
 		}
 	}
 }

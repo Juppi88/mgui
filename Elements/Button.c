@@ -19,7 +19,7 @@
 
 // Button callback handlers
 static void		mgui_button_render			( MGuiElement* button );
-static void		mgui_button_on_key_press	( MGuiElement* button, uint32 key, bool down );
+static bool		mgui_button_on_key_press	( MGuiElement* button, uint32 key, bool down );
 
 // --------------------------------------------------
 
@@ -27,6 +27,7 @@ static struct MGuiCallbacks callbacks =
 {
 	NULL, /* destroy */
 	mgui_button_render,
+	NULL, /* post_render */
 	NULL, /* process */
 	NULL, /* get_clip_region */
 	NULL, /* on_bounds_change */
@@ -85,11 +86,11 @@ static void mgui_button_render( MGuiElement* button )
 	button->skin->draw_button( button );
 }
 
-static void mgui_button_on_key_press( MGuiElement* button, uint32 key, bool down )
+static bool mgui_button_on_key_press( MGuiElement* button, uint32 key, bool down )
 {
-	MGuiEvent guievent;
+	MGuiEvent event;
 
-	if ( key != MKEY_RETURN && key != MKEY_SPACE ) return;
+	if ( key != MKEY_RETURN && key != MKEY_SPACE ) return true;
 
 	if ( down )
 	{
@@ -97,13 +98,13 @@ static void mgui_button_on_key_press( MGuiElement* button, uint32 key, bool down
 
 		if ( button->event_handler )
 		{
-			guievent.type = EVENT_CLICK;
-			guievent.element = button;
-			guievent.data = button->event_data;
-			guievent.mouse.x = 0;
-			guievent.mouse.y = 0;
+			event.type = EVENT_CLICK;
+			event.mouse.element = button;
+			event.mouse.data = button->event_data;
+			event.mouse.cursor_x = 0;
+			event.mouse.cursor_y = 0;
 
-			button->event_handler( &guievent );
+			button->event_handler( &event );
 		}
 	}
 	else
@@ -112,15 +113,16 @@ static void mgui_button_on_key_press( MGuiElement* button, uint32 key, bool down
 
 		if ( button->event_handler )
 		{
-			guievent.type = EVENT_RELEASE;
-			guievent.element = button;
-			guievent.data = button->event_data;
-			guievent.mouse.x = 0;
-			guievent.mouse.y = 0;
+			event.type = EVENT_RELEASE;
+			event.mouse.element = button;
+			event.mouse.data = button->event_data;
+			event.mouse.cursor_x = 0;
+			event.mouse.cursor_y = 0;
 
-			button->event_handler( &guievent );
+			button->event_handler( &event );
 		}
 	}
 
 	mgui_element_request_redraw( button );
+	return true;
 }

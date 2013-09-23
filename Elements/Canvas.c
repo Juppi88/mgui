@@ -31,6 +31,7 @@ static struct MGuiCallbacks callbacks =
 {
 	NULL, /* destroy */
 	mgui_canvas_render,
+	NULL, /* post_render */
 	NULL, /* process */
 	NULL, /* get_clip_region */
 	mgui_canvas_on_bounds_change,

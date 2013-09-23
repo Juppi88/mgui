@@ -22,6 +22,7 @@ static struct MGuiCallbacks callbacks =
 {
 	NULL, /* destroy */
 	mgui_scrollbar_render,
+	NULL, /* post_render */
 	NULL, /* process */
 	NULL, /* get_clip_region */
 	mgui_scrollbar_on_bounds_change,

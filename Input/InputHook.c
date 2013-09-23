@@ -65,17 +65,17 @@ MGuiElement* mgui_get_focus( void )
 
 void mgui_set_focus( MGuiElement* element )
 {
-	MGuiEvent guievent;
+	MGuiEvent event;
 
 	if ( kbfocus )
 	{
 		if ( kbfocus->event_handler )
 		{
-			guievent.type = EVENT_FOCUS_EXIT;
-			guievent.element = kbfocus;
-			guievent.data = kbfocus->event_data;
+			event.type = EVENT_FOCUS_EXIT;
+			event.any.element = kbfocus;
+			event.any.data = kbfocus->event_data;
 
-			kbfocus->event_handler( &guievent );
+			kbfocus->event_handler( &event );
 		}
 
 		mgui_element_request_redraw( kbfocus );
@@ -96,11 +96,11 @@ void mgui_set_focus( MGuiElement* element )
 
 		if ( kbfocus->event_handler )
 		{
-			guievent.type = EVENT_FOCUS_ENTER;
-			guievent.element = kbfocus;
-			guievent.data = element->event_data;
+			event.type = EVENT_FOCUS_ENTER;
+			event.any.element = kbfocus;
+			event.any.data = element->event_data;
 
-			kbfocus->event_handler( &guievent );
+			kbfocus->event_handler( &event );
 		}
 	}
 }
@@ -109,7 +109,7 @@ static bool mgui_input_handle_char( input_event_t* event )
 {
 	if ( kbfocus && kbfocus->callbacks->on_character )
 	{
-		kbfocus->callbacks->on_character( kbfocus, (char_t)event->keyboard.key );
+		return kbfocus->callbacks->on_character( kbfocus, (char_t)event->keyboard.key );
 	}
 
 	return true;
@@ -119,7 +119,7 @@ static bool mgui_input_handle_key_up( input_event_t* event )
 {
 	if ( kbfocus && kbfocus->callbacks->on_key_press )
 	{
-		kbfocus->callbacks->on_key_press( kbfocus, event->keyboard.key, false );
+		return kbfocus->callbacks->on_key_press( kbfocus, event->keyboard.key, false );
 	}
 
 	return true;
@@ -129,7 +129,7 @@ static bool mgui_input_handle_key_down( input_event_t* event )
 {
 	if ( kbfocus && kbfocus->callbacks->on_key_press )
 	{
-		kbfocus->callbacks->on_key_press( kbfocus, event->keyboard.key, true );
+		return kbfocus->callbacks->on_key_press( kbfocus, event->keyboard.key, true );
 	}
 
 	return true;
@@ -149,9 +149,7 @@ static bool mgui_input_handle_mouse_move( input_event_t* event )
 		mgui_element_request_redraw( NULL );
 
 		if ( dragged->callbacks->on_mouse_drag )
-		{
 			dragged->callbacks->on_mouse_drag( dragged, x, y );
-		}
 	}
 
 	element = mgui_get_element_at( x, y );
@@ -163,17 +161,15 @@ static bool mgui_input_handle_mouse_move( input_event_t* event )
 		mgui_element_request_redraw( hovered );
 
 		if ( hovered->callbacks->on_mouse_leave )
-		{
 			hovered->callbacks->on_mouse_leave( hovered );
-		}
 
 		if ( hovered->event_handler )
 		{
 			guievent.type = EVENT_HOVER_LEAVE;
-			guievent.element = hovered;
-			guievent.data = hovered->event_data;
-			guievent.mouse.x = x;
-			guievent.mouse.y = y;
+			guievent.mouse.element = hovered;
+			guievent.mouse.data = hovered->event_data;
+			guievent.mouse.cursor_x = x;
+			guievent.mouse.cursor_y = y;
 
 			hovered->event_handler( &guievent );
 		}
@@ -185,17 +181,15 @@ static bool mgui_input_handle_mouse_move( input_event_t* event )
 		mgui_element_request_redraw( hovered );
 
 		if ( hovered->callbacks->on_mouse_enter )
-		{
 			hovered->callbacks->on_mouse_enter( hovered );
-		}
 
 		if ( hovered->event_handler )
 		{
 			guievent.type = EVENT_HOVER_ENTER;
-			guievent.element = hovered;
-			guievent.data = hovered->event_data;
-			guievent.mouse.x = x;
-			guievent.mouse.y = y;
+			guievent.mouse.element = hovered;
+			guievent.mouse.data = hovered->event_data;
+			guievent.mouse.cursor_x = x;
+			guievent.mouse.cursor_y = y;
 
 			hovered->event_handler( &guievent );
 		}
@@ -230,17 +224,15 @@ static bool mgui_input_handle_lmb_up( input_event_t* event )
 		mgui_element_request_redraw( pressed );
 
 		if ( pressed->callbacks->on_mouse_release )
-		{
 			pressed->callbacks->on_mouse_release( pressed, x, y, MOUSE_LBUTTON );
-		}
 
 		if ( pressed->event_handler )
 		{
 			guievent.type = EVENT_RELEASE;
-			guievent.element = pressed;
-			guievent.data = pressed->event_data;
-			guievent.mouse.x = x;
-			guievent.mouse.y = y;
+			guievent.mouse.element = pressed;
+			guievent.mouse.data = pressed->event_data;
+			guievent.mouse.cursor_x = x;
+			guievent.mouse.cursor_y = y;
 
 			pressed->event_handler( &guievent );
 		}
@@ -269,8 +261,8 @@ static bool mgui_input_handle_lmb_down( input_event_t* event )
 		if ( kbfocus->event_handler )
 		{
 			guievent.type = EVENT_FOCUS_EXIT;
-			guievent.element = kbfocus;
-			guievent.data = kbfocus->event_data;
+			guievent.any.element = kbfocus;
+			guievent.any.data = kbfocus->event_data;
 
 			kbfocus->event_handler( &guievent );
 		}
@@ -288,17 +280,15 @@ static bool mgui_input_handle_lmb_down( input_event_t* event )
 		mgui_element_request_redraw( pressed );
 
 		if ( pressed->callbacks->on_mouse_release )
-		{
 			pressed->callbacks->on_mouse_release( pressed, x, y, MOUSE_LBUTTON );
-		}
 
 		if ( pressed->event_handler )
 		{
 			guievent.type = EVENT_RELEASE;
-			guievent.element = pressed;
-			guievent.data = pressed->event_data;
-			guievent.mouse.x = x;
-			guievent.mouse.y = y;
+			guievent.mouse.element = pressed;
+			guievent.mouse.data = pressed->event_data;
+			guievent.mouse.cursor_x = x;
+			guievent.mouse.cursor_y = y;
 
 			pressed->event_handler( &guievent );
 		}
@@ -311,22 +301,18 @@ static bool mgui_input_handle_lmb_down( input_event_t* event )
 		mgui_element_request_redraw( pressed );
 
 		if ( pressed->callbacks->on_mouse_click )
-		{
 			pressed->callbacks->on_mouse_click( pressed, x, y, MOUSE_LBUTTON );
-		}
 
 		if ( BIT_ON( pressed->flags, FLAG_DRAGGABLE ) )
-		{
 			dragged = pressed;
-		}
 
 		if ( pressed->event_handler )
 		{
 			guievent.type = EVENT_CLICK;
-			guievent.element = pressed;
-			guievent.data = pressed->event_data;
-			guievent.mouse.x = x;
-			guievent.mouse.y = y;
+			guievent.mouse.element = pressed;
+			guievent.mouse.data = pressed->event_data;
+			guievent.mouse.cursor_x = x;
+			guievent.mouse.cursor_y = y;
 
 			pressed->event_handler( &guievent );
 		}
@@ -339,8 +325,8 @@ static bool mgui_input_handle_lmb_down( input_event_t* event )
 			if ( kbfocus->event_handler )
 			{
 				guievent.type = EVENT_FOCUS_ENTER;
-				guievent.element = kbfocus;
-				guievent.data = kbfocus->event_data;
+				guievent.any.element = kbfocus;
+				guievent.any.data = kbfocus->event_data;
 
 				kbfocus->event_handler( &guievent );
 			}

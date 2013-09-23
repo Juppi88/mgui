@@ -12,19 +12,26 @@
 #include "Window.h"
 #include "WindowButton.h"
 #include "WindowTitlebar.h"
+#include "Renderer.h"
 #include "Skin.h"
 #include "Font.h"
 #include "Platform/Alloc.h"
 
 // --------------------------------------------------
 
+extern MGuiRenderer* renderer;
+
+// --------------------------------------------------
+
 // Window callback handlers
 static void		mgui_window_render				( MGuiElement* window );
+static void		mgui_window_post_render			( MGuiElement* window );
 static void		mgui_window_get_clip_region		( MGuiElement* window, rectangle_t** rect );
 static void		mgui_window_on_bounds_change	( MGuiElement* window, bool pos, bool size );
 static void		mgui_window_on_flags_change		( MGuiElement* window, uint32 old );
 static void		mgui_window_on_colour_change	( MGuiElement* window );
 static void		mgui_window_on_mouse_click		( MGuiElement* window, int16 x, int16 y, MOUSEBTN button );
+static void		mgui_window_on_mouse_release	( MGuiElement* window, int16 x, int16 y, MOUSEBTN button );
 static void		mgui_window_on_mouse_drag		( MGuiElement* window, int16 x, int16 y );
 
 // --------------------------------------------------
@@ -33,6 +40,7 @@ static struct MGuiCallbacks callbacks =
 {
 	NULL, /* destroy */
 	mgui_window_render,
+	mgui_window_post_render,
 	NULL, /* process */
 	mgui_window_get_clip_region,
 	mgui_window_on_bounds_change,
@@ -42,7 +50,7 @@ static struct MGuiCallbacks callbacks =
 	NULL, /* on_mouse_enter */
 	NULL, /* on_mouse_leave */
 	mgui_window_on_mouse_click,
-	NULL, /* on_mouse_release */
+	mgui_window_on_mouse_release,
 	mgui_window_on_mouse_drag,
 	NULL, /* on_mouse_wheel */
 	NULL, /* on_character */
@@ -58,10 +66,13 @@ MGuiWindow* mgui_create_window( MGuiElement* parent )
 	window = mem_alloc_clean( sizeof(*window) );
 	mgui_element_create( cast_elem(window), parent );
 
-	window->flags |= (FLAG_BORDER|FLAG_SHADOW|FLAG_BACKGROUND|FLAG_WINDOW_TITLEBAR|FLAG_WINDOW_CLOSEBTN);
+	window->flags |= (FLAG_BORDER|FLAG_SHADOW|FLAG_BACKGROUND|FLAG_WINDOW_TITLEBAR|FLAG_WINDOW_CLOSEBTN|FLAG_MOUSECTRL|FLAG_DRAGGABLE|FLAG_WINDOW_RESIZABLE);
 	window->type = GUI_WINDOW;
 	window->font = mgui_font_create( DEFAULT_FONT, 10, FFLAG_BOLD, CHARSET_ANSI );
 	window->text->font = window->font;
+
+	window->min_size.w = 100;
+	window->min_size.h = 100;
 
 	// We want to have the titlebar enabled by default, so let's add it
 	mgui_window_on_flags_change( cast_elem(window), 0 );
@@ -90,6 +101,30 @@ MGuiWindow* mgui_create_window_ex( MGuiElement* parent, int16 x, int16 y, uint16
 static void mgui_window_render( MGuiElement* window )
 {
 	window->skin->draw_window( window );
+}
+
+static void mgui_window_post_render( MGuiElement* window )
+{
+	struct MGuiWindow* wnd;
+	rectangle_t* r;
+	colour_t col;
+	uint16 w, h;
+
+	wnd = (struct MGuiWindow*)window;
+
+	if ( wnd->resize_flags == 0 ) return;
+
+	r = &wnd->window_bounds;
+	w = wnd->resize_rect.w;
+	h = wnd->resize_rect.h;
+
+	colour_invert_no_alpha( &col, &wnd->colour );
+
+	renderer->set_draw_colour( &col );
+	renderer->draw_rect( r->x, r->y, 2, h );
+	renderer->draw_rect( r->x + w - 2, r->y, 2, h );
+	renderer->draw_rect( r->x, r->y, w, 2 );
+	renderer->draw_rect( r->x, r->y + h - 2, w, 2 );
 }
 
 static void mgui_window_get_clip_region( MGuiElement* window, rectangle_t** rect )
@@ -226,45 +261,86 @@ static void mgui_window_on_colour_change( MGuiElement* window )
 static void mgui_window_on_mouse_click( MGuiElement* window, int16 x, int16 y, MOUSEBTN button )
 {
 	struct MGuiWindow* wnd;
+	int16 x_max, y_max;
 
 	UNREFERENCED_PARAM( button );
 
+	if ( BIT_OFF( window->flags, FLAG_WINDOW_RESIZABLE ) ) return;
+
 	wnd = (struct MGuiWindow*)window;
+	x_max = wnd->bounds.x + wnd->bounds.w;
+	y_max = wnd->bounds.y + wnd->bounds.h;
+
+	if ( x > x_max - 12 && x <= x_max ) wnd->resize_flags |= RESIZE_HORIZ;
+	if ( y > y_max - 12 && y <= y_max ) wnd->resize_flags |= RESIZE_VERT;
 
 	wnd->click_offset.x = x;
 	wnd->click_offset.y = y;
+	wnd->resize_rect.x = wnd->window_bounds.w;
+	wnd->resize_rect.y = wnd->window_bounds.h;
+}
+
+static void mgui_window_on_mouse_release( MGuiElement* window, int16 x, int16 y, MOUSEBTN button )
+{
+	struct MGuiWindow* wnd;
+	MGuiEvent event;
+	node_t* node;
+
+	wnd = (struct MGuiWindow*)window;
+
+	UNREFERENCED_PARAM( button );
+
+	if ( wnd->resize_flags == 0 ) return;
+
+	x = wnd->window_bounds.w + ( ( wnd->resize_flags & RESIZE_HORIZ ) ? x - wnd->click_offset.x : 0 );
+	y = wnd->window_bounds.h + ( ( wnd->resize_flags & RESIZE_VERT ) ? y - wnd->click_offset.y : 0 );
+
+	x = ( x < wnd->min_size.w ) ? wnd->min_size.w : x;
+	y = ( y < wnd->min_size.h ) ? wnd->min_size.h : y;
+	
+	wnd->bounds.w = (uint16)x;
+	wnd->bounds.h = (uint16)y;
+
+	mgui_window_on_bounds_change( window, false, true );
+	mgui_element_request_redraw( window );
+
+	if ( wnd->flags & FLAG_CACHE_TEXTURE )
+		mgui_element_resize_cache( window );
+
+	wnd->resize_flags = 0;
+
+	if ( window->event_handler )
+	{
+		event.type = EVENT_WINDOW_RESIZE;
+		event.resize.element = window;
+		event.resize.data = window->event_data;
+		event.resize.width = wnd->window_bounds.w;
+		event.resize.height = wnd->window_bounds.h;
+
+		window->event_handler( &event );
+	}
+
+	if ( wnd->children == NULL ) return;
+
+	list_foreach( wnd->children, node )
+	{
+		mgui_element_update_rel_pos( cast_elem(node) );
+	}
 }
 
 static void mgui_window_on_mouse_drag( MGuiElement* window, int16 x, int16 y )
 {
-	node_t* node;
-	MGuiElement* child;
-	MGuiEvent guievent;
 	struct MGuiWindow* wnd = (struct MGuiWindow*)window;
 
-	wnd->bounds.x = x - wnd->click_offset.x;
-	wnd->bounds.y = y - wnd->click_offset.y;
+	if ( wnd->resize_flags == 0 ) return;
 
-	mgui_window_on_bounds_change( window, true, false );
+	x = wnd->window_bounds.w + ( ( wnd->resize_flags & RESIZE_HORIZ ) ? x - wnd->click_offset.x : 0 );
+	y = wnd->window_bounds.h + ( ( wnd->resize_flags & RESIZE_VERT ) ? y - wnd->click_offset.y : 0 );
 
-	if ( window->children == NULL ) return;
+	wnd->resize_rect.w = ( x < wnd->min_size.w ) ? wnd->min_size.w : x;
+	wnd->resize_rect.h = ( y < wnd->min_size.h ) ? wnd->min_size.h : y;
 
-	list_foreach( window->children, node )
-	{
-		child = cast_elem(node);
-		mgui_element_update_abs_pos( child );
-	}
-
-	if ( window->event_handler )
-	{
-		guievent.type = EVENT_DRAG;
-		guievent.element = window;
-		guievent.data = window->event_data;
-		guievent.mouse.x = x;
-		guievent.mouse.y = y;
-
-		window->event_handler( &guievent );
-	}
+	mgui_element_request_redraw( window );
 }
 
 void mgui_window_get_title_col( MGuiWindow* window, colour_t* col )

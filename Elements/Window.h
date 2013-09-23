@@ -18,12 +18,19 @@
 typedef struct MGuiTitlebar MGuiTitlebar;
 typedef struct MGuiWindowButton MGuiWindowButton;
 
-struct MGuiWindow
-{
-	MGuiElement;						// Inherit all generic element properties
+enum WINDOW_RESIZE_FLAGS {
+	RESIZE_NONE		= 0,
+	RESIZE_HORIZ	= 1 << 0,
+	RESIZE_VERT		= 1 << 1,
+};
 
+struct MGuiWindow {
+	MGuiElement;						// Inherit all generic element properties
 	rectangle_t			window_bounds;	// Window boundaries including the titlebar
+	vectorscreen_t		min_size;		// Minimum size the user can resize this window to
 	vectorscreen_t		click_offset;	// Position offset when dragging this element
+	vectorscreen_t		resize_rect;	// Size of the resize rectangle
+	uint8				resize_flags;	// Resize flags (see enum above)
 	MGuiTitlebar*		titlebar;		// Window titlebar
 	MGuiWindowButton*	closebtn;		// Close button
 };

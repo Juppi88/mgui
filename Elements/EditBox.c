@@ -49,8 +49,8 @@ static void			mgui_editbox_on_text_change			( MGuiElement* element );
 static void			mgui_editbox_on_mouse_click			( MGuiElement* element, int16 x, int16 y, MOUSEBTN button );
 static void			mgui_editbox_on_mouse_release		( MGuiElement* element, int16 x, int16 y, MOUSEBTN button );
 static void			mgui_editbox_on_mouse_drag			( MGuiElement* element, int16 x, int16 y );
-static void			mgui_editbox_on_character			( MGuiElement* element, char_t c );
-static void			mgui_editbox_on_key_press			( MGuiElement* element, uint32 key, bool down );
+static bool			mgui_editbox_on_character			( MGuiElement* element, char_t c );
+static bool			mgui_editbox_on_key_press			( MGuiElement* element, uint32 key, bool down );
 
 // --------------------------------------------------
 
@@ -58,6 +58,7 @@ static struct MGuiCallbacks callbacks =
 {
 	mgui_editbox_destroy, /* destroy */
 	mgui_editbox_render,
+	NULL, /* post_render */
 	mgui_editbox_process,
 	NULL, /* get_clip_region */
 	mgui_editbox_on_bounds_change,
@@ -266,80 +267,95 @@ static void mgui_editbox_on_mouse_drag( MGuiElement* element, int16 x, int16 y )
 	mgui_editbox_refresh_cursor_bounds( editbox );
 }
 
-static void mgui_editbox_on_character( MGuiElement* element, char_t c )
+static bool mgui_editbox_on_character( MGuiElement* element, char_t c )
 {
 	char_t tmp[2];
 
-	if ( (uchar_t)c < ' ' ) return;
+	if ( (uchar_t)c < ' ' ) return true;
 
 #ifndef _WIN32
 	// Fix for visible Del character on X11
-	if ( c == 0x7F ) return;
+	if ( c == 0x7F ) return true;
 #endif
 
 	tmp[0] = c;
 	tmp[1] = '\0';
 
 	mgui_editbox_insert_text( (struct MGuiEditbox*)element, tmp, 1 );
+	return true;
 }
 
-static void mgui_editbox_on_key_press( MGuiElement* element, uint32 key, bool down )
+static bool mgui_editbox_on_key_press( MGuiElement* element, uint32 key, bool down )
 {
 	struct MGuiEditbox* editbox;
 	editbox = (struct MGuiEditbox*)element;
 
-	if ( !down ) return;
+	if ( !down ) return true;
 
 	switch ( key )
 	{
 	case 'A':
 		if ( input_get_key_state( MKEY_CONTROL ) )
+		{
 			mgui_editbox_select_all( editbox );
+			return false;
+		}
 		break;
 
 	case 'X':
 		if ( input_get_key_state( MKEY_CONTROL ) )
+		{
 			mgui_editbox_cut_selection( editbox );
+			return false;
+		}
 		break;
 
 	case 'C':
 		if ( input_get_key_state( MKEY_CONTROL ) )
+		{
 			mgui_editbox_copy_selection( editbox );
+			return false;
+		}
 		break;
 
 	case 'V':
 		if ( input_get_key_state( MKEY_CONTROL ) )
+		{
 			mgui_editbox_paste_selection( editbox );
+			return false;
+		}
 		break;
 
 	case MKEY_BACKSPACE:
 		mgui_editbox_press_backspace( editbox );
-		break;
+		return false;
 
 	case MKEY_DELETE:
 		mgui_editbox_press_delete( editbox );
-		break;
+		return false;
 
 	case MKEY_RETURN:
 		mgui_editbox_press_return( editbox );
-		break;
+		return false;
 
 	case MKEY_LEFT:
 		mgui_editbox_move_left( editbox );
-		break;
+		return false;
 
 	case MKEY_RIGHT:
 		mgui_editbox_move_right( editbox );
-		break;
+		return false;
 
 	case MKEY_HOME:
 		mgui_editbox_press_home( editbox );
-		break;
+		return false;
 
 	case MKEY_END:
 		mgui_editbox_press_end( editbox );
-		break;
+		return false;
 	}
+
+	return true;
 }
 
 bool mgui_editbox_has_text_selected( MGuiEditbox* editbox )
@@ -668,15 +684,14 @@ static void mgui_editbox_press_return( struct MGuiEditbox* editbox )
 {
 	MGuiEvent event;
 
-	if ( editbox->event_handler )
-	{
-		event.type = EVENT_INPUT_RETURN;
-		event.element = cast_elem(editbox);
-		event.data = editbox->event_data;
-		event.keyboard.key = MKEY_RETURN;
+	if ( editbox->event_handler == NULL ) return;
+	
+	event.type = EVENT_INPUT_RETURN;
+	event.keyboard.element = cast_elem(editbox);
+	event.keyboard.data = editbox->event_data;
+	event.keyboard.key = MKEY_RETURN;
 
-		editbox->event_handler( &event );
-	}
+	editbox->event_handler( &event );
 }
 
 static void mgui_editbox_move_left( struct MGuiEditbox* editbox )

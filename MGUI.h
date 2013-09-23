@@ -88,6 +88,7 @@ enum MGUI_FLAGS
 	// Element specific flags
 	FLAG_WINDOW_TITLEBAR	= 1 << 24,	/* Enable window titlebar */
 	FLAG_WINDOW_CLOSEBTN	= 1 << 25,	/* Enable window close button */
+	FLAG_WINDOW_RESIZABLE	= 1 << 26,	/* Window can be resized by the user */
 	FLAG_EDIT_MASKINPUT		= 1 << 24,	/* Mask user input in editbox */
 	FLAG_MEMO_TOPBOTTOM		= 1 << 24,	/* Memobox order is top to bottom */
 };
@@ -122,31 +123,60 @@ enum MGUI_FONT_CHARSET
 	CHARSET_VIETNAMESE,
 };
 
-typedef enum
-{
-	EVENT_HOVER_ENTER,	/* Mouse enters the element boundaries */
-	EVENT_HOVER_LEAVE,	/* Mouse leaves the element boundaries */
-	EVENT_CLICK,		/* Element is clicked (lmb down) */
-	EVENT_RELEASE,		/* Element is released (lmb up) */
-	EVENT_DRAG,			/* Element is dragged */
-	EVENT_FOCUS_ENTER,	/* Element receives focus */
-	EVENT_FOCUS_EXIT,	/* Element loses focus */
-	EVENT_INPUT_CHANGE,	/* User modifies the text of an input element */
-	EVENT_INPUT_RETURN,	/* User presses return while an input element is focused */
-	EVENT_WINDOW_CLOSE,	/* Window is closed from the close button */
+// --------------------------------------------------
+// Event system
+// --------------------------------------------------
+
+typedef enum {
+	EVENT_HOVER_ENTER,	/* Mouse enters the element boundaries (MGuiMouseEvent) */
+	EVENT_HOVER_LEAVE,	/* Mouse leaves the element boundaries (MGuiMouseEvent) */
+	EVENT_CLICK,		/* Element is clicked (lmb down) (MGuiMouseEvent) */
+	EVENT_RELEASE,		/* Element is released (lmb up) (MGuiMouseEvent) */
+	EVENT_DRAG,			/* Element is dragged (MGuiMouseEvent) */
+	EVENT_FOCUS_ENTER,	/* Element receives focus (MGuiAnyEvent) */
+	EVENT_FOCUS_EXIT,	/* Element loses focus (MGuiAnyEvent) */
+	EVENT_INPUT_CHANGE,	/* User modifies the text of an input element (MGuiAnyEvent) */
+	EVENT_INPUT_RETURN,	/* User presses return while an input element is focused (MGuiKeyEvent) */
+	EVENT_WINDOW_CLOSE,	/* Window is closed from the close button (MGuiAnyEvent) */
+	EVENT_WINDOW_RESIZE,/* Window is resized by the user (MGuiResizeEvent) */
 	EVENT_FORCE_DWORD = 0x7FFFFFFF
 } MGUI_EVENT;
 
-typedef struct MGuiEvent
-{
+typedef struct {
 	MGUI_EVENT		type;		// Event type
 	MGuiElement*	element;	// The element which triggered this event
 	void*			data;		// User specified data
+} MGuiAnyEvent;
 
-	union {
-		struct { int16 x, y; } mouse;		// Mouse cursor position
-		struct { uint32 key; } keyboard;	// Active keyboard key
-	};
+typedef struct {
+	MGUI_EVENT		type;		// Event type
+	MGuiElement*	element;	// The element which triggered this event
+	void*			data;		// User specified data
+	int16			cursor_x;	// Mouse cursor x co-ordinate
+	int16			cursor_y;	// Mouse cursor y co-ordinate
+} MGuiMouseEvent;
+
+typedef struct {
+	MGUI_EVENT		type;		// Event type
+	MGuiElement*	element;	// The element which triggered this event
+	void*			data;		// User specified data
+	uint32			key;		// Active keyboard key
+} MGuiKeyEvent;
+
+typedef struct {
+	MGUI_EVENT		type;		// Event type
+	MGuiElement*	element;	// The element which triggered this event
+	void*			data;		// User specified data
+	uint16			width;		// New width of the element
+	uint16			height;		// New height of the element
+} MGuiResizeEvent;
+
+typedef union {
+	MGUI_EVENT		type;		// Type of the event, always the first member
+	MGuiAnyEvent	any;		// Generic event without extra data
+	MGuiKeyEvent	keyboard;	// Keyboard event
+	MGuiMouseEvent	mouse;		// Mouse cursor event
+	MGuiResizeEvent	resize;		// Window resize event
 } MGuiEvent;
 
 // GUI event hook type

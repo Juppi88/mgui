@@ -87,6 +87,7 @@ struct MGuiElement
 	struct MGuiCallbacks {
 		void		( *destroy )			( MGuiElement* element );
 		void		( *render )				( MGuiElement* element );
+		void		( *post_render )		( MGuiElement* element );
 		void		( *process )			( MGuiElement* element );
 
 		void		( *get_clip_region )	( MGuiElement* element, rectangle_t** rect );
@@ -101,8 +102,8 @@ struct MGuiElement
 		void		( *on_mouse_release )	( MGuiElement* element, int16 x, int16 y, MOUSEBTN button );
 		void		( *on_mouse_drag )		( MGuiElement* element, int16 x, int16 y );
 		void		( *on_mouse_wheel )		( MGuiElement* element, float diff );
-		void		( *on_character )		( MGuiElement* element, char_t c );
-		void		( *on_key_press )		( MGuiElement* element, uint32 key, bool down );
+		bool		( *on_character )		( MGuiElement* element, char_t c );
+		bool		( *on_key_press )		( MGuiElement* element, uint32 key, bool down );
 	} *callbacks;
 };
 
@@ -116,6 +117,7 @@ void			mgui_element_initialize			( MGuiElement* element );
 void			mgui_element_invalidate			( MGuiElement* element );
 
 void			mgui_element_request_redraw		( MGuiElement* element );
+void			mgui_element_resize_cache		( MGuiElement* element );
 
 MGuiElement*	mgui_get_element_at				( int16 x, int16 y );
 

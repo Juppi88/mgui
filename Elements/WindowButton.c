@@ -26,6 +26,9 @@ extern MGuiFont* wndbutton_font; // Font used for the close button X
 // Window button callback handlers
 static void		mgui_windowbutton_on_bounds_change	( MGuiElement* button, bool pos, bool size );
 static void		mgui_windowbutton_on_colour_change	( MGuiElement* button );
+static void		mgui_windowbutton_on_mouse_enter	( MGuiElement* button );
+static void		mgui_windowbutton_on_mouse_leave	( MGuiElement* button );
+static void		mgui_windowbutton_on_mouse_click	( MGuiElement* button, int16 x, int16 y, MOUSEBTN mousebtn );
 static void		mgui_windowbutton_on_mouse_release	( MGuiElement* button, int16 x, int16 y, MOUSEBTN mousebtn );
 
 // --------------------------------------------------
@@ -34,15 +37,16 @@ static struct MGuiCallbacks callbacks =
 {
 	NULL, /* destroy */
 	NULL, /* render */
+	NULL, /* post_render */
 	NULL, /* process */
 	NULL, /* get_clip_region */
 	mgui_windowbutton_on_bounds_change,
 	NULL, /* on_flags_change */
 	mgui_windowbutton_on_colour_change,
 	NULL, /* on_text_change */
-	NULL, /* on_mouse_enter */
-	NULL, /* on_mouse_leave */
-	NULL, /* on_mouse_click */
+	mgui_windowbutton_on_mouse_enter,
+	mgui_windowbutton_on_mouse_leave,
+	mgui_windowbutton_on_mouse_click,
 	mgui_windowbutton_on_mouse_release,
 	NULL, /* on_mouse_drag */
 	NULL, /* on_mouse_wheel */
@@ -119,29 +123,59 @@ static void mgui_windowbutton_on_colour_change( MGuiElement* button )
 	btn->text->colour.a = alpha;
 }
 
+static void mgui_windowbutton_on_mouse_enter( MGuiElement* button )
+{
+	MGuiWindowButton* btn;
+	btn = (MGuiWindowButton*)button;
+
+	if ( btn->window == NULL ) return;
+	mgui_element_request_redraw( cast_elem(btn->window) );
+}
+
+static void mgui_windowbutton_on_mouse_leave( MGuiElement* button )
+{
+	MGuiWindowButton* btn;
+	btn = (MGuiWindowButton*)button;
+
+	if ( btn->window == NULL ) return;
+	mgui_element_request_redraw( cast_elem(btn->window) );
+}
+
+static void mgui_windowbutton_on_mouse_click( MGuiElement* button, int16 x, int16 y, MOUSEBTN mousebtn )
+{
+	MGuiWindowButton* btn;
+	btn = (MGuiWindowButton*)button;
+
+	UNREFERENCED_PARAM( mousebtn );
+	UNREFERENCED_PARAM( x );
+	UNREFERENCED_PARAM( y );
+
+	if ( btn->window == NULL ) return;
+	mgui_element_request_redraw( cast_elem(btn->window) );
+}
+
 static void mgui_windowbutton_on_mouse_release( MGuiElement* button, int16 x, int16 y, MOUSEBTN mousebtn )
 {
 	MGuiWindowButton* btn;
-	MGuiEvent guievent;
+	MGuiEvent event;
 
 	UNREFERENCED_PARAM( mousebtn );
+	UNREFERENCED_PARAM( x );
+	UNREFERENCED_PARAM( y );
 
 	btn = (MGuiWindowButton*)button;
 
 	// If this button has a parent window, hide it
-	if ( btn->window )
+	if ( btn->window == NULL ) return;
+	
+	btn->window->flags &= ~FLAG_VISIBLE;
+
+	if ( btn->window->event_handler )
 	{
-		btn->window->flags &= ~FLAG_VISIBLE;
+		event.type = EVENT_WINDOW_CLOSE;
+		event.any.element = cast_elem(btn->window);
+		event.any.data = btn->window->event_data;
 
-		if ( btn->window->event_handler )
-		{
-			guievent.type = EVENT_WINDOW_CLOSE;
-			guievent.element = cast_elem(btn->window);
-			guievent.data = btn->window->event_data;
-			guievent.mouse.x = x;
-			guievent.mouse.y = y;
-
-			btn->window->event_handler( &guievent );
-		}
+		btn->window->event_handler( &event );
 	}
 }

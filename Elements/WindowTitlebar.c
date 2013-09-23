@@ -28,6 +28,7 @@ static struct MGuiCallbacks callbacks =
 {
 	mgui_titlebar_destroy,
 	NULL, /* render */
+	NULL, /* post_render */
 	NULL, /* process */
 	NULL, /* get_clip_region */
 	NULL, /* on_bounds_change */
@@ -86,27 +87,51 @@ static void mgui_titlebar_destroy( MGuiElement* element )
 static void mgui_titlebar_on_mouse_click( MGuiElement* element, int16 x, int16 y, MOUSEBTN button )
 {
 	MGuiTitlebar* titlebar;
-	titlebar = (MGuiTitlebar*)element;
+	struct MGuiWindow* window;
 
 	UNREFERENCED_PARAM( button );
 
-	if ( titlebar->window == NULL ) return;
+	titlebar = (MGuiTitlebar*)element;
+	window = (struct MGuiWindow*)titlebar->window;
 
-	if ( titlebar->window->callbacks->on_mouse_click )
-	{
-		titlebar->window->callbacks->on_mouse_click( titlebar->window, x - titlebar->bounds.x, y - titlebar->bounds.y, button );
-	}
+	if ( window == NULL ) return;
+
+	window->click_offset.x = x - titlebar->bounds.x;
+	window->click_offset.y = y - titlebar->bounds.y;
 }
 
 static void mgui_titlebar_on_mouse_drag( MGuiElement* element, int16 x, int16 y )
 {
 	MGuiTitlebar* titlebar;
+	struct MGuiWindow* window;
+	node_t* node;
+	MGuiEvent event;
+
 	titlebar = (MGuiTitlebar*)element;
+	window = (struct MGuiWindow*)titlebar->window;
 
-	if ( titlebar->window == NULL ) return;
+	if ( window == NULL ) return;
 
-	if ( titlebar->window->callbacks->on_mouse_drag )
+	window->bounds.x = x - window->click_offset.x;
+	window->bounds.y = y - window->click_offset.y;
+
+	window->callbacks->on_bounds_change( cast_elem(window), true, false );
+
+	if ( window->event_handler )
 	{
-		titlebar->window->callbacks->on_mouse_drag( titlebar->window, x, y );
+		event.type = EVENT_DRAG;
+		event.mouse.element = cast_elem(window);
+		event.mouse.data = window->event_data;
+		event.mouse.cursor_x = x;
+		event.mouse.cursor_y = y;
+
+		window->event_handler( &event );
+	}
+
+	if ( window->children == NULL ) return;
+
+	list_foreach( window->children, node )
+	{
+		mgui_element_update_abs_pos( cast_elem(node) );
 	}
 }

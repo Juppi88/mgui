@@ -17,12 +17,11 @@
 #include "Window.h"
 #include "Input/Input.h"
 
-struct MGuiWindowButton
-{
+struct MGuiWindowButton {
 	MGuiElement;			// Inherit all generic element properties
 	MGuiWindow*	window;		// Parent window
 };
 
-MGuiWindowButton*	mgui_create_windowbutton	( MGuiWindow* parent );
+MGuiWindowButton* mgui_create_windowbutton( MGuiWindow* parent );
 
 #endif /* __MGUI_WINDOWBUTTON_H */

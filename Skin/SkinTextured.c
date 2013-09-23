@@ -72,6 +72,7 @@ typedef struct {
 		MGuiTexBorder	progbar;			// Progress bars
 		MGuiTexBorder	progbar_bg;
 		MGuiTexBorder	window;				// Windows
+		MGuiTexBorder	window_resizable;
 		MGuiTexBorder	window_titlebar;
 		MGuiTex			window_closebtn;
 		MGuiTex			window_closebtn_hover;
@@ -127,20 +128,21 @@ MGuiSkin* mgui_setup_skin_textured( const char_t* path )
 	skin_textured_setup_primitive_bordered( texture, &skin->textures.button_inactive, 225, 88, 256, 109, 2, 2, 2, 2 );
 
 	// Editbox textures
-	skin_textured_setup_primitive_bordered( texture, &skin->textures.editbox, 257, 0, 384, 21, 3, 3, 3, 3 );
-	skin_textured_setup_primitive_bordered( texture, &skin->textures.editbox_focus, 257, 22, 384, 43, 3, 3, 3, 3 );
-	skin_textured_setup_primitive_bordered( texture, &skin->textures.editbox_inactive, 257, 44, 384, 64, 3, 3, 3, 3 );
+	skin_textured_setup_primitive_bordered( texture, &skin->textures.editbox, 0, 65, 64, 86, 3, 3, 3, 3 );
+	skin_textured_setup_primitive_bordered( texture, &skin->textures.editbox_focus, 0, 87, 64, 108, 3, 3, 3, 3 );
+	skin_textured_setup_primitive_bordered( texture, &skin->textures.editbox_inactive, 0, 109, 64, 128, 3, 3, 3, 3 );
 
 	// Label textures
-	skin_textured_setup_primitive_bordered( texture, &skin->textures.label, 257, 65, 320, 107, 1, 1, 1, 1 );
+	skin_textured_setup_primitive_bordered( texture, &skin->textures.label, 65, 65, 128, 107, 2, 2, 2, 2 );
 
 	// Progressbar textures
-	skin_textured_setup_primitive_bordered( texture, &skin->textures.progbar, 257, 108, 289, 128, 2, 2, 2, 2 );
-	skin_textured_setup_primitive_bordered( texture, &skin->textures.progbar_bg, 290, 108, 320, 128, 1, 1, 1, 1 );
+	skin_textured_setup_primitive_bordered( texture, &skin->textures.progbar, 65, 108, 97, 128, 2, 2, 2, 2 );
+	skin_textured_setup_primitive_bordered( texture, &skin->textures.progbar_bg, 98, 108, 128, 128, 2, 2, 2, 2 );
 
 	// Window textures
-	skin_textured_setup_primitive_bordered( texture, &skin->textures.window, 0, 26, 128, 128, 5, 5, 5, 5 );
-	skin_textured_setup_primitive_bordered( texture, &skin->textures.window_titlebar, 0, 0, 128, 25, 5, 2, 5, 5 );
+	skin_textured_setup_primitive_bordered( texture, &skin->textures.window, 0, 26, 64, 64, 5, 5, 5, 5 );
+	skin_textured_setup_primitive_bordered( texture, &skin->textures.window_resizable, 65, 26, 128, 64, 12, 12, 12, 12 );
+	skin_textured_setup_primitive_bordered( texture, &skin->textures.window_titlebar,	0, 0, 128, 25, 5, 2, 5, 5 );
 	skin_textured_setup_primitive( texture, &skin->textures.window_closebtn, 193, 110, 213, 128 );
 	skin_textured_setup_primitive( texture, &skin->textures.window_closebtn_hover, 214, 110, 234, 128 );
 	skin_textured_setup_primitive( texture, &skin->textures.window_closebtn_pressed, 235, 110, 255, 128 );
@@ -498,8 +500,11 @@ static void skin_textured_draw_window( MGuiElement* element )
 {
 	struct MGuiWindow* window = (struct MGuiWindow*)element;
 	MGuiTexturedSkin* skin = (MGuiTexturedSkin*)element->skin;
+	const MGuiTexBorder* primitive;
 	MGuiText* text;
 	bool titlebar = false;
+
+	primitive = ( window->flags & FLAG_WINDOW_RESIZABLE ) ? &skin->textures.window_resizable : &skin->textures.window;
 
 	renderer->set_draw_colour( &window->colour );
 
@@ -526,14 +531,14 @@ static void skin_textured_draw_window( MGuiElement* element )
 	// Draw borders and background panel
 	if ( window->flags & FLAG_BORDER )
 	{
-		skin_textured_draw_bordered_panel( skin->texture, &skin->textures.window, &window->bounds, &window->colour,
+		skin_textured_draw_bordered_panel( skin->texture, primitive, &window->bounds, &window->colour,
 										   titlebar ? BORDER_ALL&(~BORDER_TOP) : BORDER_ALL, BIT_ON( window->flags, FLAG_BACKGROUND ) );
 	}
 
 	// Draw only the background panel
 	else if ( window->flags & FLAG_BACKGROUND )
 	{
-		skin_textured_draw_bordered_panel( skin->texture, &skin->textures.window, &window->bounds,
+		skin_textured_draw_bordered_panel( skin->texture, primitive, &window->bounds,
 										   &window->colour, BORDER_NONE, true );
 	}
 }

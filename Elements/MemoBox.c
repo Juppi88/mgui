@@ -41,6 +41,7 @@ static struct MGuiCallbacks callbacks =
 {
 	mgui_memobox_destroy,
 	mgui_memobox_render,
+	NULL, /* post_render */
 	NULL, /* process */
 	NULL, /* get_clip_region */
 	mgui_memobox_on_bounds_change,
@@ -122,35 +123,11 @@ static void mgui_memobox_render( MGuiElement* memobox )
 
 static void mgui_memobox_on_bounds_change( MGuiElement* memobox, bool pos, bool size )
 {
-	node_t *node, *tmp;
-	struct MGuiMemoLine* line;
-	struct MGuiMemobox* memo;
-
-	memo = (struct MGuiMemobox*)memobox;
-
 	if ( pos )
-	{
-		mgui_memobox_update_display_positions( memo );
-	}
+		mgui_memobox_update_display_positions( (struct MGuiMemobox*)memobox );
 
 	if ( size )
-	{
-		// We have to change the size, so we must delete old lines first.
-		list_foreach_safe( memo->lines, node, tmp )
-		{
-			line = (struct MGuiMemoLine*)node;
-			list_remove( memo->lines, node );
-
-			if ( line->text ) mem_free( line->text );
-			mem_free( line );
-		}
-
-		// Then re-add the lines, wrapping properly
-		list_foreach( memo->raw_lines, node )
-		{
-			mgui_memobox_process_new_line( memo, (struct MGuiMemoRaw*)node );
-		}
-	}
+		mgui_memobox_refresh_lines( (struct MGuiMemobox*)memobox );
 }
 
 static void mgui_memobox_on_flags_change( MGuiElement* memobox, uint32 old )

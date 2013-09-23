@@ -266,6 +266,10 @@ void mgui_element_render( MGuiElement* element )
 	if ( element->flags & FLAG_3D_ENTITY )
 		renderer->reset_draw_transform();
 
+	// Do post-render processing (effects etc.)
+	if ( element->callbacks->post_render )
+		element->callbacks->post_render( element );
+
 	// Re-enable parent clipping if necessary.
 	element = element->parent;
 
@@ -362,6 +366,25 @@ void mgui_element_request_redraw( MGuiElement* element )
 			element->flags_int |= INTFLAG_REFRESH;
 			element = element->parent;
 		}
+	}
+}
+
+void mgui_element_resize_cache( MGuiElement* element )
+{
+	if ( element == NULL ) return;
+	if ( renderer == NULL ) return;
+	if ( BIT_OFF( element->flags, FLAG_CACHE_TEXTURE ) ) return;
+
+	if ( element->cache == NULL ||
+		 element->cache->width < (uint32)element->bounds.w ||
+		 element->cache->height < (uint32)element->bounds.h )
+	{
+		if ( element->cache != NULL )
+			renderer->destroy_render_target( element->cache );
+
+		element->cache = renderer->create_render_target( element->bounds.w, element->bounds.h );
+
+		mgui_element_request_redraw( element );
 	}
 }
 
@@ -600,9 +623,7 @@ void mgui_element_update_abs_pos( MGuiElement* elem )
 	}
 
 	if ( elem->callbacks->on_bounds_change )
-	{
 		elem->callbacks->on_bounds_change( elem, true, false );
-	}
 
 	if ( elem->children == NULL ) return;
 
@@ -636,9 +657,12 @@ void mgui_element_update_abs_size( MGuiElement* elem )
 	}
 
 	if ( elem->callbacks->on_bounds_change )
-	{
 		elem->callbacks->on_bounds_change( elem, false, true );
-	}
+
+	mgui_element_request_redraw( elem );
+
+	if ( elem->flags & FLAG_CACHE_TEXTURE )
+		mgui_element_resize_cache( elem );
 
 	if ( elem->children == NULL ) return;
 
@@ -675,9 +699,7 @@ void mgui_element_update_rel_pos( MGuiElement* elem )
 	}
 
 	if ( elem->callbacks->on_bounds_change )
-	{
 		elem->callbacks->on_bounds_change( elem, true, false );
-	}
 
 	if ( elem->children == NULL ) return;
 
@@ -711,9 +733,12 @@ void mgui_element_update_rel_size( MGuiElement* elem )
 	}
 
 	if ( elem->callbacks->on_bounds_change )
-	{
 		elem->callbacks->on_bounds_change( elem, false, true );
-	}
+
+	mgui_element_request_redraw( elem );
+
+	if ( elem->flags & FLAG_CACHE_TEXTURE )
+		mgui_element_resize_cache( elem );
 
 	if ( !elem->children ) return;
 
@@ -1312,9 +1337,12 @@ void mgui_set_text_padding( MGuiElement* element, uint8 top, uint8 bottom, uint8
 	element->text->pad.right = right;
 
 	if ( element->callbacks->on_bounds_change )
-	{
 		element->callbacks->on_bounds_change( element, false, true );
-	}
+	
+	mgui_element_request_redraw( element );
+
+	if ( element->flags & FLAG_CACHE_TEXTURE )
+		mgui_element_resize_cache( element );
 }
 
 const char_t* mgui_get_font_name( MGuiElement* element )
