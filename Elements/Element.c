@@ -304,6 +304,7 @@ void mgui_element_process( MGuiElement* element )
 void mgui_element_initialize( MGuiElement* element )
 {
 	node_t* node;
+	rectangle_t* r;
 
 	if ( element == NULL ) return;
 
@@ -311,7 +312,13 @@ void mgui_element_initialize( MGuiElement* element )
 	if ( element->flags & FLAG_CACHE_TEXTURE )
 	{
 		if ( element->cache == NULL )
-			element->cache = renderer->create_render_target( element->bounds.w, element->bounds.h );
+		{
+			r = element->callbacks->get_clip_region ?
+				element->callbacks->get_clip_region( element, &r ), r :
+				&element->bounds;
+
+			element->cache = renderer->create_render_target( r->w, r->h );
+		}
 	}
 
 	if ( !element->children ) return;
@@ -371,18 +378,24 @@ void mgui_element_request_redraw( MGuiElement* element )
 
 void mgui_element_resize_cache( MGuiElement* element )
 {
+	rectangle_t* r;
+
 	if ( element == NULL ) return;
 	if ( renderer == NULL ) return;
 	if ( BIT_OFF( element->flags, FLAG_CACHE_TEXTURE ) ) return;
 
+	r = element->callbacks->get_clip_region ?
+		element->callbacks->get_clip_region( element, &r ), r :
+		&element->bounds;
+
 	if ( element->cache == NULL ||
-		 element->cache->width < (uint32)element->bounds.w ||
-		 element->cache->height < (uint32)element->bounds.h )
+		 element->cache->width < (uint32)r->w ||
+		 element->cache->height < (uint32)r->h )
 	{
 		if ( element->cache != NULL )
 			renderer->destroy_render_target( element->cache );
 
-		element->cache = renderer->create_render_target( element->bounds.w, element->bounds.h );
+		element->cache = renderer->create_render_target( r->w, r->h );
 
 		mgui_element_request_redraw( element );
 	}
@@ -1458,6 +1471,7 @@ uint32 mgui_get_flags( MGuiElement* element )
 void mgui_add_flags( MGuiElement* element, uint32 flags )
 {
 	uint32 old;
+	rectangle_t* r;
 	extern bool redraw_cache;
 
 	if ( element == NULL ) return;
@@ -1494,7 +1508,13 @@ void mgui_add_flags( MGuiElement* element, uint32 flags )
 		element->flags_int |= INTFLAG_REFRESH;
 
 		if ( element->cache == NULL && renderer != NULL )
-			element->cache = renderer->create_render_target( element->bounds.w, element->bounds.h );
+		{
+			r = element->callbacks->get_clip_region ?
+				element->callbacks->get_clip_region( element, &r ), r :
+				&element->bounds;
+
+			element->cache = renderer->create_render_target( r->w, r->h );
+		}
 	}
 
 	old = element->flags;

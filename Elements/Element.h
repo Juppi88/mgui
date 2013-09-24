@@ -69,7 +69,7 @@ struct MGuiElement
 	MGuiText*				text;			// Text on this element (label, title etc)
 	MGuiFont*				font;			// Default font used for all the text on this element
 	MGuiSkin*				skin;			// Skin to be used for rendering
-	MGuiCache*				cache;			// Texture cache for rendering
+	MGuiRendTarget*			cache;			// Texture cache for rendering
 	mgui_event_handler_t	event_handler;	// User event handler callback
 	void*					event_data;		// User-specified data to be passed via event_handler
 

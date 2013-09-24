@@ -41,15 +41,28 @@ enum {
 };
 
 typedef struct {
-	uint16		index;		// Text buffer start index
-	uint16		flags;		// Tag flags (see enum above)
-	colour_t	colour;		// The colour that should be used with this tag
+	uint16		index;	// Text buffer start index
+	uint16		flags;	// Tag flags (see enum above)
+	colour_t	colour;	// The colour that should be used with this tag
 } MGuiFormatTag;
+
+typedef struct {
+	uint8	size;		// Size of the font
+	uint8	charset;	// System charset
+	uint8	flags;		// Font flags (see MGUI.h)
+	uint32	first_char;	// First character in range
+	uint32	last_char;	// Last character in range
+} MGuiRendFont;
+
+typedef struct {
+	uint32	width;		// Width of the texture
+	uint32	height;		// Height of the texture
+} MGuiRendTexture;
 
 typedef struct {
 	uint32	width;		// Width of the target texture
 	uint32	height;		// Height of the target texture
-} MGuiCache;
+} MGuiRendTarget;
 
 struct MGuiRenderer
 {
@@ -82,31 +95,31 @@ struct MGuiRenderer
 	// --------------------------------------------------
 	// Textures and textured primitive rendering
 	// --------------------------------------------------
-	void*			( *load_texture )			( const char_t* path, uint32* width, uint32* height );
-	void			( *destroy_texture )		( void* texture );
-	void			( *draw_textured_rect )		( const void* texture, int32 x, int32 y, uint32 w, uint32 h, const float uv[] );
+	MGuiRendTexture* ( *load_texture )			( const char_t* path, uint32* width, uint32* height );
+	void			( *destroy_texture )		( MGuiRendTexture* texture );
+	void			( *draw_textured_rect )		( const MGuiRendTexture* texture, int32 x, int32 y, uint32 w, uint32 h, const float uv[] );
 
 	// --------------------------------------------------
 	// Text rendering and fonts
 	// --------------------------------------------------
-	void*			( *load_font )				( const char_t* font, uint32 size, uint32 flags, uint32 charset,
+	MGuiRendFont*	( *load_font )				( const char_t* font, uint8 size, uint8 flags, uint8 charset,
 												  uint32 firstc, uint32 lastc );
 
-	void			( *destroy_font )			( void* font );
+	void			( *destroy_font )			( MGuiRendFont* font );
 
-	void			( *draw_text )				( const void* font, const char_t* text, int32 x, int32 y,
+	void			( *draw_text )				( const MGuiRendFont* font, const char_t* text, int32 x, int32 y,
 												  uint32 flags, const MGuiFormatTag tags[], uint32 ntags );
 
-	void			( *measure_text )			( const void* font, const char_t* text, uint32* w, uint32* h );
+	void			( *measure_text )			( const MGuiRendFont* font, const char_t* text, uint32* w, uint32* h );
 
 	// --------------------------------------------------
 	// Cached rendering
 	// --------------------------------------------------
-	MGuiCache*		( *create_render_target )	( uint32 width, uint32 height );
-	void			( *destroy_render_target )	( MGuiCache* target );
-	void			( *draw_render_target )		( const MGuiCache* target, int32 x, int32 y, uint32 w, uint32 h );
-	void			( *enable_render_target )	( const MGuiCache* target, int32 x, int32 y );
-	void			( *disable_render_target )	( const MGuiCache* target );
+	MGuiRendTarget*	( *create_render_target )	( uint32 width, uint32 height );
+	void			( *destroy_render_target )	( MGuiRendTarget* target );
+	void			( *draw_render_target )		( const MGuiRendTarget* target, int32 x, int32 y, uint32 w, uint32 h );
+	void			( *enable_render_target )	( const MGuiRendTarget* target, int32 x, int32 y );
+	void			( *disable_render_target )	( const MGuiRendTarget* target );
 
 	// --------------------------------------------------
 	// Utility functions

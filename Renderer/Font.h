@@ -14,19 +14,19 @@
 #define __MGUI_FONT_H
 
 #include "MGUI.h"
+#include "Renderer.h"
 #include "Types/List.h"
 
-typedef struct
-{
-	node_t		node;		// Linked list node
-	void*		data;		// Renderer font data
-	char_t*		name;		// The name of the font
-	uint8		size;		// Size (height)
-	uint8		flags;		// Font flags, defined in MGUI.h
-	uint8		charset;	// Character set
-	char_t		first_char;	// First character in range
-	char_t		last_char;	// Last character in range
-	uint32		refcount;	// Reference count
+typedef struct {
+	node_t			node;		// Linked list node
+	MGuiRendFont*	data;		// Renderer font data
+	char_t*			name;		// The name of the font
+	uint8			size;		// Size (height)
+	uint8			flags;		// Font flags, defined in MGUI.h
+	uint8			charset;	// Character set
+	char_t			first_char;	// First character in range
+	char_t			last_char;	// Last character in range
+	uint32			refcount;	// Reference count
 } MGuiFont;
 
 void		mgui_fontmgr_initialize		( void );

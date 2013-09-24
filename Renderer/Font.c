@@ -23,7 +23,7 @@ MGuiFont*			default_font = NULL;	// Default font for all elements
 MGuiFont*			wndbutton_font = NULL;	// Font used for the close button X
 
 static MGuiFont*	mgui_font_find			( const char_t* name, uint8 size, uint8 flags, uint8 charset, char_t firstc, char_t lastc );
-static uint32		mgui_font_get_charset	( uint32 charset );
+static uint8		mgui_font_get_charset	( uint32 charset );
 
 void mgui_fontmgr_initialize( void )
 {
@@ -295,7 +295,7 @@ void mgui_font_reinitialize( MGuiFont* font )
 	font->data = renderer->load_font( font->name, font->size, font->flags, font->charset, font->first_char, font->last_char );
 }
 
-static uint32 mgui_font_get_charset( uint32 charset )
+static uint8 mgui_font_get_charset( uint32 charset )
 {
 	switch ( charset )
 	{
