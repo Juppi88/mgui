@@ -19,10 +19,6 @@
 
 // --------------------------------------------------
 
-extern MGuiFont* wndbutton_font; // Font used for the close button X
-
-// --------------------------------------------------
-
 // Window button callback handlers
 static void		mgui_windowbutton_on_bounds_change	( MGuiElement* button, bool pos, bool size );
 static void		mgui_windowbutton_on_colour_change	( MGuiElement* button );
@@ -58,6 +54,7 @@ static struct MGuiCallbacks callbacks =
 MGuiWindowButton* mgui_create_windowbutton( MGuiWindow* parent )
 {
 	MGuiWindowButton* button;
+	extern MGuiFont* wndbutton_font; // Font used for the close button X
 
 	button = mem_alloc_clean( sizeof(*button) );
 	mgui_element_create( cast_elem(button), NULL );

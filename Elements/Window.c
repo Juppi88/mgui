@@ -62,14 +62,15 @@ static struct MGuiCallbacks callbacks =
 MGuiWindow* mgui_create_window( MGuiElement* parent )
 {
 	struct MGuiWindow* window;
+	extern MGuiFont* default_font;
 
 	window = mem_alloc_clean( sizeof(*window) );
 	mgui_element_create( cast_elem(window), parent );
 
 	window->flags |= (FLAG_BORDER|FLAG_SHADOW|FLAG_BACKGROUND|FLAG_WINDOW_TITLEBAR|FLAG_WINDOW_CLOSEBTN|FLAG_MOUSECTRL|FLAG_DRAGGABLE|FLAG_WINDOW_RESIZABLE);
 	window->type = GUI_WINDOW;
-	window->font = mgui_font_create( DEFAULT_FONT, 10, FFLAG_BOLD, CHARSET_ANSI );
-	window->text->font = window->font;
+	window->font = default_font;
+	window->text->font = default_font;
 
 	window->min_size.w = 100;
 	window->min_size.h = 100;

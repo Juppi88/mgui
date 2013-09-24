@@ -51,6 +51,7 @@ static struct MGuiCallbacks callbacks =
 MGuiButton* mgui_create_button( MGuiElement* parent )
 {
 	struct MGuiButton* button;
+	extern MGuiFont* default_font;
 
 	button = mem_alloc_clean( sizeof(*button) );
 	mgui_element_create( cast_elem(button), parent );
@@ -59,8 +60,8 @@ MGuiButton* mgui_create_button( MGuiElement* parent )
 	button->type = GUI_BUTTON;
 
 	button->colour.hex = COL_ELEMENT_DARK;
-	button->font = mgui_font_create( DEFAULT_FONT, 11, FFLAG_NONE, CHARSET_ANSI );
-	button->text->font = button->font;
+	button->font = default_font;
+	button->text->font = default_font;
 
 	// Button callbacks
 	button->callbacks = &callbacks;

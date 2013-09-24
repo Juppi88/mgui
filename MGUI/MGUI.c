@@ -214,7 +214,7 @@ void mgui_force_redraw( void )
 
 void mgui_set_renderer( MGuiRenderer* rend )
 {
-	if ( renderer )
+	if ( renderer != NULL )
 	{
 		// If the old renderer still exists, invalidate everything related to it.
 		mgui_fontmgr_invalidate_all();
@@ -224,7 +224,7 @@ void mgui_set_renderer( MGuiRenderer* rend )
 		renderer = NULL;
 	}
 
-	if ( rend )
+	if ( rend != NULL )
 	{
 		// Copy the renderer instance to our internal storage
 		renderer_data = *rend;

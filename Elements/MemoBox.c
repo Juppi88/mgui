@@ -63,6 +63,7 @@ static struct MGuiCallbacks callbacks =
 MGuiMemobox* mgui_create_memobox( MGuiElement* parent )
 {
 	struct MGuiMemobox* memobox;
+	extern MGuiFont* default_font;
 
 	memobox = mem_alloc_clean( sizeof(*memobox) );
 	mgui_element_create( cast_elem(memobox), parent );
@@ -76,8 +77,8 @@ MGuiMemobox* mgui_create_memobox( MGuiElement* parent )
 	memobox->raw_lines = list_create();
 	memobox->first_line = list_end( memobox->lines );
 
-	memobox->font = mgui_font_create( DEFAULT_FONT, 11, FFLAG_NONE, CHARSET_ANSI );
-	memobox->text->font = memobox->font;
+	memobox->font = default_font;
+	memobox->text->font = default_font;
 
 	memobox->text->pad.bottom = 5;
 	memobox->text->pad.top = 5;

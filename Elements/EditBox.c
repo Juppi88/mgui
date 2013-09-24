@@ -80,6 +80,7 @@ static struct MGuiCallbacks callbacks =
 MGuiEditbox* mgui_create_editbox( MGuiElement* parent )
 {
 	struct MGuiEditbox* editbox;
+	extern MGuiFont* default_font;
 
 	editbox = mem_alloc_clean( sizeof(*editbox) );
 	mgui_element_create( cast_elem(editbox), parent );
@@ -95,8 +96,8 @@ MGuiEditbox* mgui_create_editbox( MGuiElement* parent )
 	*editbox->text->buffer = '\0';
 	*editbox->buffer = '\0';
 
-	editbox->font = mgui_font_create( DEFAULT_FONT, 11, FFLAG_NONE, CHARSET_ANSI );
-	editbox->text->font = editbox->font;
+	editbox->font = default_font;
+	editbox->text->font = default_font;
 	editbox->text->alignment = ALIGN_LEFT|ALIGN_CENTERV;
 	editbox->text->pad.left = 5;
 

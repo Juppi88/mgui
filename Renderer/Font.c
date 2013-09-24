@@ -22,6 +22,7 @@ static list_t* fonts;
 MGuiFont*			default_font = NULL;	// Default font for all elements
 MGuiFont*			wndbutton_font = NULL;	// Font used for the close button X
 
+static void			mgui_font_destroy_unconditional( MGuiFont* font );
 static MGuiFont*	mgui_font_find			( const char_t* name, uint8 size, uint8 flags, uint8 charset, char_t firstc, char_t lastc );
 static uint8		mgui_font_get_charset	( uint32 charset );
 
@@ -29,7 +30,7 @@ void mgui_fontmgr_initialize( void )
 {
 	fonts = list_create();
 
-	default_font = mgui_font_create_range( DEFAULT_FONT, 10, FFLAG_NONE, CHARSET_ANSI, 0, 0 );
+	default_font = mgui_font_create_range( DEFAULT_FONT, 11, FFLAG_NONE, CHARSET_ANSI, 0, 0 );
 	wndbutton_font = mgui_font_create_range( DEFAULT_FONT, 10, FFLAG_NONE, CHARSET_ANSI, 'X', 'X' );
 }
 
@@ -37,12 +38,9 @@ void mgui_fontmgr_shutdown( void )
 {
 	node_t *node, *tmp;
 
-	if ( default_font ) mgui_font_destroy( default_font );
-	if ( wndbutton_font ) mgui_font_destroy( wndbutton_font );
-
 	list_foreach_safe( fonts, node, tmp )
 	{
-		mgui_font_destroy( (MGuiFont*)node );
+		mgui_font_destroy_unconditional( (MGuiFont*)node );
 	}
 
 	list_destroy( fonts );
@@ -112,10 +110,11 @@ MGuiFont* mgui_font_create_range( const char_t* name, uint8 size, uint8 flags, u
 	font->first_char = firstc;
 	font->last_char = lastc;
 	font->refcount = 1;
+	font->data = NULL;
 
 	mstrcpy( font->name, name, len );
 
-	if ( renderer )
+	if ( renderer != NULL )
 		font->data = renderer->load_font( name, size, flags, mgui_font_get_charset( charset ), firstc, lastc );
 
 	list_push( fonts, &font->node );
@@ -125,10 +124,19 @@ MGuiFont* mgui_font_create_range( const char_t* name, uint8 size, uint8 flags, u
 
 void mgui_font_destroy( MGuiFont* font )
 {
+	if ( font == default_font ||
+		 font == wndbutton_font )
+		 return;
+
+	mgui_font_destroy_unconditional( font );
+}
+
+static void mgui_font_destroy_unconditional( MGuiFont* font )
+{
 	if ( font == NULL ) return;
 	if ( --(font->refcount) ) return;
 
-	if ( font->data )
+	if ( font->data != NULL && renderer != NULL )
 		renderer->destroy_font( font->data );
 
 	SAFE_DELETE( font->name );

@@ -46,6 +46,7 @@ static struct MGuiCallbacks callbacks =
 MGuiLabel* mgui_create_label( MGuiElement* parent )
 {
 	struct MGuiLabel* label;
+	extern MGuiFont* default_font;
 
 	label = mem_alloc_clean( sizeof(*label) );
 	mgui_element_create( cast_elem(label), parent );
@@ -53,8 +54,8 @@ MGuiLabel* mgui_create_label( MGuiElement* parent )
 	label->type = GUI_LABEL;
 	label->flags |= FLAG_CLIP;
 
-	label->font = mgui_font_create( DEFAULT_FONT, 11, FFLAG_NONE, CHARSET_ANSI );
-	label->text->font = label->font;
+	label->font = default_font;
+	label->text->font = default_font;
 
 	// Label callbacks
 	label->callbacks = &callbacks;
