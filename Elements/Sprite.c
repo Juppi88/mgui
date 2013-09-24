@@ -19,7 +19,7 @@ extern MGuiRenderer* renderer;
 // --------------------------------------------------
 
 // Sprite callback handlers
-static void mgui_sprite_render( MGuiElement* sprite );
+static void mgui_sprite_render( MGuiSprite* sprite );
 
 // --------------------------------------------------
 
@@ -84,7 +84,7 @@ MGuiSprite* mgui_create_sprite_ex( MGuiElement* parent, int16 x, int16 y,
 	return sprite;
 }
 
-static void mgui_sprite_render( MGuiElement* sprite )
+static void mgui_sprite_render( MGuiSprite* sprite )
 {
 	struct MGuiSprite* _sprite = (struct MGuiSprite*)sprite;
 	rectangle_t* r;
@@ -191,4 +191,6 @@ void mgui_sprite_set_uv( MGuiSprite* sprite, float u1, float v1, float u2, float
 	_sprite->uv[1] = v1;
 	_sprite->uv[2] = u2;
 	_sprite->uv[3] = v2;
+
+	mgui_element_request_redraw( sprite );
 }

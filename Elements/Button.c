@@ -19,6 +19,8 @@
 
 // Button callback handlers
 static void		mgui_button_render			( MGuiElement* button );
+static void		mgui_button_on_mouse_hover	( MGuiElement* button );
+static void		mgui_button_on_mouse_click	( MGuiElement* button, int16 x, int16 y, MOUSEBTN mousebtn );
 static bool		mgui_button_on_key_press	( MGuiElement* button, uint32 key, bool down );
 
 // --------------------------------------------------
@@ -34,10 +36,10 @@ static struct MGuiCallbacks callbacks =
 	NULL, /* on_flags_change */
 	NULL, /* on_colour_change */
 	NULL, /* on_text_change */
-	NULL, /* on_mouse_enter */
-	NULL, /* on_mouse_leave */
-	NULL, /* on_mouse_click */
-	NULL, /* on_mouse_release */
+	mgui_button_on_mouse_hover,
+	mgui_button_on_mouse_hover,
+	mgui_button_on_mouse_click,
+	mgui_button_on_mouse_click,
 	NULL, /* on_mouse_drag */
 	NULL, /* on_mouse_wheel */
 	NULL, /* on_character */
@@ -84,6 +86,20 @@ MGuiButton* mgui_create_button_ex( MGuiElement* parent, int16 x, int16 y, uint16
 static void mgui_button_render( MGuiElement* button )
 {
 	button->skin->draw_button( button );
+}
+
+static void mgui_button_on_mouse_hover( MGuiElement* button )
+{
+	mgui_element_request_redraw( button );
+}
+
+static void mgui_button_on_mouse_click( MGuiElement* button, int16 x, int16 y, MOUSEBTN mousebtn )
+{
+	UNREFERENCED_PARAM( x );
+	UNREFERENCED_PARAM( y );
+	UNREFERENCED_PARAM( mousebtn );
+
+	mgui_element_request_redraw( button );
 }
 
 static bool mgui_button_on_key_press( MGuiElement* button, uint32 key, bool down )

@@ -149,8 +149,8 @@ static void mgui_editbox_process( MGuiElement* element )
 	if ( tick_count - editbox->last_update >= 500 )
 	{
 		editbox->last_update = tick_count;
-
 		editbox->cursor_visible = !editbox->cursor_visible;
+
 		mgui_element_request_redraw( element );
 	}
 }
@@ -705,8 +705,6 @@ static void mgui_editbox_move_left( struct MGuiEditbox* editbox )
 
 	editbox->last_update = get_tick_count();
 	editbox->cursor_visible = true;
-
-	mgui_element_request_redraw( cast_elem(editbox) );
 }
 
 static void mgui_editbox_move_right( struct MGuiEditbox* editbox )
@@ -720,8 +718,6 @@ static void mgui_editbox_move_right( struct MGuiEditbox* editbox )
 
 	editbox->last_update = get_tick_count();
 	editbox->cursor_visible = true;
-
-	mgui_element_request_redraw( cast_elem(editbox) );
 }
 
 static void mgui_editbox_press_home( struct MGuiEditbox* editbox )
@@ -735,8 +731,6 @@ static void mgui_editbox_press_home( struct MGuiEditbox* editbox )
 
 	editbox->last_update = get_tick_count();
 	editbox->cursor_visible = true;
-
-	mgui_element_request_redraw( cast_elem(editbox) );
 }
 
 static void mgui_editbox_press_end( struct MGuiEditbox* editbox )
@@ -750,6 +744,4 @@ static void mgui_editbox_press_end( struct MGuiEditbox* editbox )
 
 	editbox->last_update = get_tick_count();
 	editbox->cursor_visible = true;
-
-	mgui_element_request_redraw( cast_elem(editbox) );
 }

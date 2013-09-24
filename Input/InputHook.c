@@ -146,8 +146,6 @@ static bool mgui_input_handle_mouse_move( input_event_t* event )
 
 	if ( dragged )
 	{
-		mgui_element_request_redraw( NULL );
-
 		if ( dragged->callbacks->on_mouse_drag )
 			dragged->callbacks->on_mouse_drag( dragged, x, y );
 	}
@@ -158,7 +156,6 @@ static bool mgui_input_handle_mouse_move( input_event_t* event )
 	if ( hovered )
 	{
 		hovered->flags_int &= ~INTFLAG_HOVER;
-		mgui_element_request_redraw( hovered );
 
 		if ( hovered->callbacks->on_mouse_leave )
 			hovered->callbacks->on_mouse_leave( hovered );
@@ -178,7 +175,6 @@ static bool mgui_input_handle_mouse_move( input_event_t* event )
 	if ( ( hovered = element ) != NULL )
 	{
 		hovered->flags_int |= INTFLAG_HOVER;
-		mgui_element_request_redraw( hovered );
 
 		if ( hovered->callbacks->on_mouse_enter )
 			hovered->callbacks->on_mouse_enter( hovered );
@@ -221,7 +217,6 @@ static bool mgui_input_handle_lmb_up( input_event_t* event )
 	if ( pressed )
 	{
 		pressed->flags_int &= ~INTFLAG_PRESSED;
-		mgui_element_request_redraw( pressed );
 
 		if ( pressed->callbacks->on_mouse_release )
 			pressed->callbacks->on_mouse_release( pressed, x, y, MOUSE_LBUTTON );
@@ -277,7 +272,6 @@ static bool mgui_input_handle_lmb_down( input_event_t* event )
 	if ( pressed )
 	{
 		pressed->flags_int &= ~INTFLAG_PRESSED;
-		mgui_element_request_redraw( pressed );
 
 		if ( pressed->callbacks->on_mouse_release )
 			pressed->callbacks->on_mouse_release( pressed, x, y, MOUSE_LBUTTON );
@@ -298,7 +292,6 @@ static bool mgui_input_handle_lmb_down( input_event_t* event )
 	if ( ( pressed = element ) != NULL )
 	{
 		pressed->flags_int |= INTFLAG_PRESSED;
-		mgui_element_request_redraw( pressed );
 
 		if ( pressed->callbacks->on_mouse_click )
 			pressed->callbacks->on_mouse_click( pressed, x, y, MOUSE_LBUTTON );

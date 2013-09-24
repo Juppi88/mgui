@@ -116,8 +116,9 @@ void			mgui_element_process			( MGuiElement* element );
 void			mgui_element_initialize			( MGuiElement* element );
 void			mgui_element_invalidate			( MGuiElement* element );
 
-void			mgui_element_request_redraw		( MGuiElement* element );
 void			mgui_element_resize_cache		( MGuiElement* element );
+void			mgui_element_request_redraw		( MGuiElement* element );
+void			mgui_element_request_redraw_all	( void );
 
 MGuiElement*	mgui_get_element_at				( int16 x, int16 y );
 

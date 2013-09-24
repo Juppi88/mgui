@@ -123,11 +123,11 @@ static void mgui_memobox_render( MGuiElement* memobox )
 
 static void mgui_memobox_on_bounds_change( MGuiElement* memobox, bool pos, bool size )
 {
-	if ( pos )
-		mgui_memobox_update_display_positions( (struct MGuiMemobox*)memobox );
-
 	if ( size )
 		mgui_memobox_refresh_lines( (struct MGuiMemobox*)memobox );
+
+	else if ( pos )
+		mgui_memobox_update_display_positions( (struct MGuiMemobox*)memobox );
 }
 
 static void mgui_memobox_on_flags_change( MGuiElement* memobox, uint32 old )
@@ -205,6 +205,7 @@ void mgui_memobox_add_line_col_s( MGuiMemobox* memobox, const char* text, const 
 	line->colour = *col;
 
 	mgui_memobox_process_new_line( memo, line );
+	mgui_element_request_redraw( memobox );
 }
 
 void mgui_memobox_clear( MGuiMemobox* memobox )
@@ -429,13 +430,11 @@ static void mgui_memobox_update_display_positions( struct MGuiMemobox* memobox )
 	if ( memobox->lines->size == 0 ) return;
 
 	if ( BIT_ON( memobox->flags, FLAG_MEMO_TOPBOTTOM ) )
-	{
 		mgui_memobox_update_display_positions_topbottom( memobox );
-	}
 	else
-	{
 		mgui_memobox_update_display_positions_bottomtop( memobox );
-	}
+
+	mgui_element_request_redraw( cast_elem(memobox) );
 }
 
 static void mgui_memobox_process_new_line( struct MGuiMemobox* memobox, struct MGuiMemoRaw* raw )
@@ -469,7 +468,6 @@ static void mgui_memobox_process_new_line( struct MGuiMemobox* memobox, struct M
 	}
 
 	mgui_memobox_update_display_positions( memobox );
-	mgui_element_request_redraw( cast_elem(memobox) );
 }
 
 static void mgui_memobox_wrap_line( struct MGuiMemobox* memobox, struct MGuiMemoRaw* raw )

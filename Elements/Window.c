@@ -174,9 +174,7 @@ static void mgui_window_on_bounds_change( MGuiElement* window, bool pos, bool si
 	}
 
 	if ( wnd->closebtn && wnd->closebtn->callbacks->on_bounds_change )
-	{
 		wnd->closebtn->callbacks->on_bounds_change( cast_elem(wnd->closebtn), pos, size );
-	}
 }
 
 static void mgui_window_on_flags_change( MGuiElement* window, uint32 old )
@@ -213,9 +211,7 @@ static void mgui_window_on_flags_change( MGuiElement* window, uint32 old )
 		window->bounds.h += TITLE_H;
 
 		if ( wnd->closebtn )
-		{
 			wnd->closebtn->flags &= ~FLAG_VISIBLE;
-		}
 	}
 
 	// If the titlebar is enabled add a closebutton
@@ -223,7 +219,7 @@ static void mgui_window_on_flags_change( MGuiElement* window, uint32 old )
 	{
 		if ( BIT_ON( window->flags, FLAG_WINDOW_TITLEBAR ) )
 		{
-			if ( !wnd->closebtn )
+			if ( wnd->closebtn == NULL )
 				wnd->closebtn = mgui_create_windowbutton( window );
 
 			wnd->closebtn->callbacks->on_bounds_change( cast_elem(wnd->closebtn), true, true );
@@ -233,12 +229,14 @@ static void mgui_window_on_flags_change( MGuiElement* window, uint32 old )
 	// Disable and destroy the closebutton
 	else if ( BIT_DISABLED( window->flags, old, FLAG_WINDOW_CLOSEBTN ) )
 	{
-		if ( wnd->closebtn )
+		if ( wnd->closebtn != NULL )
 		{
 			mgui_element_destroy( cast_elem(wnd->closebtn) );
 			wnd->closebtn = NULL;
 		}
 	}
+
+	mgui_element_request_redraw( window );
 }
 
 static void mgui_window_on_colour_change( MGuiElement* window )
@@ -246,15 +244,13 @@ static void mgui_window_on_colour_change( MGuiElement* window )
 	struct MGuiWindow* wnd;
 	wnd = (struct MGuiWindow*)window;
 
-	if ( wnd->titlebar )
+	if ( wnd->titlebar != NULL )
 	{
 		wnd->titlebar->colour.a = wnd->colour.a;
 		window->text->colour.a = wnd->colour.a;
 
-		if ( wnd->closebtn )
-		{
+		if ( wnd->closebtn != NULL )
 			wnd->closebtn->colour = wnd->titlebar->colour;
-		}
 	}
 }
 
@@ -340,7 +336,7 @@ static void mgui_window_on_mouse_drag( MGuiElement* window, int16 x, int16 y )
 	wnd->resize_rect.w = ( x < wnd->min_size.w ) ? wnd->min_size.w : x;
 	wnd->resize_rect.h = ( y < wnd->min_size.h ) ? wnd->min_size.h : y;
 
-	mgui_element_request_redraw( window );
+	mgui_element_request_redraw_all();
 }
 
 void mgui_window_get_title_col( MGuiWindow* window, colour_t* col )
@@ -367,9 +363,9 @@ void mgui_window_set_title_col( MGuiWindow* window, const colour_t* col )
 	wnd->titlebar->colour.a = window->colour.a;
 
 	if ( wnd->closebtn && wnd->closebtn->callbacks->on_colour_change )
-	{
 		wnd->closebtn->callbacks->on_colour_change( cast_elem(wnd->closebtn) );
-	}
+
+	mgui_element_request_redraw( window );
 }
 
 uint32 mgui_window_get_title_col_i( MGuiWindow* window )
@@ -396,9 +392,9 @@ void mgui_window_set_title_col_i( MGuiWindow* window, uint32 hex )
 	wnd->titlebar->colour.a = window->colour.a;
 
 	if ( wnd->closebtn && wnd->closebtn->callbacks->on_colour_change )
-	{
 		wnd->closebtn->callbacks->on_colour_change( cast_elem(wnd->closebtn) );
-	}
+
+	mgui_element_request_redraw( window );
 }
 
 void mgui_window_get_drag_offset( MGuiWindow* window, vectorscreen_t* pos )

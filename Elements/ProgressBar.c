@@ -16,8 +16,8 @@
 // --------------------------------------------------
 
 // Progressbar callback handlers and static methods
-static void		mgui_progressbar_render				( MGuiElement* bar );
-static void		mgui_progressbar_on_colour_change	( MGuiElement* bar );
+static void		mgui_progressbar_render				( MGuiProgressBar* bar );
+static void		mgui_progressbar_on_colour_change	( MGuiProgressBar* bar );
 static void		mgui_progressbar_update_colours		( struct MGuiProgressBar* bar );
 
 // --------------------------------------------------
@@ -83,12 +83,12 @@ MGuiProgressBar* mgui_create_progressbar_ex( MGuiElement* parent, int16 x, int16
 	return bar;
 }
 
-static void mgui_progressbar_render( MGuiElement* bar )
+static void mgui_progressbar_render( MGuiProgressBar* bar )
 {
 	bar->skin->draw_progressbar( bar );
 }
 
-static void mgui_progressbar_on_colour_change( MGuiElement* bar )
+static void mgui_progressbar_on_colour_change( MGuiProgressBar* bar )
 {
 	struct MGuiProgressBar* progbar;
 	uint8 alpha;
@@ -103,6 +103,8 @@ static void mgui_progressbar_on_colour_change( MGuiElement* bar )
 	progbar->colour_end.a = alpha;
 	progbar->colour_fg.a = alpha;
 	progbar->colour_bg.a = alpha;
+
+	mgui_element_request_redraw( bar );
 }
 
 static void mgui_progressbar_update_colours( struct MGuiProgressBar* bar )
@@ -268,4 +270,6 @@ void mgui_progressbar_set_thickness( MGuiProgressBar* bar, uint8 thickness )
 
 	progbar = (struct MGuiProgressBar*)bar;
 	progbar->thickness = thickness;
+
+	mgui_element_request_redraw( bar );
 }

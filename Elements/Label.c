@@ -105,4 +105,5 @@ void mgui_label_make_text_fit( MGuiLabel* label )
 	label->bounds.h = math_max( h, label->bounds.h );
 
 	mgui_text_update_position( label->text );
+	mgui_element_request_redraw( label );
 }

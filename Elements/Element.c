@@ -355,27 +355,6 @@ void mgui_element_invalidate( MGuiElement* element )
 	}
 }
 
-void mgui_element_request_redraw( MGuiElement* element )
-{
-	extern bool refresh_all;
-	extern bool redraw_cache;
-
-	refresh_all = true;
-
-	// Invalidate this element and all its predecessors
-	if ( element != NULL )
-	{
-		while ( element )
-		{
-			if ( element->cache != NULL )
-				redraw_cache = true;
-
-			element->flags_int |= INTFLAG_REFRESH;
-			element = element->parent;
-		}
-	}
-}
-
 void mgui_element_resize_cache( MGuiElement* element )
 {
 	rectangle_t* r;
@@ -399,6 +378,33 @@ void mgui_element_resize_cache( MGuiElement* element )
 
 		mgui_element_request_redraw( element );
 	}
+}
+
+void mgui_element_request_redraw( MGuiElement* element )
+{
+	extern bool refresh_all;
+	extern bool redraw_cache;
+
+	refresh_all = true;
+
+	// Invalidate this element and all its predecessors
+	if ( element != NULL )
+	{
+		while ( element )
+		{
+			if ( element->cache != NULL )
+				redraw_cache = true;
+
+			element->flags_int |= INTFLAG_REFRESH;
+			element = element->parent;
+		}
+	}
+}
+
+void mgui_element_request_redraw_all( void )
+{
+	extern bool refresh_all;
+	refresh_all = true;
 }
 
 MGuiElement* mgui_get_element_at( int16 x, int16 y )
@@ -638,6 +644,8 @@ void mgui_element_update_abs_pos( MGuiElement* elem )
 	if ( elem->callbacks->on_bounds_change )
 		elem->callbacks->on_bounds_change( elem, true, false );
 
+	mgui_element_request_redraw_all();
+
 	if ( elem->children == NULL ) return;
 
 	list_foreach( elem->children, node )
@@ -672,10 +680,10 @@ void mgui_element_update_abs_size( MGuiElement* elem )
 	if ( elem->callbacks->on_bounds_change )
 		elem->callbacks->on_bounds_change( elem, false, true );
 
-	mgui_element_request_redraw( elem );
-
 	if ( elem->flags & FLAG_CACHE_TEXTURE )
 		mgui_element_resize_cache( elem );
+
+	mgui_element_request_redraw_all();
 
 	if ( elem->children == NULL ) return;
 
@@ -714,6 +722,8 @@ void mgui_element_update_rel_pos( MGuiElement* elem )
 	if ( elem->callbacks->on_bounds_change )
 		elem->callbacks->on_bounds_change( elem, true, false );
 
+	mgui_element_request_redraw_all();
+
 	if ( elem->children == NULL ) return;
 
 	list_foreach( elem->children, node )
@@ -748,10 +758,10 @@ void mgui_element_update_rel_size( MGuiElement* elem )
 	if ( elem->callbacks->on_bounds_change )
 		elem->callbacks->on_bounds_change( elem, false, true );
 
-	mgui_element_request_redraw( elem );
-
 	if ( elem->flags & FLAG_CACHE_TEXTURE )
 		mgui_element_resize_cache( elem );
+
+	mgui_element_request_redraw_all();
 
 	if ( !elem->children ) return;
 

@@ -26,8 +26,7 @@ extern MGuiFont* wndbutton_font; // Font used for the close button X
 // Window button callback handlers
 static void		mgui_windowbutton_on_bounds_change	( MGuiElement* button, bool pos, bool size );
 static void		mgui_windowbutton_on_colour_change	( MGuiElement* button );
-static void		mgui_windowbutton_on_mouse_enter	( MGuiElement* button );
-static void		mgui_windowbutton_on_mouse_leave	( MGuiElement* button );
+static void		mgui_windowbutton_on_mouse_hover	( MGuiElement* button );
 static void		mgui_windowbutton_on_mouse_click	( MGuiElement* button, int16 x, int16 y, MOUSEBTN mousebtn );
 static void		mgui_windowbutton_on_mouse_release	( MGuiElement* button, int16 x, int16 y, MOUSEBTN mousebtn );
 
@@ -44,8 +43,8 @@ static struct MGuiCallbacks callbacks =
 	NULL, /* on_flags_change */
 	mgui_windowbutton_on_colour_change,
 	NULL, /* on_text_change */
-	mgui_windowbutton_on_mouse_enter,
-	mgui_windowbutton_on_mouse_leave,
+	mgui_windowbutton_on_mouse_hover,
+	mgui_windowbutton_on_mouse_hover,
 	mgui_windowbutton_on_mouse_click,
 	mgui_windowbutton_on_mouse_release,
 	NULL, /* on_mouse_drag */
@@ -123,16 +122,7 @@ static void mgui_windowbutton_on_colour_change( MGuiElement* button )
 	btn->text->colour.a = alpha;
 }
 
-static void mgui_windowbutton_on_mouse_enter( MGuiElement* button )
-{
-	MGuiWindowButton* btn;
-	btn = (MGuiWindowButton*)button;
-
-	if ( btn->window == NULL ) return;
-	mgui_element_request_redraw( cast_elem(btn->window) );
-}
-
-static void mgui_windowbutton_on_mouse_leave( MGuiElement* button )
+static void mgui_windowbutton_on_mouse_hover( MGuiElement* button )
 {
 	MGuiWindowButton* btn;
 	btn = (MGuiWindowButton*)button;

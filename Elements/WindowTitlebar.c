@@ -112,6 +112,8 @@ static void mgui_titlebar_on_mouse_drag( MGuiElement* element, int16 x, int16 y 
 
 	if ( window == NULL ) return;
 
+	mgui_element_request_redraw_all();
+
 	window->bounds.x = x - window->click_offset.x;
 	window->bounds.y = y - window->click_offset.y;
 
