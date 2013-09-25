@@ -21,7 +21,11 @@
 #include "Texture.h"
 #include "Platform/Alloc.h"
 
+// --------------------------------------------------
+
 extern MGuiRenderer* renderer;
+
+// --------------------------------------------------
 
 typedef enum {
 	TEX_TOPLEFT,		// Top left corner
@@ -65,6 +69,9 @@ typedef struct {
 		MGuiTexBorder	button_hover;
 		MGuiTexBorder	button_pressed;
 		MGuiTexBorder	button_inactive;
+		MGuiTexBorder	checkbox;			// Checkboxes
+		MGuiTexBorder	checkbox_checked;
+		MGuiTexBorder	checkbox_focus;
 		MGuiTexBorder	editbox;			// Editboxes
 		MGuiTexBorder	editbox_focus;
 		MGuiTexBorder	editbox_inactive;
@@ -80,12 +87,15 @@ typedef struct {
 	} textures;
 } MGuiTexturedSkin;
 
+// --------------------------------------------------
+
 static void		skin_textured_setup_primitive			( MGuiTexture* texture, MGuiTex* primitive, uint32 x, uint32 y, uint32 x2, uint32 y2 );
 static void		skin_textured_setup_primitive_bordered	( MGuiTexture* texture, MGuiTexBorder* primitive, uint32 x, uint32 y, uint32 x2, uint32 y2, uint8 top, uint8 bottom, uint8 left, uint8 right );
 static void		skin_textured_draw_panel				( MGuiTexture* texture, const MGuiTex* prim, const rectangle_t* r, const colour_t* col );
 static void		skin_textured_draw_bordered_panel		( MGuiTexture* texture, const MGuiTexBorder* prim, const rectangle_t* r, const colour_t* col, uint32 borders, bool panel );
 static void		skin_textured_draw_shadow				( const rectangle_t* r, uint offset );
 static void		skin_textured_draw_button				( MGuiElement* element );
+static void		skin_textured_draw_checkbox				( MGuiElement* element );
 static void		skin_textured_draw_editbox				( MGuiElement* element );
 static void		skin_textured_draw_label				( MGuiElement* element );
 static void		skin_textured_draw_memobox				( MGuiElement* element );
@@ -94,6 +104,8 @@ static void		skin_textured_draw_scrollbar			( MGuiElement* element );
 static void		skin_textured_draw_window				( MGuiElement* element );
 static void		skin_textured_draw_window_titlebar		( MGuiElement* element );
 static void		skin_textured_draw_window_closebtn		( struct MGuiWindowButton* button );
+
+// --------------------------------------------------
 
 MGuiSkin* mgui_setup_skin_textured( const char_t* path )
 {
@@ -108,13 +120,14 @@ MGuiSkin* mgui_setup_skin_textured( const char_t* path )
 	// Well, the texture exists so let's create the skin instance
 	skin = mem_alloc_clean( sizeof(*skin) );
 
-	skin->api.draw_button			= skin_textured_draw_button;
-	skin->api.draw_editbox			= skin_textured_draw_editbox;
-	skin->api.draw_label			= skin_textured_draw_label;
-	skin->api.draw_memobox			= skin_textured_draw_memobox;
-	skin->api.draw_progressbar		= skin_textured_draw_progressbar;
-	skin->api.draw_scrollbar		= skin_textured_draw_scrollbar;
-	skin->api.draw_window			= skin_textured_draw_window;
+	skin->api.draw_button		= skin_textured_draw_button;
+	skin->api.draw_checkbox		= skin_textured_draw_checkbox;
+	skin->api.draw_editbox		= skin_textured_draw_editbox;
+	skin->api.draw_label		= skin_textured_draw_label;
+	skin->api.draw_memobox		= skin_textured_draw_memobox;
+	skin->api.draw_progressbar	= skin_textured_draw_progressbar;
+	skin->api.draw_scrollbar	= skin_textured_draw_scrollbar;
+	skin->api.draw_window		= skin_textured_draw_window;
 
 	skin->texture = texture;
 
@@ -126,6 +139,11 @@ MGuiSkin* mgui_setup_skin_textured( const char_t* path )
 	skin_textured_setup_primitive_bordered( texture, &skin->textures.button_hover, 225, 65, 256, 87, 2, 2, 2, 2 );
 	skin_textured_setup_primitive_bordered( texture, &skin->textures.button_pressed, 193, 88, 224, 109, 2, 2, 2, 2 );
 	skin_textured_setup_primitive_bordered( texture, &skin->textures.button_inactive, 225, 88, 256, 109, 2, 2, 2, 2 );
+
+	// Checkbox textures
+	skin_textured_setup_primitive_bordered( texture, &skin->textures.checkbox, 13, 129, 25, 141, 1, 1, 1, 1 );
+	skin_textured_setup_primitive_bordered( texture, &skin->textures.checkbox_checked, 0, 129, 12, 141, 1, 1, 1, 1 );
+	skin_textured_setup_primitive_bordered( texture, &skin->textures.checkbox_focus, 26, 129, 38, 141, 1, 1, 1, 1 );
 
 	// Editbox textures
 	skin_textured_setup_primitive_bordered( texture, &skin->textures.editbox, 0, 65, 64, 86, 3, 3, 3, 3 );
@@ -321,6 +339,36 @@ static void skin_textured_draw_button( MGuiElement* element )
 		renderer->draw_text( text->font->data, text->buffer, x, y,
 							 text->flags, text->tags, text->num_tags );
 	}
+}
+
+static void skin_textured_draw_checkbox( MGuiElement* element )
+{
+	MGuiTexturedSkin* skin = (MGuiTexturedSkin*)element->skin;
+	MGuiTexBorder* primitive;
+	colour_t col;
+	
+	col.hex = element->colour.hex;
+
+	// Checkbox toggled
+	if ( element->flags & FLAG_CHECKBOX_CHECKED )
+		primitive = &skin->textures.checkbox_checked;
+
+	// Checkbox has focus
+	else if ( element->flags_int & INTFLAG_FOCUS )
+		primitive = &skin->textures.checkbox_focus;
+	
+	// Idle checkbox
+	else
+		primitive = &skin->textures.checkbox;
+
+	if ( element->flags & FLAG_DISABLED )
+	{
+		colour_multiply( &col, &col, 0.75f );
+		col.a = element->colour.a;
+	}
+
+	skin_textured_draw_bordered_panel( skin->texture, primitive, &element->bounds, &element->colour,
+									   element->flags & FLAG_BORDER ? BORDER_ALL : BORDER_NONE, element->flags & FLAG_BACKGROUND );
 }
 
 static void skin_textured_draw_editbox( MGuiElement* element )

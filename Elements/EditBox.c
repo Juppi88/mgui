@@ -176,7 +176,7 @@ static void mgui_editbox_on_text_change( MGuiElement* element )
 
 	editbox->buffer = mstrdup( element->text->buffer, element->text->bufsize / sizeof(char_t) );
 
-	if ( BIT_ON( editbox->flags, FLAG_EDIT_MASKINPUT ) )
+	if ( BIT_ON( editbox->flags, FLAG_EDITBOX_MASKINPUT ) )
 	{
 		// Mask our input
 		for ( str = editbox->buffer; *str; str++ )
@@ -508,7 +508,7 @@ static void mgui_editbox_erase_text( struct MGuiEditbox* editbox, uint32 begin, 
 	editbox->cursor_pos = editbox->cursor_end = begin;
 
 	// Mask input if the user wants it
-	if ( BIT_ON( editbox->flags, FLAG_EDIT_MASKINPUT ) )
+	if ( BIT_ON( editbox->flags, FLAG_EDITBOX_MASKINPUT ) )
 	{
 		str = editbox->text->buffer;
 		str2 = editbox->buffer;
@@ -568,7 +568,7 @@ static void mgui_editbox_insert_text( struct MGuiEditbox* editbox, const char_t*
 	mstrins( editbox->text->buffer, text, editbox->text->bufsize, editbox->cursor_pos );
 
 	// Finally either copy the text into the secondary buffer or mask the input
-	if ( BIT_ON( editbox->flags, FLAG_EDIT_MASKINPUT ) )
+	if ( BIT_ON( editbox->flags, FLAG_EDITBOX_MASKINPUT ) )
 	{
 		str = editbox->text->buffer;
 		old = editbox->buffer;

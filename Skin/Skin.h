@@ -16,8 +16,6 @@
 #define __MYLLY_GUI_SKIN_H
 
 #include "MGUI.h"
-#include "Text.h"
-#include "Types/List.h"
 
 // Default element style
 #define COL_BACKGROUND		0xAFAF9FFF
@@ -49,13 +47,14 @@
 
 // Skin interface
 typedef struct MGuiSkin {
-	void	( *draw_button )			( MGuiElement* element );
-	void	( *draw_editbox )			( MGuiElement* element );
-	void	( *draw_label )				( MGuiElement* element );
-	void	( *draw_memobox )			( MGuiElement* element );
-	void	( *draw_progressbar )		( MGuiElement* element );
-	void	( *draw_scrollbar )			( MGuiElement* element );
-	void	( *draw_window )			( MGuiElement* element );
+	void	( *draw_button )		( MGuiElement* element );
+	void	( *draw_checkbox )		( MGuiElement* element );
+	void	( *draw_editbox )		( MGuiElement* element );
+	void	( *draw_label )			( MGuiElement* element );
+	void	( *draw_memobox )		( MGuiElement* element );
+	void	( *draw_progressbar )	( MGuiElement* element );
+	void	( *draw_scrollbar )		( MGuiElement* element );
+	void	( *draw_window )		( MGuiElement* element );
 } MGuiSkin;
 
 

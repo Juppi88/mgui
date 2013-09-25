@@ -13,13 +13,13 @@
 #include "Element.h"
 #include "Renderer.h"
 
-static bool		mgui_input_handle_char			( input_event_t* event );
-static bool		mgui_input_handle_key_up		( input_event_t* event );
-static bool		mgui_input_handle_key_down		( input_event_t* event );
-static bool		mgui_input_handle_mouse_move	( input_event_t* event );
-static bool		mgui_input_handle_mouse_wheel	( input_event_t* event );
-static bool		mgui_input_handle_lmb_up		( input_event_t* event );
-static bool		mgui_input_handle_lmb_down		( input_event_t* event );
+static bool		mgui_input_handle_char			( InputEvent* event );
+static bool		mgui_input_handle_key_up		( InputEvent* event );
+static bool		mgui_input_handle_key_down		( InputEvent* event );
+static bool		mgui_input_handle_mouse_move	( InputEvent* event );
+static bool		mgui_input_handle_mouse_wheel	( InputEvent* event );
+static bool		mgui_input_handle_lmb_up		( InputEvent* event );
+static bool		mgui_input_handle_lmb_down		( InputEvent* event );
 
 static MGuiElement*	hovered			= NULL; // Element being hovered currently
 static MGuiElement*	pressed			= NULL; // Element being pressed down currently
@@ -105,7 +105,7 @@ void mgui_set_focus( MGuiElement* element )
 	}
 }
 
-static bool mgui_input_handle_char( input_event_t* event )
+static bool mgui_input_handle_char( InputEvent* event )
 {
 	if ( kbfocus && kbfocus->callbacks->on_character )
 	{
@@ -115,7 +115,7 @@ static bool mgui_input_handle_char( input_event_t* event )
 	return true;
 }
 
-static bool mgui_input_handle_key_up( input_event_t* event )
+static bool mgui_input_handle_key_up( InputEvent* event )
 {
 	if ( kbfocus && kbfocus->callbacks->on_key_press )
 	{
@@ -125,7 +125,7 @@ static bool mgui_input_handle_key_up( input_event_t* event )
 	return true;
 }
 
-static bool mgui_input_handle_key_down( input_event_t* event )
+static bool mgui_input_handle_key_down( InputEvent* event )
 {
 	if ( kbfocus && kbfocus->callbacks->on_key_press )
 	{
@@ -135,7 +135,7 @@ static bool mgui_input_handle_key_down( input_event_t* event )
 	return true;
 }
 
-static bool mgui_input_handle_mouse_move( input_event_t* event )
+static bool mgui_input_handle_mouse_move( InputEvent* event )
 {
 	int16 x, y;
 	MGuiElement* element;
@@ -194,13 +194,13 @@ static bool mgui_input_handle_mouse_move( input_event_t* event )
 	return true;
 }
 
-static bool mgui_input_handle_mouse_wheel( input_event_t* event )
+static bool mgui_input_handle_mouse_wheel( InputEvent* event )
 {
 	UNREFERENCED_PARAM( event );
 	return true;
 }
 
-static bool mgui_input_handle_lmb_up( input_event_t* event )
+static bool mgui_input_handle_lmb_up( InputEvent* event )
 {
 	int16 x, y;
 	MGuiElement* element;
@@ -238,7 +238,7 @@ static bool mgui_input_handle_lmb_up( input_event_t* event )
 	return true;
 }
 
-static bool mgui_input_handle_lmb_down( input_event_t* event )
+static bool mgui_input_handle_lmb_down( InputEvent* event )
 {
 	int16 x, y;
 	MGuiElement* element;

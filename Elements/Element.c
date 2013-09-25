@@ -168,7 +168,10 @@ void mgui_element_render_cache( MGuiElement* element, bool draw_self )
 		renderer->disable_render_target( element->cache );
 
 		if ( draw_self )
+		{
+			renderer->set_draw_colour( &cache_colour );
 			renderer->draw_render_target( element->cache, r->x, r->y, r->w, r->h );
+		}
 	}
 
 	// Re-enable parent clipping if necessary.

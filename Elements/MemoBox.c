@@ -134,8 +134,8 @@ static void mgui_memobox_on_bounds_change( MGuiElement* memobox, bool pos, bool 
 static void mgui_memobox_on_flags_change( MGuiElement* memobox, uint32 old )
 {
 	// If there was a change, update the memobox
-	if ( BIT_ENABLED( memobox->flags, old, FLAG_MEMO_TOPBOTTOM ) ||
-		 BIT_DISABLED( memobox->flags, old, FLAG_MEMO_TOPBOTTOM ) )
+	if ( BIT_ENABLED( memobox->flags, old, FLAG_MEMOBOX_TOPBOTTOM ) ||
+		 BIT_DISABLED( memobox->flags, old, FLAG_MEMOBOX_TOPBOTTOM ) )
 	{
 		mgui_memobox_update_display_positions( (struct MGuiMemobox*)memobox );
 	}
@@ -430,7 +430,7 @@ static void mgui_memobox_update_display_positions( struct MGuiMemobox* memobox )
 {
 	if ( memobox->lines->size == 0 ) return;
 
-	if ( BIT_ON( memobox->flags, FLAG_MEMO_TOPBOTTOM ) )
+	if ( BIT_ON( memobox->flags, FLAG_MEMOBOX_TOPBOTTOM ) )
 		mgui_memobox_update_display_positions_topbottom( memobox );
 	else
 		mgui_memobox_update_display_positions_bottomtop( memobox );

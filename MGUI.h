@@ -32,6 +32,7 @@ typedef struct MGuiRenderer	MGuiRenderer;
 // GUI elements
 MGUI_ELEMENT_DECL( MGuiButton );
 MGUI_ELEMENT_DECL( MGuiCanvas );
+MGUI_ELEMENT_DECL( MGuiCheckbox );
 MGUI_ELEMENT_DECL( MGuiEditbox );
 MGUI_ELEMENT_DECL( MGuiLabel );
 MGUI_ELEMENT_DECL( MGuiMemobox );
@@ -85,12 +86,19 @@ enum MGUI_FLAGS
 	FLAG_3D_ENTITY			= 1 << 17,	/* This element is fully 3D, use mgui_set_3d_* to manipulate */
 	FLAG_CACHE_TEXTURE		= 1 << 18,	/* Use a cache texture */
 
-	// Element specific flags
+	/* Checkbox */
+	FLAG_CHECKBOX_CHECKED	= 1 << 24,	/* Checkbox is selected */
+
+	/* Editbox */
+	FLAG_EDITBOX_MASKINPUT	= 1 << 24,	/* Mask user input in editbox */
+
+	/* Memobox */
+	FLAG_MEMOBOX_TOPBOTTOM	= 1 << 24,	/* Memobox order is top to bottom */
+
+	/* Window */
 	FLAG_WINDOW_TITLEBAR	= 1 << 24,	/* Enable window titlebar */
 	FLAG_WINDOW_CLOSEBTN	= 1 << 25,	/* Enable window close button */
 	FLAG_WINDOW_RESIZABLE	= 1 << 26,	/* Window can be resized by the user */
-	FLAG_EDIT_MASKINPUT		= 1 << 24,	/* Mask user input in editbox */
-	FLAG_MEMO_TOPBOTTOM		= 1 << 24,	/* Memobox order is top to bottom */
 };
 
 enum MGUI_FONT_FLAGS
@@ -128,17 +136,18 @@ enum MGUI_FONT_CHARSET
 // --------------------------------------------------
 
 typedef enum {
-	EVENT_HOVER_ENTER,	/* Mouse enters the element boundaries (MGuiMouseEvent) */
-	EVENT_HOVER_LEAVE,	/* Mouse leaves the element boundaries (MGuiMouseEvent) */
-	EVENT_CLICK,		/* Element is clicked (lmb down) (MGuiMouseEvent) */
-	EVENT_RELEASE,		/* Element is released (lmb up) (MGuiMouseEvent) */
-	EVENT_DRAG,			/* Element is dragged (MGuiMouseEvent) */
-	EVENT_FOCUS_ENTER,	/* Element receives focus (MGuiAnyEvent) */
-	EVENT_FOCUS_EXIT,	/* Element loses focus (MGuiAnyEvent) */
-	EVENT_INPUT_CHANGE,	/* User modifies the text of an input element (MGuiAnyEvent) */
-	EVENT_INPUT_RETURN,	/* User presses return while an input element is focused (MGuiKeyEvent) */
-	EVENT_WINDOW_CLOSE,	/* Window is closed from the close button (MGuiAnyEvent) */
-	EVENT_WINDOW_RESIZE,/* Window is resized by the user (MGuiResizeEvent) */
+	EVENT_HOVER_ENTER,		/* Mouse enters the element boundaries (MGuiMouseEvent) */
+	EVENT_HOVER_LEAVE,		/* Mouse leaves the element boundaries (MGuiMouseEvent) */
+	EVENT_CLICK,			/* Element is clicked (lmb down) (MGuiMouseEvent) */
+	EVENT_RELEASE,			/* Element is released (lmb up) (MGuiMouseEvent) */
+	EVENT_DRAG,				/* Element is dragged (MGuiMouseEvent) */
+	EVENT_FOCUS_ENTER,		/* Element receives focus (MGuiAnyEvent) */
+	EVENT_FOCUS_EXIT,		/* Element loses focus (MGuiAnyEvent) */
+	EVENT_CHECKBOX_TOGGLE,	/* Checkbox is toggled (MGuiAnyEvent) */
+	EVENT_INPUT_CHANGE,		/* User modifies the text of an input element such as an editbox (MGuiAnyEvent) */
+	EVENT_INPUT_RETURN,		/* User presses return while an input element is focused (MGuiKeyEvent) */
+	EVENT_WINDOW_CLOSE,		/* Window is closed from the close button (MGuiAnyEvent) */
+	EVENT_WINDOW_RESIZE,	/* Window is resized by the user (MGuiResizeEvent) */
 	EVENT_FORCE_DWORD = 0x7FFFFFFF
 } MGUI_EVENT;
 
@@ -180,7 +189,7 @@ typedef union {
 } MGuiEvent;
 
 // GUI event hook type
-typedef void ( *mgui_event_handler_t )( MGuiEvent* event );
+typedef void ( *mgui_event_handler_t )( const MGuiEvent* event );
 
 
 __BEGIN_DECLS
@@ -216,6 +225,8 @@ MGUI_EXPORT bool			mgui_is_child_of				( MGuiElement* parent, MGuiElement* child
 MGUI_EXPORT MGuiButton*		mgui_create_button				( MGuiElement* parent );
 MGUI_EXPORT MGuiButton*		mgui_create_button_ex			( MGuiElement* parent, int16 x, int16 y, uint16 w, uint16 h, uint32 flags, uint32 col, const char_t* text );
 MGUI_EXPORT MGuiEditbox*	mgui_create_canvas				( MGuiElement* parent );
+MGUI_EXPORT MGuiCheckbox*	mgui_create_checkbox			( MGuiElement* parent );
+MGUI_EXPORT MGuiCheckbox*	mgui_create_checkbox_ex			( MGuiElement* parent, int16 x, int16 y, uint32 flags, uint32 col );
 MGUI_EXPORT MGuiEditbox*	mgui_create_editbox				( MGuiElement* parent );
 MGUI_EXPORT MGuiEditbox*	mgui_create_editbox_ex			( MGuiElement* parent, int16 x, int16 y, uint16 w, uint16 h, uint32 flags, uint32 col, const char_t* text );
 MGUI_EXPORT MGuiLabel*		mgui_create_label				( MGuiElement* parent );

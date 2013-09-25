@@ -20,11 +20,18 @@
 #include "Renderer.h"
 #include "Platform/Alloc.h"
 
+// --------------------------------------------------
+
+extern MGuiRenderer* renderer;
+
+// --------------------------------------------------
+
 static void		skin_simple_draw_panel				( const rectangle_t* r, const colour_t* col );
 static void		skin_simple_draw_border				( const rectangle_t* r, const colour_t* col, uint32 borders, uint32 thickness );
 static void		skin_simple_draw_generic_button		( const rectangle_t* r, const colour_t* col, uint32 flags );
 static void		skin_simple_draw_shadow				( const rectangle_t* r, uint32 offset );
 static void		skin_simple_draw_button				( MGuiElement* element );
+static void		skin_simple_draw_checkbox			( MGuiElement* element );
 static void		skin_simple_draw_editbox			( MGuiElement* element );
 static void		skin_simple_draw_label				( MGuiElement* element );
 static void		skin_simple_draw_memobox			( MGuiElement* element );
@@ -34,7 +41,7 @@ static void		skin_simple_draw_scrollbar_button	( const rectangle_t* r, const col
 static void		skin_simple_draw_window				( MGuiElement* element );
 static void		skin_simple_draw_window_titlebar	( MGuiElement* element );
 
-extern MGuiRenderer* renderer;
+// --------------------------------------------------
 
 MGuiSkin* mgui_setup_skin_simple( void )
 {
@@ -42,13 +49,14 @@ MGuiSkin* mgui_setup_skin_simple( void )
 
 	skin = (MGuiSkin*)mem_alloc_clean( sizeof(*skin) );
 
-	skin->draw_button			= skin_simple_draw_button;
-	skin->draw_editbox			= skin_simple_draw_editbox;
-	skin->draw_label			= skin_simple_draw_label;
-	skin->draw_memobox			= skin_simple_draw_memobox;
-	skin->draw_progressbar		= skin_simple_draw_progressbar;
-	skin->draw_scrollbar		= skin_simple_draw_scrollbar;
-	skin->draw_window			= skin_simple_draw_window;
+	skin->draw_button		= skin_simple_draw_button;
+	skin->draw_checkbox		= skin_simple_draw_checkbox;
+	skin->draw_editbox		= skin_simple_draw_editbox;
+	skin->draw_label		= skin_simple_draw_label;
+	skin->draw_memobox		= skin_simple_draw_memobox;
+	skin->draw_progressbar	= skin_simple_draw_progressbar;
+	skin->draw_scrollbar	= skin_simple_draw_scrollbar;
+	skin->draw_window		= skin_simple_draw_window;
 
 	return skin;
 }
@@ -197,6 +205,45 @@ static void skin_simple_draw_button( MGuiElement* element )
 			renderer->draw_rect( r->x, r->y, r->w, 1 );
 			renderer->draw_rect( r->x, r->y, 1, r->h );
 		}
+	}
+}
+
+static void skin_simple_draw_checkbox( MGuiElement* element )
+{
+	colour_t col;
+	rectangle_t* r;
+
+	r = &element->bounds;
+
+	if ( element->flags & FLAG_BORDER )
+	{
+		colour_multiply( &col, &element->colour, 0.7f );
+		col.a = element->colour.a;
+
+		renderer->set_draw_colour( &col );
+		renderer->draw_rect( r->x, r->y, r->w, 2 );
+		renderer->draw_rect( r->x, r->y + 2, 2, r->h - 3 );
+
+		colour_multiply( &col, &element->colour, 1.25f );
+		col.a = element->colour.a;
+
+		renderer->set_draw_colour( &col );
+		renderer->draw_rect( r->x, r->y + r->h - 1, r->w, 1 );
+		renderer->draw_rect( r->x + r->w - 1, r->y + 2, 1, r->h - 3 );
+	}
+
+	if ( element->flags & FLAG_BACKGROUND )
+	{
+		renderer->set_draw_colour( &element->colour );
+		renderer->draw_rect( r->x + 2, r->y + 2, r->w - 3, r->h - 3 );
+	}
+
+	if ( element->flags & FLAG_CHECKBOX_CHECKED )
+	{
+		colour_invert_no_alpha( &col, &element->colour );
+
+		renderer->set_draw_colour( &col );
+		renderer->draw_rect( r->x + 3, r->y + 3, r->w - 5, r->h - 5 );
 	}
 }
 
