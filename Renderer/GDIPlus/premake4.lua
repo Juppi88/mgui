@@ -1,17 +1,22 @@
--- Mylly GUI renderer
+-- Mylly GUI GDI+ renderer
 
 project "Lib-MGUI-Renderer-GDIPlus"
 	kind "StaticLib"
 	language "C++"
 	files { "*.h", "*.c", "*.cpp", "premake4.lua" }
 	includedirs { ".", "..", "../..", "../../.." }
-	vpaths { [""] = { "../Libraries/MGUI/Renderer/GDIPlus" } }
 	location ( "../../../../Projects/" .. os.get() .. "/" .. _ACTION )
+	
+	vpaths {
+		["Shared"] = { "../Shared/**" },
+		[""] = { "./**" }
+	}
 	
 	-- Windows specific stuff
 	configuration "windows"
 		targetextension ".lib"
-		defines { "MGUI_GDIPLUS", "__MYLLY_USE_GDIPLUS" }
-		buildoptions { "/wd4201 /wd4996" } -- -- C4201: nameless struct/union, C4996: This function or variable may be unsafe (mbstowcs)
-		configuration "Debug" targetname "mguirendgdid"
-		configuration "Release" targetname "mguirendgdi"
+		defines { "MYLLY_WINDOWS_EXTRAS" }
+		files { "../Shared/Windows/*" } -- Shared font loading on Windows
+		buildoptions { "/wd4201 /wd4996" } -- C4201: nameless struct/union, C4996: This function or variable may be unsafe.
+		configuration "Debug" targetname "mguigdiplusd"
+		configuration "Release" targetname "mguigdiplus"

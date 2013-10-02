@@ -102,6 +102,7 @@ void mgui_element_render_cache( MGuiElement* element, bool draw_self )
 {
 	node_t* node;
 	rectangle_t* r;
+	extern uint32 params;
 	static colour_t cache_colour = { 0xFFFFFFFF };
 
 	if ( element == NULL ) return;
@@ -167,7 +168,8 @@ void mgui_element_render_cache( MGuiElement* element, bool draw_self )
 		element->flags_int &= ~INTFLAG_REFRESH;
 		renderer->disable_render_target( element->cache );
 
-		if ( draw_self )
+		// Draw the element from the cache.
+		if ( draw_self || BIT_ON( params, MGUI_USE_DRAW_EVENT ) )
 		{
 			renderer->set_draw_colour( &cache_colour );
 			renderer->draw_render_target( element->cache, r->x, r->y, r->w, r->h );
