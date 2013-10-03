@@ -236,7 +236,7 @@ void mgui_set_renderer( MGuiRenderer* rend )
 		mgui_fontmgr_initialize_all();
 		mgui_initialize_elements();
 
-		renderer->resize( draw_size.w, draw_size.h ); 
+		//renderer->resize( draw_size.w, draw_size.h ); 
 	}
 }
 
