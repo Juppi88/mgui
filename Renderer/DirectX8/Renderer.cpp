@@ -126,6 +126,8 @@ D3DVIEWPORT8			CRenderer::viewport;						// Default viewport
 int32					CRenderer::drawOffsetX		= 0;			// X offset when drawing onto a texture
 int32					CRenderer::drawOffsetY		= 0;			// Y offset when drawing onto a texture
 CRenderTarget*			CRenderer::renderTarget		= NULL;			// Current render target
+uint32					CRenderer::screenWidth		= 0;			// Render target (window or screen) width
+uint32					CRenderer::screenHeight		= 0;			// Render target (window or screen) height
 
 // --------------------------------------------------
 
@@ -246,9 +248,8 @@ void CRenderer::End( void )
 
 void CRenderer::Resize( uint32 w, uint32 h )
 {
-	// Well, we're not actually doing anything here.
-	UNREFERENCED_PARAM( w );
-	UNREFERENCED_PARAM( h );
+	screenWidth = w;
+	screenHeight = h;
 }
 
 DRAW_MODE CRenderer::SetDrawMode( DRAW_MODE mode )
