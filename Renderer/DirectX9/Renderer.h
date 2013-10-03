@@ -132,6 +132,8 @@ private:
 	static int32					drawOffsetX;	// X offset when drawing onto a texture
 	static int32					drawOffsetY;	// Y offset when drawing onto a texture
 	static CRenderTarget*			renderTarget;	// Current render target
+	static uint32					screenWidth;	// Render target (window or screen) width
+	static uint32					screenHeight;	// Render target (window or screen) height
 };
 
 #endif /* __MYLLY_GUI_DIRECTX9_RENDERER_H */

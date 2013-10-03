@@ -17,7 +17,7 @@
 #include "stdtypes.h"
 #include "Math/MathDefs.h"
 
-#ifdef _MYLLY_SHARED_LIB
+#ifdef MYLLY_SHARED_LIB
 #define MGUI_EXPORT MYLLY_EXPORT
 #else
 #define MGUI_EXPORT MYLLY_API
@@ -200,6 +200,7 @@ MGUI_EXPORT void			mgui_shutdown					( void );
 MGUI_EXPORT void			mgui_pre_process				( void );
 MGUI_EXPORT void			mgui_process					( void );
 MGUI_EXPORT void			mgui_force_redraw				( void );
+MGUI_EXPORT void			mgui_resize						( uint16 width, uint16 height );
 
 MGUI_EXPORT void			mgui_set_renderer				( MGuiRenderer* renderer );
 MGUI_EXPORT void			mgui_set_skin					( const char_t* skinimg );
