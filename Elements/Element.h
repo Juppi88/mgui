@@ -101,6 +101,7 @@ struct MGuiElement
 		void		( *on_mouse_click )		( MGuiElement* element, int16 x, int16 y, MOUSEBTN button );
 		void		( *on_mouse_release )	( MGuiElement* element, int16 x, int16 y, MOUSEBTN button );
 		void		( *on_mouse_drag )		( MGuiElement* element, int16 x, int16 y );
+		void		( *on_mouse_move )		( MGuiElement* element, int16 x, int16 y );
 		void		( *on_mouse_wheel )		( MGuiElement* element, float diff );
 		bool		( *on_character )		( MGuiElement* element, char_t c );
 		bool		( *on_key_press )		( MGuiElement* element, uint32 key, bool down );

@@ -35,9 +35,11 @@ MGUI_ELEMENT_DECL( MGuiCanvas );
 MGUI_ELEMENT_DECL( MGuiCheckbox );
 MGUI_ELEMENT_DECL( MGuiEditbox );
 MGUI_ELEMENT_DECL( MGuiLabel );
+MGUI_ELEMENT_DECL( MGuiListbox );
+MGUI_ELEMENT_DECL( MGuiListboxItem );
 MGUI_ELEMENT_DECL( MGuiMemobox );
-MGUI_ELEMENT_DECL( MGuiProgressBar );
-MGUI_ELEMENT_DECL( MGuiScrollBar );
+MGUI_ELEMENT_DECL( MGuiProgressbar );
+MGUI_ELEMENT_DECL( MGuiScrollbar );
 MGUI_ELEMENT_DECL( MGuiSprite );
 MGUI_ELEMENT_DECL( MGuiWindow );
 
@@ -92,8 +94,14 @@ enum MGUI_FLAGS
 	/* Editbox */
 	FLAG_EDITBOX_MASKINPUT	= 1 << 24,	/* Mask user input in editbox */
 
+	/* Listbox */
+	FLAG_LISTBOX_MULTISELECT = 1 << 24,	/* Listbox allows multiple rows to be selected at one time */
+
 	/* Memobox */
 	FLAG_MEMOBOX_TOPBOTTOM	= 1 << 24,	/* Memobox order is top to bottom */
+
+	/* Scrollbar */
+	FLAG_SCROLLBAR_HORIZ	= 1 << 24,	/* Scrollbar is horizontal */
 
 	/* Window */
 	FLAG_WINDOW_TITLEBAR	= 1 << 24,	/* Enable window titlebar */
@@ -146,6 +154,7 @@ typedef enum {
 	EVENT_CHECKBOX_TOGGLE,	/* Checkbox is toggled (MGuiAnyEvent) */
 	EVENT_INPUT_CHANGE,		/* User modifies the text of an input element such as an editbox (MGuiAnyEvent) */
 	EVENT_INPUT_RETURN,		/* User presses return while an input element is focused (MGuiKeyEvent) */
+	EVENT_SCROLL,			/* Scrollable element was moved (MGuiScrollEvent) */
 	EVENT_WINDOW_CLOSE,		/* Window is closed from the close button (MGuiAnyEvent) */
 	EVENT_WINDOW_RESIZE,	/* Window is resized by the user (MGuiResizeEvent) */
 	EVENT_FORCE_DWORD = 0x7FFFFFFF
@@ -180,12 +189,21 @@ typedef struct {
 	uint16			height;		// New height of the element
 } MGuiResizeEvent;
 
+typedef struct {
+	MGUI_EVENT		type;		// Event type
+	MGuiElement*	element;	// The element which triggered this event
+	void*			data;		// User specified data
+	float			position;	// Position after scrolling
+	float			change;		// Change in position
+} MGuiScrollEvent;
+
 typedef union {
 	MGUI_EVENT		type;		// Type of the event, always the first member
 	MGuiAnyEvent	any;		// Generic event without extra data
 	MGuiKeyEvent	keyboard;	// Keyboard event
 	MGuiMouseEvent	mouse;		// Mouse cursor event
 	MGuiResizeEvent	resize;		// Window resize event
+	MGuiScrollEvent	scroll;		// Scrollable event
 } MGuiEvent;
 
 // GUI event hook type
@@ -232,11 +250,14 @@ MGUI_EXPORT MGuiEditbox*	mgui_create_editbox				( MGuiElement* parent );
 MGUI_EXPORT MGuiEditbox*	mgui_create_editbox_ex			( MGuiElement* parent, int16 x, int16 y, uint16 w, uint16 h, uint32 flags, uint32 col, const char_t* text );
 MGUI_EXPORT MGuiLabel*		mgui_create_label				( MGuiElement* parent );
 MGUI_EXPORT MGuiLabel*		mgui_create_label_ex			( MGuiElement* parent, int16 x, int16 y, uint16 w, uint16 h, uint32 flags, uint32 col, const char_t* text );
+MGUI_EXPORT MGuiListbox*	mgui_create_listbox				( MGuiElement* parent );
+MGUI_EXPORT MGuiListbox*	mgui_create_listbox_ex			( MGuiElement* parent, int16 x, int16 y, uint16 w, uint16 h, uint32 flags, uint32 col );
 MGUI_EXPORT MGuiMemobox*	mgui_create_memobox				( MGuiElement* parent );
 MGUI_EXPORT MGuiMemobox*	mgui_create_memobox_ex			( MGuiElement* parent, int16 x, int16 y, uint16 w, uint16 h, uint32 flags, uint32 col );
-MGUI_EXPORT MGuiProgressBar* mgui_create_progressbar		( MGuiElement* parent );
-MGUI_EXPORT MGuiProgressBar* mgui_create_progressbar_ex		( MGuiElement* parent, int16 x, int16 y, uint16 w, uint16 h, uint32 flags, uint32 col1, uint32 col2, float max_value );
-MGUI_EXPORT MGuiScrollBar*	mgui_create_scrollbar			( MGuiElement* parent );
+MGUI_EXPORT MGuiProgressbar* mgui_create_progressbar		( MGuiElement* parent );
+MGUI_EXPORT MGuiProgressbar* mgui_create_progressbar_ex		( MGuiElement* parent, int16 x, int16 y, uint16 w, uint16 h, uint32 flags, uint32 col1, uint32 col2, float max_value );
+MGUI_EXPORT MGuiScrollbar*	mgui_create_scrollbar			( MGuiElement* parent );
+MGUI_EXPORT MGuiScrollbar*	mgui_create_scrollbar_ex		( MGuiElement* parent, int16 x, int16 y, uint16 w, uint16 h, uint32 flags, uint32 col );
 MGUI_EXPORT MGuiSprite*		mgui_create_sprite				( MGuiElement* parent );
 MGUI_EXPORT MGuiSprite*		mgui_create_sprite_ex			( MGuiElement* parent, int16 x, int16 y, uint32 flags, uint32 col, const char_t* texture );
 MGUI_EXPORT MGuiWindow*		mgui_create_window				( MGuiElement* parent );
@@ -337,28 +358,31 @@ MGUI_EXPORT uint32			mgui_memobox_get_margin			( MGuiMemobox* memobox );
 MGUI_EXPORT void			mgui_memobox_set_margin			( MGuiMemobox* memobox, uint32 margin );
 
 /* Progressbar functions */
-MGUI_EXPORT float			mgui_progressbar_get_value		( MGuiProgressBar* bar );
-MGUI_EXPORT void			mgui_progressbar_set_value		( MGuiProgressBar* bar, float value );
-MGUI_EXPORT float			mgui_progressbar_get_max_value	( MGuiProgressBar* bar );
-MGUI_EXPORT void			mgui_progressbar_set_max_value	( MGuiProgressBar* bar, float value );
-MGUI_EXPORT void			mgui_progressbar_get_colour		( MGuiProgressBar* bar, colour_t* col_start, colour_t* col_end );
-MGUI_EXPORT void			mgui_progressbar_set_colour		( MGuiProgressBar* bar, const colour_t* col_start, const colour_t* col_end );
-MGUI_EXPORT void			mgui_progressbar_get_colour_i	( MGuiProgressBar* bar, uint32* col_start, uint32* col_end );
-MGUI_EXPORT void			mgui_progressbar_set_colour_i	( MGuiProgressBar* bar, uint32 col_start, uint32 col_end );
-MGUI_EXPORT float			mgui_progressbar_get_bg_shade	( MGuiProgressBar* bar );
-MGUI_EXPORT void			mgui_progressbar_set_bg_shade	( MGuiProgressBar* bar, float shade );
-MGUI_EXPORT uint8			mgui_progressbar_get_thickness	( MGuiProgressBar* bar );
-MGUI_EXPORT void			mgui_progressbar_set_thickness	( MGuiProgressBar* bar, uint8 thickness );
+MGUI_EXPORT float			mgui_progressbar_get_value		( MGuiProgressbar* bar );
+MGUI_EXPORT void			mgui_progressbar_set_value		( MGuiProgressbar* bar, float value );
+MGUI_EXPORT float			mgui_progressbar_get_max_value	( MGuiProgressbar* bar );
+MGUI_EXPORT void			mgui_progressbar_set_max_value	( MGuiProgressbar* bar, float value );
+MGUI_EXPORT void			mgui_progressbar_get_colour		( MGuiProgressbar* bar, colour_t* col_start, colour_t* col_end );
+MGUI_EXPORT void			mgui_progressbar_set_colour		( MGuiProgressbar* bar, const colour_t* col_start, const colour_t* col_end );
+MGUI_EXPORT void			mgui_progressbar_get_colour_i	( MGuiProgressbar* bar, uint32* col_start, uint32* col_end );
+MGUI_EXPORT void			mgui_progressbar_set_colour_i	( MGuiProgressbar* bar, uint32 col_start, uint32 col_end );
+MGUI_EXPORT float			mgui_progressbar_get_bg_shade	( MGuiProgressbar* bar );
+MGUI_EXPORT void			mgui_progressbar_set_bg_shade	( MGuiProgressbar* bar, float shade );
+MGUI_EXPORT uint8			mgui_progressbar_get_thickness	( MGuiProgressbar* bar );
+MGUI_EXPORT void			mgui_progressbar_set_thickness	( MGuiProgressbar* bar, uint8 thickness );
 
 /* Scrollbar functions */
-MGUI_EXPORT float			mgui_scrollbar_get_bar_pos		( MGuiScrollBar* scrollbar );
-MGUI_EXPORT void			mgui_scrollbar_set_bar_pos		( MGuiScrollBar* scrollbar, float pos );
-MGUI_EXPORT float			mgui_scrollbar_get_bar_size		( MGuiScrollBar* scrollbar );
-MGUI_EXPORT void			mgui_scrollbar_set_bar_size		( MGuiScrollBar* scrollbar, float size );
-MGUI_EXPORT float			mgui_scrollbar_get_nudge		( MGuiScrollBar* scrollbar );
-MGUI_EXPORT void			mgui_scrollbar_set_nudge		( MGuiScrollBar* scrollbar, float amount );
-MGUI_EXPORT void			mgui_scrollbar_get_track_colour	( MGuiScrollBar* scrollbar, colour_t* col );
-MGUI_EXPORT void			mgui_scrollbar_set_track_colour	( MGuiScrollBar* scrollbar, const colour_t* col );
+MGUI_EXPORT void			mgui_scrollbar_set_params		( MGuiScrollbar* scrollbar, float content, float step, float position, float size );
+MGUI_EXPORT float			mgui_scrollbar_get_content_size	( MGuiScrollbar* scrollbar );
+MGUI_EXPORT void			mgui_scrollbar_set_content_size	( MGuiScrollbar* scrollbar, float size );
+MGUI_EXPORT float			mgui_scrollbar_get_step_size	( MGuiScrollbar* scrollbar );
+MGUI_EXPORT void			mgui_scrollbar_set_step_size	( MGuiScrollbar* scrollbar, float size );
+MGUI_EXPORT float			mgui_scrollbar_get_bar_pos		( MGuiScrollbar* scrollbar );
+MGUI_EXPORT void			mgui_scrollbar_set_bar_pos		( MGuiScrollbar* scrollbar, float position );
+MGUI_EXPORT float			mgui_scrollbar_get_bar_size		( MGuiScrollbar* scrollbar );
+MGUI_EXPORT void			mgui_scrollbar_set_bar_size		( MGuiScrollbar* scrollbar, float size );
+MGUI_EXPORT float			mgui_scrollbar_get_bg_shade		( MGuiScrollbar* scrollbar );
+MGUI_EXPORT void			mgui_scrollbar_set_bg_shade		( MGuiScrollbar* scrollbar, float shade );
 
 /* Sprite functions */
 MGUI_EXPORT const char_t*	mgui_sprite_get_texture			( MGuiSprite* sprite );

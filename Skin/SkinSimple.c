@@ -415,13 +415,13 @@ static void skin_simple_draw_memobox( MGuiElement* element )
 
 static void skin_simple_draw_progressbar( MGuiElement* element )
 {
-	struct MGuiProgressBar* progbar;
+	struct MGuiProgressbar* progbar;
 	rectangle_t fg, bg;
 	float percentage;
 	uint16 width;
 	static colour_t col_border = { 0x000000FF };
 
-	progbar = (struct MGuiProgressBar*)element;
+	progbar = (struct MGuiProgressbar*)element;
 
 	percentage = progbar->value / progbar->max_value;
 	percentage = math_clampf( percentage, 0, 1 );
@@ -458,35 +458,61 @@ static void skin_simple_draw_progressbar( MGuiElement* element )
 static void skin_simple_draw_scrollbar( MGuiElement* element )
 {
 	rectangle_t* r;
-	struct MGuiScrollBar* bar;
+	uint32 bar_flags = 0;
+	struct MGuiScrollbar* bar;
 
 	r = &element->bounds;
-	bar = (struct MGuiScrollBar*)element;
+	bar = (struct MGuiScrollbar*)element;
 
 	// Scrollbar background
-	skin_simple_draw_panel( r, &bar->track_col );
+	skin_simple_draw_panel( r, &bar->bg_colour );
 
-	// Scrollbar buttons - for now we only have up/down
-	// TODO: Add horizontal direction
-	skin_simple_draw_scrollbar_button( &bar->button1, &bar->colour, &bar->track_col, bar->flags_button1, ARROW_UP );
-	skin_simple_draw_scrollbar_button( &bar->button2, &bar->colour, &bar->track_col, bar->flags_button2, ARROW_DOWN );
-
-	// Scrollbac track
-	if ( bar->bar_size != element->z_depth )
+	// Scrollbar buttons
+	if ( bar->flags & FLAG_SCROLLBAR_HORIZ )
 	{
-		skin_simple_draw_generic_button( &bar->bar, &bar->colour, bar->flags_int );
+		skin_simple_draw_scrollbar_button( &bar->button1, &bar->colour, &bar->bg_colour, bar->scroll_flags, ARROW_LEFT );
+		skin_simple_draw_scrollbar_button( &bar->button2, &bar->colour, &bar->bg_colour, bar->scroll_flags, ARROW_RIGHT );
+	}
+	else
+	{
+		skin_simple_draw_scrollbar_button( &bar->button1, &bar->colour, &bar->bg_colour, bar->scroll_flags, ARROW_UP );
+		skin_simple_draw_scrollbar_button( &bar->button2, &bar->colour, &bar->bg_colour, bar->scroll_flags, ARROW_DOWN );
+	}
+
+	// Scrollbar track
+	if ( bar->bar_size > 0 )
+	{
+		bar_flags |= ( bar->scroll_flags & SCROLL_BAR_HOVER ) ? INTFLAG_HOVER : 0;
+		bar_flags |= ( bar->scroll_flags & SCROLL_BAR_PRESSED ) ? INTFLAG_PRESSED : 0;
+
+		skin_simple_draw_generic_button( &bar->bar, &bar->colour, bar_flags );
 	}
 }
 
 static void skin_simple_draw_scrollbar_button( const rectangle_t* r, const colour_t* col, const colour_t* arrowcol, uint32 flags, uint32 dir )
 {
 	uint32 x1, x2, y1, y2, xm, ym;
+	uint32 button_flags = 0;
 	colour_t c;
 
-	skin_simple_draw_generic_button( r, col, flags|FLAG_BORDER );
+	switch ( dir )
+	{
+	case ARROW_UP:
+	case ARROW_LEFT:
+		button_flags |= ( flags & SCROLL_BUTTON1_HOVER ) ? INTFLAG_HOVER : 0;
+		button_flags |= ( flags & SCROLL_BUTTON1_PRESSED ) ? INTFLAG_PRESSED : 0;
+		break;
+
+	case ARROW_DOWN:
+	case ARROW_RIGHT:
+		button_flags |= ( flags & SCROLL_BUTTON2_HOVER ) ? INTFLAG_HOVER : 0;
+		button_flags |= ( flags & SCROLL_BUTTON2_PRESSED ) ? INTFLAG_PRESSED : 0;
+		break;
+	}
+
+	skin_simple_draw_generic_button( r, col, button_flags );
 
 	colour_subtract_scalar( &c, arrowcol, 10 );
-
 	renderer->set_draw_colour( &c );
 
 	x1 = r->x + r->w / 3;

@@ -52,6 +52,7 @@ static struct MGuiCallbacks callbacks =
 	mgui_window_on_mouse_click,
 	mgui_window_on_mouse_release,
 	mgui_window_on_mouse_drag,
+	NULL, /* on_mouse_move */
 	NULL, /* on_mouse_wheel */
 	NULL, /* on_character */
 	NULL  /* on_key_press */

@@ -144,14 +144,17 @@ static bool mgui_input_handle_mouse_move( InputEvent* event )
 	x = event->mouse.x;
 	y = event->mouse.y;
 
-	if ( dragged )
-	{
-		if ( dragged->callbacks->on_mouse_drag )
-			dragged->callbacks->on_mouse_drag( dragged, x, y );
-	}
+	if ( dragged && dragged->callbacks->on_mouse_drag )
+		dragged->callbacks->on_mouse_drag( dragged, x, y );
 
 	element = mgui_get_element_at( x, y );
-	if ( element == hovered ) return true;
+	if ( element == hovered )
+	{
+		if ( hovered && hovered->callbacks->on_mouse_move )
+			hovered->callbacks->on_mouse_move( hovered, x, y );
+
+		return true;
+	}
 
 	if ( hovered )
 	{
@@ -210,9 +213,6 @@ static bool mgui_input_handle_lmb_up( InputEvent* event )
 	y = event->mouse.y;
 
 	dragged = NULL;
-
-	element = mgui_get_element_at( x, y );
-	(void)element;
 
 	if ( pressed )
 	{

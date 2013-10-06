@@ -70,6 +70,7 @@ static struct MGuiCallbacks callbacks =
 	mgui_editbox_on_mouse_click,
 	mgui_editbox_on_mouse_release,
 	mgui_editbox_on_mouse_drag,
+	NULL, /* on_mouse_move */
 	NULL, /* on_mouse_wheel */
 	mgui_editbox_on_character,
 	mgui_editbox_on_key_press

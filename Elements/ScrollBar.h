@@ -1,7 +1,7 @@
 /**********************************************************************
  *
  * PROJECT:		Mylly GUI
- * FILE:		ScrollBar.h
+ * FILE:		Scrollbar.h
  * LICENCE:		See Licence.txt
  * PURPOSE:		GUI scrollbar related functions.
  *
@@ -15,41 +15,46 @@
 
 #include "Element.h"
 
-// Scrollbar flags
-#define SBFLAG_B1HOVER		0x0001		// Button 1 is hovered
-#define SBFLAG_B2HOVER		0x0002		// Button 2 is hovered
-#define SBFLAG_B1PRESSED	0x0004		// Button 1 is pressed
-#define SBFLAG_B2PRESSED	0x0008		// Button 2 is pressed
-#define SBFLAG_BARHOVER		0x0010		// Bar is hovered
-#define SBFLAG_BARPRESSED	0x0020		// Bar is pressed/dragged
-#define SBFLAG_HORIZONTAL	0x0040		// Scrollbar is horizontal
+enum SCROLLBAR_FLAGS {
+	SCROLL_BUTTON1_HOVER	= 1 << 0,	// Button 1 is hovered
+	SCROLL_BUTTON2_HOVER	= 1 << 1,	// Button 2 is hovered
+	SCROLL_BUTTON1_PRESSED	= 1 << 2,	// Button 1 is pressed
+	SCROLL_BUTTON2_PRESSED	= 1 << 3,	// Button 2 is pressed
+	SCROLL_BAR_HOVER		= 1 << 4,	// Bar is hovered
+	SCROLL_BAR_PRESSED		= 1 << 5,	// Bar is pressed/dragged
+};
 
-struct MGuiScrollBar
-{
+struct MGuiScrollbar {
 	MGuiElement;					// Inherit all generic element properties
 
 	rectangle_t		button1;		// Bounds of button 1 (up/right) 
 	rectangle_t		button2;		// Bounds of button 2 (down/left)
 	rectangle_t		bar;			// Bounds of the actual bar
+	rectangle_t		background;		// Bounds of the background
 	vectorscreen_t	click_offset;	// Click offset when dragging the bar
-	float			bar_position;	// The position of the scrollbar (0...1)
+	colour_t		bg_colour;		// Scrollbar background colour
+	float			bg_shade;		// Scrollbar background shade
+	float			content_size;	// Size of the content
+	float			step_size;		// Minimum step size when moving the scrollbar
+	float			bar_position;	// The position of the scrollbar, relative to content_size
 	float			bar_size;		// The relative size of the scrollbar (0...1)
-	float			nudge_amount;	// Amount to move the bar when a button is clicked
-	uint32			flags_sb;		// Scrollbar flags
-	uint32			flags_button1;	// Scrollbar button 1 flags
-	uint32			flags_button2;	// Scrollbar button 2 flags
-	colour_t		track_col;		// Scrollbar track colour
+	uint32			scroll_flags;	// Scrollbar flags (see enum above)
+	uint32			nudge_time;		// Timestamp when the next nudge should happen
 };
 
-MGuiScrollBar*	mgui_create_scrollbar			( MGuiElement* parent );
+MGuiScrollbar*	mgui_create_scrollbar			( MGuiElement* parent );
+MGuiScrollbar*	mgui_create_scrollbar_ex		( MGuiElement* parent, int16 x, int16 y, uint16 w, uint16 h, uint32 flags, uint32 col );
 
-float			mgui_scrollbar_get_bar_pos		( MGuiScrollBar* scrollbar );
-void			mgui_scrollbar_set_bar_pos		( MGuiScrollBar* scrollbar, float pos );
-float			mgui_scrollbar_get_bar_size		( MGuiScrollBar* scrollbar );
-void			mgui_scrollbar_set_bar_size		( MGuiScrollBar* scrollbar, float size );
-float			mgui_scrollbar_get_nudge		( MGuiScrollBar* scrollbar );
-void			mgui_scrollbar_set_nudge		( MGuiScrollBar* scrollbar, float amount );
-void			mgui_scrollbar_get_track_colour	( MGuiScrollBar* scrollbar, colour_t* col );
-void			mgui_scrollbar_set_track_colour	( MGuiScrollBar* scrollbar, const colour_t* col );
+void			mgui_scrollbar_set_params		( MGuiScrollbar* scrollbar, float content, float step, float position, float size );
+float			mgui_scrollbar_get_content_size	( MGuiScrollbar* scrollbar );
+void			mgui_scrollbar_set_content_size	( MGuiScrollbar* scrollbar, float size );
+float			mgui_scrollbar_get_step_size	( MGuiScrollbar* scrollbar );
+void			mgui_scrollbar_set_step_size	( MGuiScrollbar* scrollbar, float size );
+float			mgui_scrollbar_get_bar_pos		( MGuiScrollbar* scrollbar );
+void			mgui_scrollbar_set_bar_pos		( MGuiScrollbar* scrollbar, float position );
+float			mgui_scrollbar_get_bar_size		( MGuiScrollbar* scrollbar );
+void			mgui_scrollbar_set_bar_size		( MGuiScrollbar* scrollbar, float size );
+float			mgui_scrollbar_get_bg_shade		( MGuiScrollbar* scrollbar );
+void			mgui_scrollbar_set_bg_shade		( MGuiScrollbar* scrollbar, float shade );
 
 #endif /* __MGUI_SCROLLBAR_H */

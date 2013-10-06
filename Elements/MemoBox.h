@@ -1,7 +1,7 @@
 /**********************************************************************
  *
  * PROJECT:		Mylly GUI
- * FILE:		MemoBox.h
+ * FILE:		Memobox.h
  * LICENCE:		See Licence.txt
  * PURPOSE:		GUI memobox related functions.
  *
@@ -15,8 +15,7 @@
 
 #include "Element.h"
 
-struct MGuiMemoLine
-{
+struct MGuiMemoLine {
 	node_t;
 	char_t*			text;
 	MGuiFont*		font;
@@ -26,15 +25,13 @@ struct MGuiMemoLine
 	vectorscreen_t	pos;
 };
 
-struct MGuiMemoRaw
-{
+struct MGuiMemoRaw {
 	node_t;
 	char_t*		text;
 	colour_t	colour;
 };
 
-struct MGuiMemobox
-{
+struct MGuiMemobox {
 	MGuiElement;				// Inherit all generic element properties
 
 	float		position;		// Scroll position on the editbox render area

@@ -1,7 +1,7 @@
 /**********************************************************************
  *
  * PROJECT:		Mylly GUI
- * FILE:		ProgressBar.c
+ * FILE:		Progressbar.c
  * LICENCE:		See Licence.txt
  * PURPOSE:		GUI progress bar related functions.
  *
@@ -16,9 +16,9 @@
 // --------------------------------------------------
 
 // Progressbar callback handlers and static methods
-static void		mgui_progressbar_render				( MGuiProgressBar* bar );
-static void		mgui_progressbar_on_colour_change	( MGuiProgressBar* bar );
-static void		mgui_progressbar_update_colours		( struct MGuiProgressBar* bar );
+static void		mgui_progressbar_render				( MGuiProgressbar* bar );
+static void		mgui_progressbar_on_colour_change	( MGuiProgressbar* bar );
+static void		mgui_progressbar_update_colours		( struct MGuiProgressbar* bar );
 
 // --------------------------------------------------
 
@@ -38,6 +38,7 @@ static struct MGuiCallbacks callbacks =
 	NULL, /* on_mouse_click */
 	NULL, /* on_mouse_release */
 	NULL, /* on_mouse_drag */
+	NULL, /* on_mouse_move */
 	NULL, /* on_mouse_wheel */
 	NULL, /* on_character */
 	NULL  /* on_key_press */
@@ -45,9 +46,9 @@ static struct MGuiCallbacks callbacks =
 
 // --------------------------------------------------
 
-MGuiProgressBar* mgui_create_progressbar( MGuiElement* parent )
+MGuiProgressbar* mgui_create_progressbar( MGuiElement* parent )
 {
-	struct MGuiProgressBar* bar;
+	struct MGuiProgressbar* bar;
 
 	bar = mem_alloc_clean( sizeof(*bar) );
 	bar->flags_int |= INTFLAG_NOTEXT;
@@ -68,9 +69,9 @@ MGuiProgressBar* mgui_create_progressbar( MGuiElement* parent )
 	return cast_elem(bar);
 }
 
-MGuiProgressBar* mgui_create_progressbar_ex( MGuiElement* parent, int16 x, int16 y, uint16 w, uint16 h, uint32 flags, uint32 col1, uint32 col2, float max_value )
+MGuiProgressbar* mgui_create_progressbar_ex( MGuiElement* parent, int16 x, int16 y, uint16 w, uint16 h, uint32 flags, uint32 col1, uint32 col2, float max_value )
 {
-	MGuiProgressBar* bar;
+	MGuiProgressbar* bar;
 
 	bar = mgui_create_progressbar( parent );
 
@@ -83,17 +84,17 @@ MGuiProgressBar* mgui_create_progressbar_ex( MGuiElement* parent, int16 x, int16
 	return bar;
 }
 
-static void mgui_progressbar_render( MGuiProgressBar* bar )
+static void mgui_progressbar_render( MGuiProgressbar* bar )
 {
 	bar->skin->draw_progressbar( bar );
 }
 
-static void mgui_progressbar_on_colour_change( MGuiProgressBar* bar )
+static void mgui_progressbar_on_colour_change( MGuiProgressbar* bar )
 {
-	struct MGuiProgressBar* progbar;
+	struct MGuiProgressbar* progbar;
 	uint8 alpha;
 
-	progbar = (struct MGuiProgressBar*)bar;
+	progbar = (struct MGuiProgressbar*)bar;
 
 	// Only apply new alpha here, progressbars have
 	// separate methods for setting the actual colours.
@@ -107,7 +108,7 @@ static void mgui_progressbar_on_colour_change( MGuiProgressBar* bar )
 	mgui_element_request_redraw( bar );
 }
 
-static void mgui_progressbar_update_colours( struct MGuiProgressBar* bar )
+static void mgui_progressbar_update_colours( struct MGuiProgressbar* bar )
 {
 	float percentage;
 
@@ -122,23 +123,23 @@ static void mgui_progressbar_update_colours( struct MGuiProgressBar* bar )
 	mgui_progressbar_on_colour_change( cast_elem(bar) );
 }
 
-float mgui_progressbar_get_value( MGuiProgressBar* bar )
+float mgui_progressbar_get_value( MGuiProgressbar* bar )
 {
-	struct MGuiProgressBar* progbar;
+	struct MGuiProgressbar* progbar;
 
 	if ( bar == NULL ) return 0;
 
-	progbar = (struct MGuiProgressBar*)bar;
+	progbar = (struct MGuiProgressbar*)bar;
 	return progbar->value;
 }
 
-void mgui_progressbar_set_value( MGuiProgressBar* bar, float value )
+void mgui_progressbar_set_value( MGuiProgressbar* bar, float value )
 {
-	struct MGuiProgressBar* progbar;
+	struct MGuiProgressbar* progbar;
 
 	if ( bar == NULL ) return;
 
-	progbar = (struct MGuiProgressBar*)bar;
+	progbar = (struct MGuiProgressbar*)bar;
 
 	value = math_clampf( value, 0, progbar->max_value );
 	progbar->value = value;
@@ -146,23 +147,23 @@ void mgui_progressbar_set_value( MGuiProgressBar* bar, float value )
 	mgui_progressbar_update_colours( progbar );
 }
 
-float mgui_progressbar_get_max_value( MGuiProgressBar* bar )
+float mgui_progressbar_get_max_value( MGuiProgressbar* bar )
 {
-	struct MGuiProgressBar* progbar;
+	struct MGuiProgressbar* progbar;
 
 	if ( bar == NULL ) return 0;
 
-	progbar = (struct MGuiProgressBar*)bar;
+	progbar = (struct MGuiProgressbar*)bar;
 	return progbar->max_value;
 }
 
-void mgui_progressbar_set_max_value( MGuiProgressBar* bar, float value )
+void mgui_progressbar_set_max_value( MGuiProgressbar* bar, float value )
 {
-	struct MGuiProgressBar* progbar;
+	struct MGuiProgressbar* progbar;
 
 	if ( bar == NULL ) return;
 
-	progbar = (struct MGuiProgressBar*)bar;
+	progbar = (struct MGuiProgressbar*)bar;
 	progbar->max_value = value;
 
 	progbar->value = math_clampf( progbar->value, 0, value );
@@ -170,29 +171,29 @@ void mgui_progressbar_set_max_value( MGuiProgressBar* bar, float value )
 	mgui_progressbar_update_colours( progbar );
 }
 
-void mgui_progressbar_get_colour( MGuiProgressBar* bar, colour_t* col_start, colour_t* col_end )
+void mgui_progressbar_get_colour( MGuiProgressbar* bar, colour_t* col_start, colour_t* col_end )
 {
-	struct MGuiProgressBar* progbar;
+	struct MGuiProgressbar* progbar;
 
 	if ( bar == NULL ||
 		 col_start == NULL ||
 		 col_end == NULL ) return;
 
-	progbar = (struct MGuiProgressBar*)bar;
+	progbar = (struct MGuiProgressbar*)bar;
 
 	*col_start = progbar->colour_start;
 	*col_end = progbar->colour_end;
 }
 
-void mgui_progressbar_set_colour( MGuiProgressBar* bar, const colour_t* col_start, const colour_t* col_end )
+void mgui_progressbar_set_colour( MGuiProgressbar* bar, const colour_t* col_start, const colour_t* col_end )
 {
-	struct MGuiProgressBar* progbar;
+	struct MGuiProgressbar* progbar;
 
 	if ( bar == NULL ||
 		 col_start == NULL ||
 		 col_end == NULL ) return;
 
-	progbar = (struct MGuiProgressBar*)bar;
+	progbar = (struct MGuiProgressbar*)bar;
 
 	progbar->colour_start = *col_start;
 	progbar->colour_end = *col_end;
@@ -200,27 +201,27 @@ void mgui_progressbar_set_colour( MGuiProgressBar* bar, const colour_t* col_star
 	mgui_progressbar_update_colours( progbar );
 }
 
-void mgui_progressbar_get_colour_i( MGuiProgressBar* bar, uint32* col_start, uint32* col_end )
+void mgui_progressbar_get_colour_i( MGuiProgressbar* bar, uint32* col_start, uint32* col_end )
 {
-	struct MGuiProgressBar* progbar;
+	struct MGuiProgressbar* progbar;
 
 	if ( bar == NULL ||
 		 col_start == NULL ||
 		 col_end == NULL ) return;
 
-	progbar = (struct MGuiProgressBar*)bar;
+	progbar = (struct MGuiProgressbar*)bar;
 
 	*col_start = progbar->colour_start.hex;
 	*col_end = progbar->colour_end.hex;
 }
 
-void mgui_progressbar_set_colour_i( MGuiProgressBar* bar, uint32 col_start, uint32 col_end )
+void mgui_progressbar_set_colour_i( MGuiProgressbar* bar, uint32 col_start, uint32 col_end )
 {
-	struct MGuiProgressBar* progbar;
+	struct MGuiProgressbar* progbar;
 
 	if ( bar == NULL ) return;
 
-	progbar = (struct MGuiProgressBar*)bar;
+	progbar = (struct MGuiProgressbar*)bar;
 
 	progbar->colour_start.hex = col_start;
 	progbar->colour_end.hex = col_end;
@@ -228,23 +229,23 @@ void mgui_progressbar_set_colour_i( MGuiProgressBar* bar, uint32 col_start, uint
 	mgui_progressbar_update_colours( progbar );
 }
 
-float mgui_progressbar_get_bg_shade( MGuiProgressBar* bar )
+float mgui_progressbar_get_bg_shade( MGuiProgressbar* bar )
 {
-	struct MGuiProgressBar* progbar;
+	struct MGuiProgressbar* progbar;
 
 	if ( bar == NULL ) return 0;
 
-	progbar = (struct MGuiProgressBar*)bar;
+	progbar = (struct MGuiProgressbar*)bar;
 	return progbar->bg_shade;
 }
 
-void mgui_progressbar_set_bg_shade( MGuiProgressBar* bar, float shade )
+void mgui_progressbar_set_bg_shade( MGuiProgressbar* bar, float shade )
 {
-	struct MGuiProgressBar* progbar;
+	struct MGuiProgressbar* progbar;
 
 	if ( bar == NULL ) return;
 
-	progbar = (struct MGuiProgressBar*)bar;
+	progbar = (struct MGuiProgressbar*)bar;
 
 	shade = math_clampf( shade, 0, 1 );
 	progbar->bg_shade = shade;
@@ -252,23 +253,23 @@ void mgui_progressbar_set_bg_shade( MGuiProgressBar* bar, float shade )
 	mgui_progressbar_update_colours( progbar );
 }
 
-uint8 mgui_progressbar_get_thickness( MGuiProgressBar* bar )
+uint8 mgui_progressbar_get_thickness( MGuiProgressbar* bar )
 {
-	struct MGuiProgressBar* progbar;
+	struct MGuiProgressbar* progbar;
 
 	if ( bar == NULL ) return 0;
 
-	progbar = (struct MGuiProgressBar*)bar;
+	progbar = (struct MGuiProgressbar*)bar;
 	return progbar->thickness;
 }
 
-void mgui_progressbar_set_thickness( MGuiProgressBar* bar, uint8 thickness )
+void mgui_progressbar_set_thickness( MGuiProgressbar* bar, uint8 thickness )
 {
-	struct MGuiProgressBar* progbar;
+	struct MGuiProgressbar* progbar;
 
 	if ( bar == NULL ) return;
 
-	progbar = (struct MGuiProgressBar*)bar;
+	progbar = (struct MGuiProgressbar*)bar;
 	progbar->thickness = thickness;
 
 	mgui_element_request_redraw( bar );

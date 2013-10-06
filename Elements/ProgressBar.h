@@ -1,7 +1,7 @@
 /**********************************************************************
  *
  * PROJECT:		Mylly GUI
- * FILE:		ProgressBar.h
+ * FILE:		Progressbar.h
  * LICENCE:		See Licence.txt
  * PURPOSE:		GUI progress bar related functions.
  *
@@ -15,8 +15,7 @@
 
 #include "Element.h"
 
-struct MGuiProgressBar
-{
+struct MGuiProgressbar {
 	MGuiElement;					// Inherit all generic element properties
 
 	float			value;			// Current value
@@ -29,21 +28,21 @@ struct MGuiProgressBar
 	uint8			thickness;		// Border thickness
 };
 
-MGuiProgressBar*	mgui_create_progressbar				( MGuiElement* parent );
-MGuiProgressBar*	mgui_create_progressbar_ex			( MGuiElement* parent, int16 x, int16 y, uint16 w, uint16 h, uint32 flags, uint32 col1, uint32 col2, float max_value );
+MGuiProgressbar*	mgui_create_progressbar				( MGuiElement* parent );
+MGuiProgressbar*	mgui_create_progressbar_ex			( MGuiElement* parent, int16 x, int16 y, uint16 w, uint16 h, uint32 flags, uint32 col1, uint32 col2, float max_value );
 
-float				mgui_progressbar_get_value			( MGuiProgressBar* bar );
-void				mgui_progressbar_set_value			( MGuiProgressBar* bar, float value );
-float				mgui_progressbar_get_max_value		( MGuiProgressBar* bar );
-void				mgui_progressbar_set_max_value		( MGuiProgressBar* bar, float value );
+float				mgui_progressbar_get_value			( MGuiProgressbar* bar );
+void				mgui_progressbar_set_value			( MGuiProgressbar* bar, float value );
+float				mgui_progressbar_get_max_value		( MGuiProgressbar* bar );
+void				mgui_progressbar_set_max_value		( MGuiProgressbar* bar, float value );
 
-void				mgui_progressbar_get_colour			( MGuiProgressBar* bar, colour_t* col_start, colour_t* col_end );
-void				mgui_progressbar_set_colour			( MGuiProgressBar* bar, const colour_t* col_start, const colour_t* col_end );
-void				mgui_progressbar_get_colour_i		( MGuiProgressBar* bar, uint32* col_start, uint32* col_end );
-void				mgui_progressbar_set_colour_i		( MGuiProgressBar* bar, uint32 col_start, uint32 col_end );
-float				mgui_progressbar_get_bg_shade		( MGuiProgressBar* bar );
-void				mgui_progressbar_set_bg_shade		( MGuiProgressBar* bar, float shade );
-uint8				mgui_progressbar_get_thickness		( MGuiProgressBar* bar );
-void				mgui_progressbar_set_thickness		( MGuiProgressBar* bar, uint8 thickness );
+void				mgui_progressbar_get_colour			( MGuiProgressbar* bar, colour_t* col_start, colour_t* col_end );
+void				mgui_progressbar_set_colour			( MGuiProgressbar* bar, const colour_t* col_start, const colour_t* col_end );
+void				mgui_progressbar_get_colour_i		( MGuiProgressbar* bar, uint32* col_start, uint32* col_end );
+void				mgui_progressbar_set_colour_i		( MGuiProgressbar* bar, uint32 col_start, uint32 col_end );
+float				mgui_progressbar_get_bg_shade		( MGuiProgressbar* bar );
+void				mgui_progressbar_set_bg_shade		( MGuiProgressbar* bar, float shade );
+uint8				mgui_progressbar_get_thickness		( MGuiProgressbar* bar );
+void				mgui_progressbar_set_thickness		( MGuiProgressbar* bar, uint8 thickness );
 
 #endif /* __MGUI_PROGRESSBAR_H */

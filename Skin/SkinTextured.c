@@ -14,6 +14,7 @@
 #include "Editbox.h"
 #include "MemoBox.h"
 #include "ProgressBar.h"
+#include "ScrollBar.h"
 #include "Window.h"
 #include "WindowButton.h"
 #include "WindowTitlebar.h"
@@ -47,6 +48,21 @@ typedef enum {
 	MARGIN_RIGHT
 } MARGIN;
 
+typedef enum {
+	BUTTON_IDLE,
+	BUTTON_HOVERED,
+	BUTTON_PRESSED,
+	NUM_STATES
+} BUTTON_STATE;
+
+typedef enum {
+	ARROWDIR_LEFT,
+	ARROWDIR_RIGHT,
+	ARROWDIR_DOWN,
+	ARROWDIR_UP,
+	NUM_ARROWS
+} SCROLL_ARROW;
+
 typedef struct {
 	float	uv[4];				// Texture coordinates
 	uint16	size[2];			// Size of the texture in pixels
@@ -76,8 +92,13 @@ typedef struct {
 		MGuiTexBorder	editbox_focus;
 		MGuiTexBorder	editbox_inactive;
 		MGuiTexBorder	label;				// Labels
-		MGuiTexBorder	progbar;			// Progress bars
+		MGuiTexBorder	progbar;			// Progressbars
 		MGuiTexBorder	progbar_bg;
+		MGuiTexBorder	scroll_bg_vert;		// Scrollbars
+		MGuiTexBorder	scroll_bg_horiz;
+		MGuiTexBorder	scroll_bar_vert[NUM_STATES];
+		MGuiTexBorder	scroll_bar_horiz[NUM_STATES];
+		MGuiTexBorder	scroll_buttons[NUM_ARROWS][NUM_STATES];
 		MGuiTexBorder	window;				// Windows
 		MGuiTexBorder	window_resizable;
 		MGuiTexBorder	window_titlebar;
@@ -156,6 +177,28 @@ MGuiSkin* mgui_setup_skin_textured( const char_t* path )
 	// Progressbar textures
 	skin_textured_setup_primitive_bordered( texture, &skin->textures.progbar, 65, 108, 97, 128, 2, 2, 2, 2 );
 	skin_textured_setup_primitive_bordered( texture, &skin->textures.progbar_bg, 98, 108, 128, 128, 2, 2, 2, 2 );
+
+	// Scrollbar textures
+	skin_textured_setup_primitive_bordered( texture, &skin->textures.scroll_bg_vert, 113, 129, 128, 192, 2, 2, 2, 2 );
+	skin_textured_setup_primitive_bordered( texture, &skin->textures.scroll_bg_horiz, 0, 241, 64, 256, 2, 2, 2, 2 );
+	skin_textured_setup_primitive_bordered( texture, &skin->textures.scroll_bar_vert[BUTTON_IDLE], 65, 129, 80, 192, 2, 2, 2, 2 );
+	skin_textured_setup_primitive_bordered( texture, &skin->textures.scroll_bar_vert[BUTTON_HOVERED], 81, 129, 96, 192, 2, 2, 2, 2 );
+	skin_textured_setup_primitive_bordered( texture, &skin->textures.scroll_bar_vert[BUTTON_PRESSED], 97, 129, 112, 192, 2, 2, 2, 2 );
+	skin_textured_setup_primitive_bordered( texture, &skin->textures.scroll_bar_horiz[BUTTON_IDLE], 0, 193, 64, 208, 2, 2, 2, 2 );
+	skin_textured_setup_primitive_bordered( texture, &skin->textures.scroll_bar_horiz[BUTTON_HOVERED], 0, 209, 64, 224, 2, 2, 2, 2 );
+	skin_textured_setup_primitive_bordered( texture, &skin->textures.scroll_bar_horiz[BUTTON_PRESSED], 0, 225, 64, 240, 2, 2, 2, 2 );
+	skin_textured_setup_primitive_bordered( texture, &skin->textures.scroll_buttons[ARROWDIR_LEFT][BUTTON_IDLE], 0, 142, 15, 157, 3, 3, 3, 3 );
+	skin_textured_setup_primitive_bordered( texture, &skin->textures.scroll_buttons[ARROWDIR_LEFT][BUTTON_HOVERED], 0, 158, 15, 173, 3, 3, 3, 3 );
+	skin_textured_setup_primitive_bordered( texture, &skin->textures.scroll_buttons[ARROWDIR_LEFT][BUTTON_PRESSED], 0, 174, 15, 189, 3, 3, 3, 3 );
+	skin_textured_setup_primitive_bordered( texture, &skin->textures.scroll_buttons[ARROWDIR_RIGHT][BUTTON_IDLE], 16, 142, 31, 157, 3, 3, 3, 3 );
+	skin_textured_setup_primitive_bordered( texture, &skin->textures.scroll_buttons[ARROWDIR_RIGHT][BUTTON_HOVERED], 16, 158, 31, 173, 3, 3, 3, 3 );
+	skin_textured_setup_primitive_bordered( texture, &skin->textures.scroll_buttons[ARROWDIR_RIGHT][BUTTON_PRESSED], 16, 174, 31, 189, 3, 3, 3, 3 );
+	skin_textured_setup_primitive_bordered( texture, &skin->textures.scroll_buttons[ARROWDIR_DOWN][BUTTON_IDLE], 32, 142, 47, 157, 3, 3, 3, 3 );
+	skin_textured_setup_primitive_bordered( texture, &skin->textures.scroll_buttons[ARROWDIR_DOWN][BUTTON_HOVERED], 32, 158, 47, 173, 3, 3, 3, 3 );
+	skin_textured_setup_primitive_bordered( texture, &skin->textures.scroll_buttons[ARROWDIR_DOWN][BUTTON_PRESSED], 32, 174, 47, 189, 3, 3, 3, 3 );
+	skin_textured_setup_primitive_bordered( texture, &skin->textures.scroll_buttons[ARROWDIR_UP][BUTTON_IDLE], 48, 142, 63, 157, 3, 3, 3, 3 );
+	skin_textured_setup_primitive_bordered( texture, &skin->textures.scroll_buttons[ARROWDIR_UP][BUTTON_HOVERED], 48, 158, 63, 173, 3, 3, 3, 3 );
+	skin_textured_setup_primitive_bordered( texture, &skin->textures.scroll_buttons[ARROWDIR_UP][BUTTON_PRESSED], 48, 174, 63, 189, 3, 3, 3, 3 );
 
 	// Window textures
 	skin_textured_setup_primitive_bordered( texture, &skin->textures.window, 0, 26, 64, 64, 5, 5, 5, 5 );
@@ -496,7 +539,7 @@ static void skin_textured_draw_memobox( MGuiElement* element )
 
 static void skin_textured_draw_progressbar( MGuiElement* element )
 {
-	struct MGuiProgressBar* progbar = (struct MGuiProgressBar*)element;
+	struct MGuiProgressbar* progbar = (struct MGuiProgressbar*)element;
 	MGuiTexturedSkin* skin = (MGuiTexturedSkin*)element->skin;
 	rectangle_t fg, bg;
 	float percentage;
@@ -541,7 +584,59 @@ static void skin_textured_draw_progressbar( MGuiElement* element )
 
 static void skin_textured_draw_scrollbar( MGuiElement* element )
 {
-	UNREFERENCED_PARAM( element );
+	struct MGuiScrollbar* bar = (struct MGuiScrollbar*)element;
+	MGuiTexturedSkin* skin = (MGuiTexturedSkin*)element->skin;
+	const MGuiTexBorder* primitive;
+	bool horiz = BIT_ON( bar->flags, FLAG_SCROLLBAR_HORIZ );
+	uint32 button, state;
+
+	// Background
+	primitive = horiz ? &skin->textures.scroll_bg_horiz : &skin->textures.scroll_bg_vert;
+
+	skin_textured_draw_bordered_panel( skin->texture, primitive, &bar->background,
+									   &bar->bg_colour, BORDER_ALL, true );
+
+	// Button 1 (left/up)
+	button = horiz ? ARROWDIR_LEFT : ARROWDIR_UP;
+
+	if ( bar->scroll_flags & SCROLL_BUTTON1_PRESSED )
+		state = BUTTON_PRESSED;
+
+	else if ( bar->scroll_flags & SCROLL_BUTTON1_HOVER )
+		state = BUTTON_HOVERED;
+
+	else state = BUTTON_IDLE;
+
+	skin_textured_draw_bordered_panel( skin->texture, &skin->textures.scroll_buttons[button][state],
+									   &bar->button1, &bar->colour, BORDER_ALL, true );
+
+	// Button 2 (right/down)
+	button = horiz ? ARROWDIR_RIGHT : ARROWDIR_DOWN;
+
+	if ( bar->scroll_flags & SCROLL_BUTTON2_PRESSED )
+		state = BUTTON_PRESSED;
+
+	else if ( bar->scroll_flags & SCROLL_BUTTON2_HOVER )
+		state = BUTTON_HOVERED;
+
+	else state = BUTTON_IDLE;
+
+	skin_textured_draw_bordered_panel( skin->texture, &skin->textures.scroll_buttons[button][state],
+									   &bar->button2, &bar->colour, BORDER_ALL, true );
+
+	// Scrollbar
+	if ( bar->scroll_flags & SCROLL_BAR_PRESSED )
+		state = BUTTON_PRESSED;
+
+	else if ( bar->scroll_flags & SCROLL_BAR_HOVER )
+		state = BUTTON_HOVERED;
+
+	else state = BUTTON_IDLE;
+
+	primitive = horiz ? &skin->textures.scroll_bar_horiz[state] : &skin->textures.scroll_bar_vert[state];
+
+	skin_textured_draw_bordered_panel( skin->texture, primitive, &bar->bar,
+									   &bar->colour, BORDER_ALL, true );
 }
 
 static void skin_textured_draw_window( MGuiElement* element )
