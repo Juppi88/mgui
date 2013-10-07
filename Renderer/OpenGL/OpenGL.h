@@ -24,4 +24,4 @@ MYLLY_API void			mgui_opengl_end_scene		( void );
 
 __END_DECLS
 
-#endif /* __MYLLY_GUI_OPENGL_8_H */
+#endif /* __MYLLY_GUI_OPENGL_H */

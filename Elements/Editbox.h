@@ -1,7 +1,7 @@
 /**********************************************************************
  *
  * PROJECT:		Mylly GUI
- * FILE:		EditBox.h
+ * FILE:		Editbox.h
  * LICENCE:		See Licence.txt
  * PURPOSE:		GUI editbox related functions.
  *

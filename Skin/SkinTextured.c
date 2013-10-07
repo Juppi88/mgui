@@ -12,9 +12,9 @@
 #include "SkinTextured.h"
 #include "Element.h"
 #include "Editbox.h"
-#include "MemoBox.h"
-#include "ProgressBar.h"
-#include "ScrollBar.h"
+#include "Memobox.h"
+#include "Progressbar.h"
+#include "Scrollbar.h"
 #include "Window.h"
 #include "WindowButton.h"
 #include "WindowTitlebar.h"
@@ -63,16 +63,22 @@ typedef enum {
 	NUM_ARROWS
 } SCROLL_ARROW;
 
+// --------------------------------------------------
+
 typedef struct {
 	float	uv[4];				// Texture coordinates
 	uint16	size[2];			// Size of the texture in pixels
 } MGuiTex;
+
+// --------------------------------------------------
 
 typedef struct {
 	float	uv[NUM_REGIONS][4];	// Texture coordinates for each region
 	uint8	margin[4];			// Border texture size in pixels
 	uint16	size[2];			// Overall texture size in pixels
 } MGuiTexBorder;
+
+// --------------------------------------------------
 
 typedef struct {
 	MGuiSkin			api;				// Element drawing functions
@@ -114,7 +120,6 @@ static void		skin_textured_setup_primitive			( MGuiTexture* texture, MGuiTex* pr
 static void		skin_textured_setup_primitive_bordered	( MGuiTexture* texture, MGuiTexBorder* primitive, uint32 x, uint32 y, uint32 x2, uint32 y2, uint8 top, uint8 bottom, uint8 left, uint8 right );
 static void		skin_textured_draw_panel				( MGuiTexture* texture, const MGuiTex* prim, const rectangle_t* r, const colour_t* col );
 static void		skin_textured_draw_bordered_panel		( MGuiTexture* texture, const MGuiTexBorder* prim, const rectangle_t* r, const colour_t* col, uint32 borders, bool panel );
-static void		skin_textured_draw_shadow				( const rectangle_t* r, uint offset );
 static void		skin_textured_draw_button				( MGuiElement* element );
 static void		skin_textured_draw_checkbox				( MGuiElement* element );
 static void		skin_textured_draw_editbox				( MGuiElement* element );
@@ -123,7 +128,6 @@ static void		skin_textured_draw_memobox				( MGuiElement* element );
 static void		skin_textured_draw_progressbar			( MGuiElement* element );
 static void		skin_textured_draw_scrollbar			( MGuiElement* element );
 static void		skin_textured_draw_window				( MGuiElement* element );
-static void		skin_textured_draw_window_titlebar		( MGuiElement* element );
 static void		skin_textured_draw_window_closebtn		( struct MGuiWindowButton* button );
 
 // --------------------------------------------------
@@ -321,19 +325,6 @@ static void skin_textured_draw_bordered_panel( MGuiTexture* texture, const MGuiT
 	}
 }
 
-static void skin_textured_draw_shadow( const rectangle_t* r, uint offset )
-{
-	static const colour_t c = { 0x0A0A0A32 };
-
-	UNREFERENCED_PARAM( r );
-	UNREFERENCED_PARAM( offset );
-
-	//renderer->set_draw_colour( &c );
-
-	//renderer->draw_rect( r->x + r->w, r->y + offset, offset, r->h - offset );
-	//renderer->draw_rect( r->x + offset, r->y + r->h, r->w, offset );
-}
-
 static void skin_textured_draw_button( MGuiElement* element )
 {
 	MGuiTexturedSkin* skin = (MGuiTexturedSkin*)element->skin;
@@ -483,7 +474,7 @@ static void skin_textured_draw_label( MGuiElement* element )
 	MGuiText* text = element->text;
 
 	// Draw background and borders
-	if ( element->flags & FLAG_BORDER|FLAG_BACKGROUND )
+	if ( element->flags & (FLAG_BORDER|FLAG_BACKGROUND) )
 	{
 		skin_textured_draw_bordered_panel( skin->texture, &skin->textures.label, &element->bounds, &element->colour,
 										   element->flags & FLAG_BORDER ? BORDER_ALL : BORDER_NONE, element->flags & FLAG_BACKGROUND );
@@ -507,7 +498,7 @@ static void skin_textured_draw_memobox( MGuiElement* element )
 	uint32 i, count, colour = 0;
 
 	// Draw memobox background and border
-	if ( memo->flags & FLAG_BORDER|FLAG_BACKGROUND )
+	if ( memo->flags & (FLAG_BORDER|FLAG_BACKGROUND) )
 	{
 		skin_textured_draw_bordered_panel( skin->texture, &skin->textures.panel, &memo->bounds, &memo->colour,
 										   memo->flags & FLAG_BORDER ? BORDER_ALL : BORDER_NONE, memo->flags & FLAG_BACKGROUND );

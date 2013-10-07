@@ -13,6 +13,8 @@
 #include "Element.h"
 #include "Renderer.h"
 
+// --------------------------------------------------
+
 static bool		mgui_input_handle_char			( InputEvent* event );
 static bool		mgui_input_handle_key_up		( InputEvent* event );
 static bool		mgui_input_handle_key_down		( InputEvent* event );
@@ -21,11 +23,15 @@ static bool		mgui_input_handle_mouse_wheel	( InputEvent* event );
 static bool		mgui_input_handle_lmb_up		( InputEvent* event );
 static bool		mgui_input_handle_lmb_down		( InputEvent* event );
 
+// --------------------------------------------------
+
 static MGuiElement*	hovered			= NULL; // Element being hovered currently
 static MGuiElement*	pressed			= NULL; // Element being pressed down currently
 static MGuiElement*	dragged			= NULL;	// Element that is being dragged
 static MGuiElement*	mousefocus		= NULL; // The element that has the mouse focus
 static MGuiElement*	kbfocus			= NULL;	// The element that has the keyboard focus
+
+// --------------------------------------------------
 
 void mgui_input_initialize_hooks( void )
 {
@@ -206,7 +212,6 @@ static bool mgui_input_handle_mouse_wheel( InputEvent* event )
 static bool mgui_input_handle_lmb_up( InputEvent* event )
 {
 	int16 x, y;
-	MGuiElement* element;
 	MGuiEvent guievent;
 
 	x = event->mouse.x;

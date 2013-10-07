@@ -9,7 +9,7 @@
  *
  **********************************************************************/
 
-#include "ProgressBar.h"
+#include "Progressbar.h"
 #include "Skin.h"
 #include "Platform/Alloc.h"
 

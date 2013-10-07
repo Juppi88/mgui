@@ -9,7 +9,7 @@
  *
  **********************************************************************/
 
-#include "MemoBox.h"
+#include "Memobox.h"
 #include "Skin.h"
 #include "Renderer.h"
 #include "Platform/Alloc.h"

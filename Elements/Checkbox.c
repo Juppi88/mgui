@@ -17,7 +17,6 @@
 
 // Checkbox callback handlers
 static void		mgui_checkbox_render			( MGuiElement* checkbox );
-static void		mgui_checkbox_on_mouse_click	( MGuiElement* checkbox, int16 x, int16 y, MOUSEBTN mousebtn );
 static void		mgui_checkbox_on_mouse_release	( MGuiElement* checkbox, int16 x, int16 y, MOUSEBTN mousebtn );
 
 // --------------------------------------------------

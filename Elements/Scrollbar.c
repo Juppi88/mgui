@@ -9,7 +9,7 @@
  *
  **********************************************************************/
 
-#include "ScrollBar.h"
+#include "Scrollbar.h"
 #include "Skin.h"
 #include "Renderer.h"
 #include "Platform/Alloc.h"
@@ -30,7 +30,6 @@ static void		mgui_scrollbar_on_mouse_drag	( MGuiScrollbar* scrollbar, int16 x, i
 static void		mgui_scrollbar_on_mouse_move	( MGuiScrollbar* scrollbar, int16 x, int16 y );
 
 static void		mgui_scrollbar_update_bounds	( struct MGuiScrollbar* scrollbar );
-static void		mgui_scrollbar_update_colours	( struct MGuiScrollbar* scrollbar );
 static void		mgui_scrollbar_process_nudge	( struct MGuiScrollbar* scrollbar );
 
 // --------------------------------------------------

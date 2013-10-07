@@ -1,7 +1,7 @@
 /**********************************************************************
  *
  * PROJECT:		Mylly GUI
- * FILE:		EditBox.c
+ * FILE:		Editbox.c
  * LICENCE:		See Licence.txt
  * PURPOSE:		GUI editbox related functions.
  *
@@ -9,7 +9,7 @@
  *
  **********************************************************************/
 
-#include "EditBox.h"
+#include "Editbox.h"
 #include "Skin.h"
 #include "Renderer.h"
 #include "Platform/Alloc.h"
