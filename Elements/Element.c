@@ -1365,6 +1365,9 @@ void mgui_set_text_padding( MGuiElement* element, uint8 top, uint8 bottom, uint8
 
 	if ( element->callbacks->on_bounds_change )
 		element->callbacks->on_bounds_change( element, false, true );
+
+	if ( element->callbacks->on_text_change )
+		element->callbacks->on_text_change( element );
 	
 	mgui_element_request_redraw( element );
 

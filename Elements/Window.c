@@ -341,7 +341,7 @@ static void mgui_window_on_mouse_drag( MGuiElement* window, int16 x, int16 y )
 	mgui_element_request_redraw_all();
 }
 
-void mgui_window_get_title_col( MGuiWindow* window, colour_t* col )
+void mgui_window_get_title_colour( MGuiWindow* window, colour_t* col )
 {
 	MGuiTitlebar* titlebar;
 
@@ -353,7 +353,7 @@ void mgui_window_get_title_col( MGuiWindow* window, colour_t* col )
 	*col = titlebar->colour;
 }
 
-void mgui_window_set_title_col( MGuiWindow* window, const colour_t* col )
+void mgui_window_set_title_colour( MGuiWindow* window, const colour_t* col )
 {
 	struct MGuiWindow* wnd;
 	wnd = (struct MGuiWindow*)window;
@@ -370,7 +370,7 @@ void mgui_window_set_title_col( MGuiWindow* window, const colour_t* col )
 	mgui_element_request_redraw( window );
 }
 
-uint32 mgui_window_get_title_col_i( MGuiWindow* window )
+uint32 mgui_window_get_title_colour_i( MGuiWindow* window )
 {
 	MGuiTitlebar* titlebar;
 
@@ -382,7 +382,7 @@ uint32 mgui_window_get_title_col_i( MGuiWindow* window )
 	return titlebar->colour.hex;
 }
 
-void mgui_window_set_title_col_i( MGuiWindow* window, uint32 hex )
+void mgui_window_set_title_colour_i( MGuiWindow* window, uint32 hex )
 {
 	struct MGuiWindow* wnd;
 	wnd = (struct MGuiWindow*)window;

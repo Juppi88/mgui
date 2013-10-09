@@ -146,6 +146,8 @@ static void mgui_scrollbar_on_colour_change( MGuiScrollbar* scrollbar )
 	struct MGuiScrollbar* bar = (struct MGuiScrollbar*)scrollbar;
 
 	colour_multiply( &bar->bg_colour, &bar->colour, bar->bg_shade );
+	bar->bg_colour.a = bar->colour.a;
+
 	mgui_element_request_redraw( scrollbar );
 }
 
@@ -409,7 +411,7 @@ static void mgui_scrollbar_process_nudge( struct MGuiScrollbar* scrollbar )
 		bar_size = scrollbar->bounds.w - 2 * scrollbar->button1.w;
 
 		scrollbar->bar.x = scrollbar->bounds.x + scrollbar->button1.w +
-						   (uint16)( position * ( bar_size - scrollbar->bar.w ) );	
+						   (uint16)( position * ( bar_size - scrollbar->bar.w ) / scrollbar->content_size );	
 	}
 	else
 	{
@@ -417,7 +419,7 @@ static void mgui_scrollbar_process_nudge( struct MGuiScrollbar* scrollbar )
 		bar_size = scrollbar->bounds.h - 2 * scrollbar->button1.h;
 
 		scrollbar->bar.y = scrollbar->bounds.y + scrollbar->button1.h +
-						   (uint16)( position * ( bar_size - scrollbar->bar.h ) );
+						   (uint16)( position * ( bar_size - scrollbar->bar.h ) / scrollbar->content_size );
 	}
 
 	if ( scrollbar->event_handler )
@@ -442,8 +444,8 @@ void mgui_scrollbar_set_params( MGuiScrollbar* scrollbar, float content, float s
 
 	bar->content_size = content;
 	bar->step_size = step;
-	bar->bar_position = position;
-	bar->bar_size = size;
+	bar->bar_size = math_clampf( size, 0, 1 );
+	bar->bar_position = math_clampf( position, 0, content );
 
 	mgui_scrollbar_update_bounds( bar );
 }
@@ -559,5 +561,7 @@ void mgui_scrollbar_set_bg_shade( MGuiScrollbar* scrollbar, float shade )
 	bar->bg_shade = shade;
 
 	colour_multiply( &bar->bg_colour, &bar->colour, bar->bg_shade );
+	bar->bg_colour.a = bar->colour.a;
+
 	mgui_element_request_redraw( scrollbar );
 }
