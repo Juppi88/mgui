@@ -13,6 +13,7 @@
 #include "Element.h"
 #include "Editbox.h"
 #include "Memobox.h"
+#include "Listbox.h"
 #include "Progressbar.h"
 #include "Scrollbar.h"
 #include "Window.h"
@@ -34,6 +35,7 @@ static void		skin_simple_draw_button				( MGuiElement* element );
 static void		skin_simple_draw_checkbox			( MGuiElement* element );
 static void		skin_simple_draw_editbox			( MGuiElement* element );
 static void		skin_simple_draw_label				( MGuiElement* element );
+static void		skin_simple_draw_listbox			( MGuiElement* element );
 static void		skin_simple_draw_memobox			( MGuiElement* element );
 static void		skin_simple_draw_progressbar		( MGuiElement* element );
 static void		skin_simple_draw_scrollbar			( MGuiElement* element );
@@ -53,6 +55,7 @@ MGuiSkin* mgui_setup_skin_simple( void )
 	skin->draw_checkbox		= skin_simple_draw_checkbox;
 	skin->draw_editbox		= skin_simple_draw_editbox;
 	skin->draw_label		= skin_simple_draw_label;
+	skin->draw_listbox		= skin_simple_draw_listbox;
 	skin->draw_memobox		= skin_simple_draw_memobox;
 	skin->draw_progressbar	= skin_simple_draw_progressbar;
 	skin->draw_scrollbar	= skin_simple_draw_scrollbar;
@@ -354,6 +357,62 @@ static void skin_simple_draw_label( MGuiElement* element )
 		renderer->set_draw_colour( &text->colour );
 		renderer->draw_text( text->font->data, text->buffer, text->pos.x, text->pos.y,
 							 text->flags, text->tags, text->num_tags );
+	}
+}
+
+static void skin_simple_draw_listbox( MGuiElement* element )
+{
+	struct MGuiListbox* listbox = (struct MGuiListbox*)element;
+	rectangle_t* r = &listbox->bounds;
+	colour_t col = listbox->colour;
+	MGuiListboxItem* item;
+	node_t* next;
+	uint32 count;
+
+	// Draw the background.
+	if ( listbox->flags & FLAG_BACKGROUND )
+	{
+		skin_simple_draw_panel( r, &col );
+	}
+
+	// Draw borders.
+	if ( listbox->flags & FLAG_BORDER )
+	{
+		colour_multiply( &col, &listbox->colour, 0.5f );
+		col.a = listbox->colour.a;
+
+		skin_simple_draw_border( r, &col, BORDER_ALL, 1 );
+	}
+
+	if ( list_empty( listbox->items ) ) return;
+
+	// Draw (visible) items.
+	renderer->set_draw_colour( &listbox->text->colour );
+	item = listbox->first_visible;
+
+	for ( count = 0; count < listbox->max_visible; ++count )
+	{
+		if ( item == NULL ) break;
+
+		// If this item is selected, draw the background first.
+		if ( item->selected )
+		{
+			r = &item->bounds;
+
+			colour_multiply( &col, &listbox->select_colour, 0.75f );
+			col.a = listbox->colour.a;
+
+			skin_simple_draw_panel( r, &listbox->select_colour );
+			skin_simple_draw_border( r, &col, BORDER_ALL, 1 );
+
+			renderer->set_draw_colour( &listbox->text->colour );
+		}
+
+		// Draw the text.
+		renderer->draw_text( listbox->font->data, item->text, item->text_bounds.x, item->text_bounds.y, listbox->text->flags, item->tags, item->ntags );
+
+		next = item->node.next;
+		item = ( next != list_end( listbox->items ) ) ? (MGuiListboxItem*)next : NULL;
 	}
 }
 

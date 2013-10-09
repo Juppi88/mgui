@@ -300,6 +300,26 @@ void mgui_text_set_default_colour( MGuiText* text )
 	}
 }
 
+void mgui_text_measure_buffer( MGuiFont* font, const char_t* text, uint16* width, uint16* height )
+{
+	uint32 w, h;
+
+	if ( width == NULL || height == NULL )
+		return;
+
+	if ( text == NULL || font == NULL || renderer == NULL )
+	{
+		*width = 0;
+		*height = 0;
+		return;
+	}
+
+	renderer->measure_text( font->data, text, &w, &h );
+
+	*width = (uint16)w;
+	*height = (uint16)h;
+}
+
 static bool is_valid_colour_tag( const char* text )
 {
 	register const char* s = text;
@@ -574,7 +594,11 @@ uint32 mgui_text_parse_and_get_line( const char_t* text, MGuiFont* font, const c
 	static MGuiFormatTag tmptags[32], prev_tag;
 	static const char_t* ptr = NULL;
 
-	if ( font == NULL || buf_in == NULL ) goto cleanup;
+	if ( font == NULL || buf_in == NULL )
+		goto cleanup;
+
+	if ( max_width == 0 )
+		max_width = (uint32)-1;
 
 	if ( text == NULL )
 	{

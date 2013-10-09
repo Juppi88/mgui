@@ -51,6 +51,7 @@ typedef struct MGuiSkin {
 	void	( *draw_checkbox )		( MGuiElement* element );
 	void	( *draw_editbox )		( MGuiElement* element );
 	void	( *draw_label )			( MGuiElement* element );
+	void	( *draw_listbox )		( MGuiElement* element );
 	void	( *draw_memobox )		( MGuiElement* element );
 	void	( *draw_progressbar )	( MGuiElement* element );
 	void	( *draw_scrollbar )		( MGuiElement* element );

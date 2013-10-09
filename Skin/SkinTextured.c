@@ -12,6 +12,7 @@
 #include "SkinTextured.h"
 #include "Element.h"
 #include "Editbox.h"
+#include "Listbox.h"
 #include "Memobox.h"
 #include "Progressbar.h"
 #include "Scrollbar.h"
@@ -124,6 +125,7 @@ static void		skin_textured_draw_button				( MGuiElement* element );
 static void		skin_textured_draw_checkbox				( MGuiElement* element );
 static void		skin_textured_draw_editbox				( MGuiElement* element );
 static void		skin_textured_draw_label				( MGuiElement* element );
+static void		skin_textured_draw_listbox				( MGuiElement* element );
 static void		skin_textured_draw_memobox				( MGuiElement* element );
 static void		skin_textured_draw_progressbar			( MGuiElement* element );
 static void		skin_textured_draw_scrollbar			( MGuiElement* element );
@@ -149,6 +151,7 @@ MGuiSkin* mgui_setup_skin_textured( const char_t* path )
 	skin->api.draw_checkbox		= skin_textured_draw_checkbox;
 	skin->api.draw_editbox		= skin_textured_draw_editbox;
 	skin->api.draw_label		= skin_textured_draw_label;
+	skin->api.draw_listbox		= skin_textured_draw_listbox;
 	skin->api.draw_memobox		= skin_textured_draw_memobox;
 	skin->api.draw_progressbar	= skin_textured_draw_progressbar;
 	skin->api.draw_scrollbar	= skin_textured_draw_scrollbar;
@@ -205,7 +208,7 @@ MGuiSkin* mgui_setup_skin_textured( const char_t* path )
 	skin_textured_setup_primitive_bordered( texture, &skin->textures.scroll_buttons[ARROWDIR_UP][BUTTON_PRESSED], 48, 174, 63, 189, 3, 3, 3, 3 );
 
 	// Window textures
-	skin_textured_setup_primitive_bordered( texture, &skin->textures.window, 0, 26, 64, 64, 5, 5, 5, 5 );
+	skin_textured_setup_primitive_bordered( texture, &skin->textures.window, 0, 26, 64, 64, 6, 6, 6, 6 );
 	skin_textured_setup_primitive_bordered( texture, &skin->textures.window_resizable, 65, 26, 128, 64, 12, 12, 12, 12 );
 	skin_textured_setup_primitive_bordered( texture, &skin->textures.window_titlebar,	0, 0, 128, 25, 5, 2, 5, 5 );
 	skin_textured_setup_primitive( texture, &skin->textures.window_closebtn, 193, 110, 213, 128 );
@@ -486,6 +489,48 @@ static void skin_textured_draw_label( MGuiElement* element )
 		renderer->set_draw_colour( &text->colour );
 		renderer->draw_text( text->font->data, text->buffer, text->pos.x, text->pos.y,
 							 text->flags, text->tags, text->num_tags );
+	}
+}
+
+static void skin_textured_draw_listbox( MGuiElement* element )
+{
+	MGuiTexturedSkin* skin = (MGuiTexturedSkin*)element->skin;
+	struct MGuiListbox* listbox = (struct MGuiListbox*)element;
+	MGuiListboxItem* item;
+	node_t* next;
+	uint32 count;
+
+	// Draw listbox background and border
+	if ( listbox->flags & (FLAG_BORDER|FLAG_BACKGROUND) )
+	{
+		skin_textured_draw_bordered_panel( skin->texture, &skin->textures.panel, &listbox->bounds, &listbox->colour,
+										   listbox->flags & FLAG_BORDER ? BORDER_ALL : BORDER_NONE, listbox->flags & FLAG_BACKGROUND );
+	}
+
+	if ( list_empty( listbox->items ) ) return;
+
+	// Draw (visible) items.
+	renderer->set_draw_colour( &listbox->text->colour );
+	item = listbox->first_visible;
+
+	for ( count = 0; count < listbox->max_visible; ++count )
+	{
+		if ( item == NULL ) break;
+
+		// If this item is selected, draw the background first.
+		if ( item->selected )
+		{
+			skin_textured_draw_bordered_panel( skin->texture, &skin->textures.label, &item->bounds,
+											   &listbox->select_colour, BORDER_ALL, true );
+
+			renderer->set_draw_colour( &listbox->text->colour );
+		}
+
+		// Draw the text.
+		renderer->draw_text( listbox->font->data, item->text, item->text_bounds.x, item->text_bounds.y, listbox->text->flags, item->tags, item->ntags );
+
+		next = item->node.next;
+		item = ( next != list_end( listbox->items ) ) ? (MGuiListboxItem*)next : NULL;
 	}
 }
 

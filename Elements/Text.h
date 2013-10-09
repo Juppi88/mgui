@@ -54,6 +54,8 @@ void		mgui_text_get_char_pos			( MGuiText* text, uint32 idx, uint16* x, uint16* 
 
 void		mgui_text_set_default_colour	( MGuiText* text );
 
+void		mgui_text_measure_buffer		( MGuiFont* font, const char_t* text, uint16* width, uint16* height );
+
 uint32		mgui_text_strip_format_tags		( const char_t* text, char_t* buf, size_t buflen );
 void		mgui_text_parse_format_tags		( const char_t* text, const colour_t* def, MGuiFormatTag* tags, uint32 ntags );
 uint32		mgui_text_parse_and_get_line	( const char_t* text, MGuiFont* font, const colour_t* def, uint32 max_width, char_t** buf_in, MGuiFormatTag** tags_in );

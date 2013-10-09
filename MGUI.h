@@ -24,8 +24,9 @@
 #endif
 
 // Interface types
-typedef struct MGuiElement	MGuiElement;
-typedef struct MGuiRenderer	MGuiRenderer;
+typedef struct MGuiElement		MGuiElement;
+typedef struct MGuiRenderer		MGuiRenderer;
+typedef struct MGuiListboxItem	MGuiListboxItem;
 
 #define MGUI_ELEMENT_DECL(x) typedef MGuiElement x
 
@@ -36,7 +37,6 @@ MGUI_ELEMENT_DECL( MGuiCheckbox );
 MGUI_ELEMENT_DECL( MGuiEditbox );
 MGUI_ELEMENT_DECL( MGuiLabel );
 MGUI_ELEMENT_DECL( MGuiListbox );
-MGUI_ELEMENT_DECL( MGuiListboxItem );
 MGUI_ELEMENT_DECL( MGuiMemobox );
 MGUI_ELEMENT_DECL( MGuiProgressbar );
 MGUI_ELEMENT_DECL( MGuiScrollbar );
@@ -82,11 +82,12 @@ enum MGUI_FLAGS
 	FLAG_TABSTOP			= 1 << 11,	/* Tab press can switch focus to this element */
 	FLAG_MOUSECTRL			= 1 << 12,	/* Element triggers mouse input events */
 	FLAG_KBCTRL				= 1 << 13,	/* Element triggers keyboard input events and accepts keyboard focus */
-	FLAG_TEXT_SHADOW		= 1 << 14,	/* Text will cast a shadow */
-	FLAG_TEXT_TAGS			= 1 << 15,	/* Text can be formatted using tags */
-	FLAG_DEPTH_TEST			= 1 << 16,	/* Enable depth testing (useful for 3D text) */
-	FLAG_3D_ENTITY			= 1 << 17,	/* This element is fully 3D, use mgui_set_3d_* to manipulate */
-	FLAG_CACHE_TEXTURE		= 1 << 18,	/* Use a cache texture */
+	FLAG_SCROLLABLE			= 1 << 14,	/* Element will be scrollable if the content size exceeds boundaries */
+	FLAG_TEXT_SHADOW		= 1 << 15,	/* Text will cast a shadow */
+	FLAG_TEXT_TAGS			= 1 << 16,	/* Text can be formatted using tags */
+	FLAG_DEPTH_TEST			= 1 << 17,	/* Enable depth testing (useful for 3D text) */
+	FLAG_3D_ENTITY			= 1 << 18,	/* This element is fully 3D, use mgui_set_3d_* to manipulate */
+	FLAG_CACHE_TEXTURE		= 1 << 19,	/* Use a cache texture */
 
 	/* Checkbox */
 	FLAG_CHECKBOX_CHECKED	= 1 << 24,	/* Checkbox is selected */
@@ -96,6 +97,7 @@ enum MGUI_FLAGS
 
 	/* Listbox */
 	FLAG_LISTBOX_MULTISELECT = 1 << 24,	/* Listbox allows multiple rows to be selected at one time */
+	FLAG_LISTBOX_SORTING	 = 1 << 25,	/* Automatic sorting is enabled */
 
 	/* Memobox */
 	FLAG_MEMOBOX_TOPBOTTOM	= 1 << 24,	/* Memobox order is top to bottom */
@@ -154,6 +156,7 @@ typedef enum {
 	EVENT_CHECKBOX_TOGGLE,	/* Checkbox is toggled (MGuiAnyEvent) */
 	EVENT_INPUT_CHANGE,		/* User modifies the text of an input element such as an editbox (MGuiAnyEvent) */
 	EVENT_INPUT_RETURN,		/* User presses return while an input element is focused (MGuiKeyEvent) */
+	EVENT_LISTBOX_SELECT,	/* A listbox item was selected (MGuiListEvent) */
 	EVENT_SCROLL,			/* Scrollable element was moved (MGuiScrollEvent) */
 	EVENT_WINDOW_CLOSE,		/* Window is closed from the close button (MGuiAnyEvent) */
 	EVENT_WINDOW_RESIZE,	/* Window is resized by the user (MGuiResizeEvent) */
@@ -170,6 +173,13 @@ typedef struct {
 	MGUI_EVENT		type;		// Event type
 	MGuiElement*	element;	// The element which triggered this event
 	void*			data;		// User specified data
+	uint32			key;		// Active keyboard key
+} MGuiKeyEvent;
+
+typedef struct {
+	MGUI_EVENT		type;		// Event type
+	MGuiElement*	element;	// The element which triggered this event
+	void*			data;		// User specified data
 	int16			cursor_x;	// Mouse cursor x co-ordinate
 	int16			cursor_y;	// Mouse cursor y co-ordinate
 } MGuiMouseEvent;
@@ -178,8 +188,8 @@ typedef struct {
 	MGUI_EVENT		type;		// Event type
 	MGuiElement*	element;	// The element which triggered this event
 	void*			data;		// User specified data
-	uint32			key;		// Active keyboard key
-} MGuiKeyEvent;
+	MGuiListboxItem* item;		// Selected listbox item
+} MGuiListEvent;
 
 typedef struct {
 	MGUI_EVENT		type;		// Event type
@@ -202,12 +212,16 @@ typedef union {
 	MGuiAnyEvent	any;		// Generic event without extra data
 	MGuiKeyEvent	keyboard;	// Keyboard event
 	MGuiMouseEvent	mouse;		// Mouse cursor event
+	MGuiListEvent	list;		// Listbox select event
 	MGuiResizeEvent	resize;		// Window resize event
 	MGuiScrollEvent	scroll;		// Scrollable event
 } MGuiEvent;
 
 // GUI event hook type
 typedef void ( *mgui_event_handler_t )( const MGuiEvent* event );
+
+// Listbox sort function
+typedef int ( *mgui_listbox_sort_t )( const MGuiListboxItem* item1, const MGuiListboxItem* item2 );
 
 
 __BEGIN_DECLS
@@ -251,7 +265,7 @@ MGUI_EXPORT MGuiEditbox*	mgui_create_editbox_ex			( MGuiElement* parent, int16 x
 MGUI_EXPORT MGuiLabel*		mgui_create_label				( MGuiElement* parent );
 MGUI_EXPORT MGuiLabel*		mgui_create_label_ex			( MGuiElement* parent, int16 x, int16 y, uint16 w, uint16 h, uint32 flags, uint32 col, const char_t* text );
 MGUI_EXPORT MGuiListbox*	mgui_create_listbox				( MGuiElement* parent );
-MGUI_EXPORT MGuiListbox*	mgui_create_listbox_ex			( MGuiElement* parent, int16 x, int16 y, uint16 w, uint16 h, uint32 flags, uint32 col );
+MGUI_EXPORT MGuiListbox*	mgui_create_listbox_ex			( MGuiElement* parent, int16 x, int16 y, uint16 w, uint16 h, uint32 flags, uint32 col, uint32 select_col );
 MGUI_EXPORT MGuiMemobox*	mgui_create_memobox				( MGuiElement* parent );
 MGUI_EXPORT MGuiMemobox*	mgui_create_memobox_ex			( MGuiElement* parent, int16 x, int16 y, uint16 w, uint16 h, uint32 flags, uint32 col );
 MGUI_EXPORT MGuiProgressbar* mgui_create_progressbar		( MGuiElement* parent );
@@ -341,6 +355,26 @@ MGUI_EXPORT void			mgui_editbox_set_cursor_pos		( MGuiEditbox* editbox, uint32 p
 /* Label functions */
 MGUI_EXPORT void			mgui_label_make_text_fit		( MGuiLabel* label );
 
+/* Listbox functions */
+MGUI_EXPORT MGuiListboxItem*mgui_listbox_add_item			( MGuiListbox* listbox, const char_t* text );
+MGUI_EXPORT void			mgui_listbox_remove_item		( MGuiListbox* listbox, MGuiListboxItem* item );
+MGUI_EXPORT void			mgui_listbox_clean				( MGuiListbox* listbox );
+MGUI_EXPORT void			mgui_listbox_set_sort_function	( MGuiListbox* listbox, mgui_listbox_sort_t func );
+MGUI_EXPORT uint32			mgui_listbox_get_item_count		( MGuiListbox* listbox );
+MGUI_EXPORT uint32			mgui_listbox_get_selected_count	( MGuiListbox* listbox );
+MGUI_EXPORT MGuiListboxItem* mgui_listbox_get_first_item	( MGuiListbox* listbox );
+MGUI_EXPORT MGuiListboxItem* mgui_listbox_get_next_item		( MGuiListboxItem* item );
+MGUI_EXPORT MGuiListboxItem* mgui_listbox_get_selected_item	( MGuiListbox* listbox );
+MGUI_EXPORT MGuiListboxItem* mgui_listbox_get_next_selected_item( MGuiListboxItem* item );
+MGUI_EXPORT const char_t*	mgui_listbox_get_item_text		( MGuiListboxItem* item );
+MGUI_EXPORT void			mgui_listbox_set_item_text		( MGuiListboxItem* item, const char_t* text );
+MGUI_EXPORT void*			mgui_listbox_get_item_data		( MGuiListboxItem* item );
+MGUI_EXPORT void			mgui_listbox_set_item_data		( MGuiListboxItem* item, void* data );
+MGUI_EXPORT void			mgui_listbox_get_selected_colour( MGuiListbox* listbox, colour_t* col );
+MGUI_EXPORT void			mgui_listbox_set_selected_colour( MGuiListbox* listbox, const colour_t* col );
+MGUI_EXPORT uint32			mgui_listbox_get_selected_colour_i( MGuiListbox* listbox );
+MGUI_EXPORT void			mgui_listbox_set_selected_colour_i( MGuiListbox* listbox, uint32 hex );
+
 /* Memobox functions */
 MGUI_EXPORT void			mgui_memobox_add_line			( MGuiMemobox* memobox, const char* fmt, ... );
 MGUI_EXPORT void			mgui_memobox_add_line_col		( MGuiMemobox* memobox, const char* fmt, const colour_t* col, ... );
@@ -394,10 +428,10 @@ MGUI_EXPORT void			mgui_sprite_get_uv				( MGuiSprite* sprite, float* u1, float*
 MGUI_EXPORT void			mgui_sprite_set_uv				( MGuiSprite* sprite, float u1, float v1, float u2, float v2 );
 
 /* Window functions */
-MGUI_EXPORT void			mgui_window_get_title_col		( MGuiWindow* window, colour_t* col );
-MGUI_EXPORT void			mgui_window_set_title_col		( MGuiWindow* window, const colour_t* col );
-MGUI_EXPORT uint32			mgui_window_get_title_col_i		( MGuiWindow* window );
-MGUI_EXPORT void			mgui_window_set_title_col_i		( MGuiWindow* window, uint32 hex );
+MGUI_EXPORT void			mgui_window_get_title_colour	( MGuiWindow* window, colour_t* col );
+MGUI_EXPORT void			mgui_window_set_title_colour	( MGuiWindow* window, const colour_t* col );
+MGUI_EXPORT uint32			mgui_window_get_title_colour_i	( MGuiWindow* window );
+MGUI_EXPORT void			mgui_window_set_title_colour_i	( MGuiWindow* window, uint32 hex );
 MGUI_EXPORT void			mgui_window_get_drag_offset		( MGuiWindow* window, vectorscreen_t* pos );
 
 __END_DECLS
