@@ -198,6 +198,7 @@ void mgui_progressbar_set_colour( MGuiProgressbar* bar, const colour_t* col_star
 	progbar->colour_start = *col_start;
 	progbar->colour_end = *col_end;
 
+	mgui_set_alpha( bar, col_start->a );
 	mgui_progressbar_update_colours( progbar );
 }
 
@@ -226,6 +227,7 @@ void mgui_progressbar_set_colour_i( MGuiProgressbar* bar, uint32 col_start, uint
 	progbar->colour_start.hex = col_start;
 	progbar->colour_end.hex = col_end;
 
+	mgui_set_alpha( bar, progbar->colour_start.a );
 	mgui_progressbar_update_colours( progbar );
 }
 

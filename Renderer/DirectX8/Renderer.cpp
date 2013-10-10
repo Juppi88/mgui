@@ -467,14 +467,12 @@ MGuiRendFont* CRenderer::LoadFont( const char_t* name, uint8 size, uint8 flags, 
 	firstc = firstc > 0x20 ? firstc : 0x20;
 	lastc = lastc > firstc ? lastc : 0xFF;
 
-	lastc++;
-
 	font->size = size;
 	font->flags = flags;
 	font->charset = charset;
 	font->first_char = firstc;
 	font->last_char = lastc;
-	font->texDataLen = lastc - firstc;
+	font->texDataLen = ++lastc - firstc;
 
 	bool ret = mgui_load_font( name, size, flags, charset, firstc, lastc, &info, CreateFontTexture, (void*)font );
 	if ( !ret )

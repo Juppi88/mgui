@@ -344,6 +344,10 @@ void CRenderer::DrawText( const MGuiRendFont* fnt, const char_t* text, int32 x, 
 				// Tag change, draw the text in the temp buffer
 				if ( *tmp != '\0' )
 				{
+					// Silly GDI+ seems to ignore trailing spaces. This is not a good way to fix it! (But I'm doing it anyway)
+					// TODO: Figure out a better fix for this!
+					if ( *(s-1) == ' ' ) { *t++ = ' '; }
+
 					*t = '\0';
 					DrawBuffer( font, tmp, dx, dy, flags, true );
 				}
@@ -603,7 +607,7 @@ void CRenderer::ProcessUnderline( const CFont* font, int32 x, int32 y, int32& x2
 	switch ( lineStatus )
 	{
 	case LINE_BEGIN:
-		x2 = x;
+		x2 = x + font->size / 3;
 		y2 = y + font->size + 2;
 
 		lineColour = curDrawColour;
@@ -614,7 +618,7 @@ void CRenderer::ProcessUnderline( const CFont* font, int32 x, int32 y, int32& x2
 		col = curDrawColour;
 		SetDrawColour( &lineColour );
 
-		DrawRect( x2, y2, x - x2, 1 );
+		DrawRect( x2, y2, x - x2 + font->size / 3, 1 );
 
 		SetDrawColour( &col );
 

@@ -40,6 +40,8 @@ bool mgui_load_font( const char* name, uint8 size, uint8 flags, uint8 charset, u
 		 callback_data == NULL )
 		 return retn;
 
+	memset( info, 0, sizeof(*info) );
+
 	tmp_dc = CreateCompatibleDC( NULL );
 	SetMapMode( tmp_dc, MM_TEXT );
 
@@ -94,9 +96,6 @@ bool mgui_load_font( const char* name, uint8 size, uint8 flags, uint8 charset, u
 	SetTextColor( tmp_dc, 0x00FFFFFF );
 	SetBkColor( tmp_dc, 0x00000000 );
 	SetTextAlign( tmp_dc, TA_TOP );
-
-	info->width = width;
-	info->height = height;
 
 	// Paint the alphabet onto the selected bitmap
 	mgui_font_measure_and_print( tmp_dc, true, flags, firstc, lastc, info );
@@ -203,9 +202,9 @@ static bool mgui_font_measure_and_print( HDC tmpDC, bool print, uint8 flags, uin
 {
 	SIZE size;
 	uint32 x, y, c, idx, padding;
-	char_t tmpBuf[] = { ' ', '\0' };
+	char_t tmpBuf[] = " ";
 
-	if ( info->spacing )
+	if ( info->spacing == 0 )
 	{
 		GetTextExtentPoint32( tmpDC, tmpBuf, 1, &size );
 		info->spacing = (uint8)ceil( size.cx / 4.0f );
@@ -233,7 +232,7 @@ static bool mgui_font_measure_and_print( HDC tmpDC, bool print, uint8 flags, uin
 		if ( print )
 		{
 			// Print the character
-			ExtTextOut( tmpDC, x, y, ETO_OPAQUE, NULL, tmpBuf, 1, NULL );
+			ExtTextOut( tmpDC, x, y, ETO_CLIPPED|ETO_OPAQUE, NULL, tmpBuf, 1, NULL );
 
 			idx = c - first_char;
 			info->tex_coords[idx][0] = (float)( x - info->spacing ) / info->width;
