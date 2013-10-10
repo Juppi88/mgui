@@ -427,11 +427,8 @@ MGuiListboxItem* mgui_listbox_add_item( MGuiListbox* listbox, const char_t* text
 void mgui_listbox_remove_item( MGuiListbox* listbox, MGuiListboxItem* item )
 {
 	struct MGuiListbox* list = (struct MGuiListbox*)listbox;
-	uint16 h;
 
 	if ( list == NULL || item == NULL ) return;
-
-	h = item->bounds.h;
 
 	list_remove( list->items, (node_t*)item );
 
