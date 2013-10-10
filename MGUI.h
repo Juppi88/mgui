@@ -262,7 +262,7 @@ MGUI_EXPORT MGuiCheckbox*	mgui_create_checkbox_ex			( MGuiElement* parent, int16
 MGUI_EXPORT MGuiEditbox*	mgui_create_editbox				( MGuiElement* parent );
 MGUI_EXPORT MGuiEditbox*	mgui_create_editbox_ex			( MGuiElement* parent, int16 x, int16 y, uint16 w, uint16 h, uint32 flags, uint32 col, const char_t* text );
 MGUI_EXPORT MGuiLabel*		mgui_create_label				( MGuiElement* parent );
-MGUI_EXPORT MGuiLabel*		mgui_create_label_ex			( MGuiElement* parent, int16 x, int16 y, uint16 w, uint16 h, uint32 flags, uint32 col, const char_t* text );
+MGUI_EXPORT MGuiLabel*		mgui_create_label_ex			( MGuiElement* parent, int16 x, int16 y, uint32 flags, uint32 col, const char_t* text );
 MGUI_EXPORT MGuiListbox*	mgui_create_listbox				( MGuiElement* parent );
 MGUI_EXPORT MGuiListbox*	mgui_create_listbox_ex			( MGuiElement* parent, int16 x, int16 y, uint16 w, uint16 h, uint32 flags, uint32 col, uint32 select_col );
 MGUI_EXPORT MGuiMemobox*	mgui_create_memobox				( MGuiElement* parent );

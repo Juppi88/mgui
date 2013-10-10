@@ -16,7 +16,8 @@
 // --------------------------------------------------
 
 // Label callback handlers
-static void			mgui_label_render			( MGuiElement* label );
+static void		mgui_label_render				( MGuiElement* label );
+static void		mgui_label_on_text_change		( MGuiElement* label );
 
 // --------------------------------------------------
 
@@ -30,7 +31,7 @@ static struct MGuiCallbacks callbacks =
 	NULL, /* on_bounds_change */
 	NULL, /* on_flags_change */
 	NULL, /* on_colour_change */
-	NULL, /* on_text_change */
+	mgui_label_on_text_change,
 	NULL, /* on_mouse_enter */
 	NULL, /* on_mouse_leave */
 	NULL, /* on_mouse_click */
@@ -53,7 +54,10 @@ MGuiLabel* mgui_create_label( MGuiElement* parent )
 	mgui_element_create( cast_elem(label), parent );
 
 	label->type = GUI_LABEL;
-	label->flags |= FLAG_CLIP;
+	label->flags &= ~FLAG_CLIP;
+
+	label->colour.a = 255;
+	label->text->colour.a = 255;
 
 	label->font = default_font;
 	label->text->font = default_font;
@@ -64,16 +68,15 @@ MGuiLabel* mgui_create_label( MGuiElement* parent )
 	return cast_elem(label);
 }
 
-MGuiLabel* mgui_create_label_ex( MGuiElement* parent, int16 x, int16 y, uint16 w, uint16 h, uint32 flags, uint32 col, const char_t* text )
+MGuiLabel* mgui_create_label_ex( MGuiElement* parent, int16 x, int16 y, uint32 flags, uint32 col, const char_t* text )
 {
 	MGuiLabel* label;
 
 	label = mgui_create_label( parent );
 
 	mgui_set_abs_pos_i( label, x, y );
-	mgui_set_abs_size_i( label, w, h );
 	mgui_add_flags( label, flags );
-	mgui_set_colour_i( label, col );
+	mgui_set_text_colour_i( label, col );
 	mgui_set_text_s( label, text );
 
 	return label;
@@ -82,6 +85,11 @@ MGuiLabel* mgui_create_label_ex( MGuiElement* parent, int16 x, int16 y, uint16 w
 static void mgui_label_render( MGuiElement* label )
 {
 	label->skin->draw_label( label );
+}
+
+static void mgui_label_on_text_change( MGuiElement* label )
+{
+	mgui_label_make_text_fit( label );
 }
 
 void mgui_label_make_text_fit( MGuiLabel* label )
