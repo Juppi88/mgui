@@ -636,7 +636,7 @@ uint32 mgui_text_parse_and_get_line( const char_t* text, MGuiFont* font, const c
 		pad -= 2 * w;
 	}	
 
-	tmp[1] = '\0';
+	tmpbuf[0] = tmp[1] = '\0';
 	t = tmpbuf;
 
 	for ( ; *s; )

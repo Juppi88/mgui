@@ -12,6 +12,7 @@
 #include "InputHook.h"
 #include "Element.h"
 #include "Renderer.h"
+#include "WindowTitlebar.h"
 
 // --------------------------------------------------
 
@@ -25,11 +26,11 @@ static bool		mgui_input_handle_lmb_down		( InputEvent* event );
 
 // --------------------------------------------------
 
-static MGuiElement*	hovered			= NULL; // Element being hovered currently
-static MGuiElement*	pressed			= NULL; // Element being pressed down currently
-static MGuiElement*	dragged			= NULL;	// Element that is being dragged
-static MGuiElement*	mousefocus		= NULL; // The element that has the mouse focus
-static MGuiElement*	kbfocus			= NULL;	// The element that has the keyboard focus
+static MGuiElement*	hovered		= NULL; // Element being hovered currently
+static MGuiElement*	pressed		= NULL; // Element being pressed down currently
+static MGuiElement*	dragged		= NULL;	// Element that is being dragged
+static MGuiElement*	mousefocus	= NULL; // The element that has the mouse focus
+static MGuiElement*	kbfocus		= NULL;	// The element that has the keyboard focus
 
 // --------------------------------------------------
 
@@ -298,6 +299,14 @@ static bool mgui_input_handle_lmb_down( InputEvent* event )
 	{
 		pressed->flags_int |= INTFLAG_PRESSED;
 
+		// Move the element to the top.
+		// Note to self: Never use sub-elements again.
+		if ( pressed->type == GUI_TITLEBAR )
+			element = ((struct MGuiTitlebar*)pressed)->window;
+		
+		if ( element != NULL )
+			mgui_send_to_top( element );
+
 		if ( pressed->callbacks->on_mouse_click )
 			pressed->callbacks->on_mouse_click( pressed, x, y, MOUSE_LBUTTON );
 
@@ -317,8 +326,8 @@ static bool mgui_input_handle_lmb_down( InputEvent* event )
 
 		if ( BIT_ON( element->flags, FLAG_KBCTRL ) )
 		{
-			kbfocus = element;
-			element->flags_int |= INTFLAG_FOCUS;
+			kbfocus = pressed;
+			pressed->flags_int |= INTFLAG_FOCUS;
 
 			if ( kbfocus->event_handler )
 			{
