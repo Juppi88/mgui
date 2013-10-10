@@ -70,6 +70,8 @@ void mgui_element_destroy( MGuiElement* element )
 {
 	node_t *node, *tmp;
 
+	if ( element == NULL ) return;
+
 	mgui_remove_child( element );
 
 	// Destroy children if any

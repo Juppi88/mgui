@@ -154,7 +154,6 @@ typedef enum {
 	EVENT_FOCUS_ENTER,		/* Element receives focus (MGuiAnyEvent) */
 	EVENT_FOCUS_EXIT,		/* Element loses focus (MGuiAnyEvent) */
 	EVENT_CHECKBOX_TOGGLE,	/* Checkbox is toggled (MGuiAnyEvent) */
-	EVENT_INPUT_CHANGE,		/* User modifies the text of an input element such as an editbox (MGuiAnyEvent) */
 	EVENT_INPUT_RETURN,		/* User presses return while an input element is focused (MGuiKeyEvent) */
 	EVENT_LISTBOX_SELECT,	/* A listbox item was selected (MGuiListEvent) */
 	EVENT_SCROLL,			/* Scrollable element was moved (MGuiScrollEvent) */

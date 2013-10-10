@@ -159,7 +159,9 @@ MGuiFont* mgui_font_find( const char_t* name, uint8 size, uint8 flags, uint8 cha
 			 font->flags == flags &&
 			 font->charset == charset &&
 			 font->first_char == firstc &&
-			 font->last_char == lastc )
+			 font->last_char == lastc &&
+			 font != default_font &&
+			 font != wndbutton_font )
 			 return font;
 	}
 
@@ -173,10 +175,13 @@ MGuiFont* mgui_font_set_font( MGuiFont* font, const char_t* name )
 
 	if ( font == NULL ) return NULL;
 
-	if ( font->refcount > 1 )
+	if ( font->refcount > 1 ||
+		 font == default_font ||
+		 font == wndbutton_font )
 	{
 		// We need to create a new font or find a matching font that exists, because the old font is still being used.
-		font->refcount--;
+		if ( font != default_font && font != wndbutton_font )
+			font->refcount--;
 
 		fnt = mgui_font_find( name, font->size, font->flags, font->charset, font->first_char, font->last_char );
 		if ( fnt )
@@ -212,9 +217,12 @@ MGuiFont* mgui_font_set_size( MGuiFont* font, uint8 size )
 
 	if ( font == NULL ) return NULL;
 
-	if ( font->refcount > 1 )
+	if ( font->refcount > 1 ||
+		 font == default_font ||
+		 font == wndbutton_font )
 	{
-		font->refcount--;
+		if ( font != default_font && font != wndbutton_font )
+			font->refcount--;
 
 		fnt = mgui_font_find( font->name, size, font->flags, font->charset, font->first_char, font->last_char );
 		if ( fnt )
@@ -241,9 +249,12 @@ MGuiFont* mgui_font_set_flags( MGuiFont* font, uint8 flags )
 
 	if ( font == NULL ) return NULL;
 
-	if ( font->refcount > 1 )
+	if ( font->refcount > 1 ||
+		 font == default_font ||
+		 font == wndbutton_font )
 	{
-		font->refcount--;
+		if ( font != default_font && font != wndbutton_font )
+			font->refcount--;
 
 		fnt = mgui_font_find( font->name, font->size, flags, font->charset, font->first_char, font->last_char );
 		if ( fnt )
@@ -270,9 +281,12 @@ MGuiFont* mgui_font_set_charset( MGuiFont* font, uint8 charset )
 
 	if ( font == NULL ) return NULL;
 
-	if ( font->refcount > 1 )
+	if ( font->refcount > 1 ||
+		 font == default_font ||
+		 font == wndbutton_font )
 	{
-		font->refcount--;
+		if ( font != default_font && font != wndbutton_font )
+			font->refcount--;
 
 		fnt = mgui_font_find( font->name, font->size, font->flags, charset, font->first_char, font->last_char );
 		if ( fnt )
