@@ -144,7 +144,7 @@ static void skin_simple_draw_shadow( const rectangle_t* r, uint offset )
 
 static void skin_simple_draw_button( MGuiElement* element )
 {
-	colour_t c;
+	colour_t c, text_col;
 	rectangle_t* r;
 	MGuiText* text;
 
@@ -165,7 +165,12 @@ static void skin_simple_draw_button( MGuiElement* element )
 
 	if ( ( text = element->text ) != NULL )
 	{
-		renderer->set_draw_colour( &text->colour );
+		text_col = text->colour;
+
+		if ( element->flags & FLAG_DISABLED )
+			text_col.a /= 2;
+
+		renderer->set_draw_colour( &text_col );
 
 		if ( element->flags_int & INTFLAG_PRESSED )
 		{
@@ -245,6 +250,8 @@ static void skin_simple_draw_checkbox( MGuiElement* element )
 	{
 		colour_invert_no_alpha( &col, &element->colour );
 
+		if ( element->flags & FLAG_DISABLED ) col.a /= 2;
+
 		renderer->set_draw_colour( &col );
 		renderer->draw_rect( r->x + 3, r->y + 3, r->w - 5, r->h - 5 );
 	}
@@ -304,16 +311,9 @@ static void skin_simple_draw_editbox( MGuiElement* element )
 
 	if ( ( text = element->text ) != NULL )
 	{
-		// TODO: This doesn't seem to work so well. Use colour tags after they're implemented.
-		/*if ( BIT_ON( editbox->flags_int, INTFLAG_FOCUS ) && mgui_editbox_has_text_selected( (MGuiEditbox*)editbox ) )
-		{
-			c = text->colour;
-			colour_invert_no_alpha( &c, &c );
-		}
-		else*/
-		{
-			c = text->colour;
-		}
+		c = text->colour;
+
+		if ( element->flags & FLAG_DISABLED ) c.a /= 2;
 
 		// This is a really ugly hack to make mgui_get_text return the correct buffer:
 		// We replace the MGuiText buffer with our own (with masked input etc cool)

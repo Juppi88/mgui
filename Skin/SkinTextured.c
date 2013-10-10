@@ -94,7 +94,8 @@ typedef struct {
 		MGuiTexBorder	button_inactive;
 		MGuiTexBorder	checkbox;			// Checkboxes
 		MGuiTexBorder	checkbox_checked;
-		MGuiTexBorder	checkbox_focus;
+		MGuiTexBorder	checkbox_off;
+		MGuiTexBorder	checkbox_off_checked;
 		MGuiTexBorder	editbox;			// Editboxes
 		MGuiTexBorder	editbox_focus;
 		MGuiTexBorder	editbox_inactive;
@@ -171,7 +172,8 @@ MGuiSkin* mgui_setup_skin_textured( const char_t* path )
 	// Checkbox textures
 	skin_textured_setup_primitive_bordered( texture, &skin->textures.checkbox, 13, 129, 25, 141, 1, 1, 1, 1 );
 	skin_textured_setup_primitive_bordered( texture, &skin->textures.checkbox_checked, 0, 129, 12, 141, 1, 1, 1, 1 );
-	skin_textured_setup_primitive_bordered( texture, &skin->textures.checkbox_focus, 26, 129, 38, 141, 1, 1, 1, 1 );
+	skin_textured_setup_primitive_bordered( texture, &skin->textures.checkbox_off_checked, 26, 129, 38, 141, 1, 1, 1, 1 );
+	skin_textured_setup_primitive_bordered( texture, &skin->textures.checkbox_off, 39, 129, 51, 141, 1, 1, 1, 1 );
 
 	// Editbox textures
 	skin_textured_setup_primitive_bordered( texture, &skin->textures.editbox, 0, 65, 64, 86, 3, 3, 3, 3 );
@@ -361,7 +363,11 @@ static void skin_textured_draw_button( MGuiElement* element )
 		x = text->pos.x, y = text->pos.y;
 		col = text->colour;
 
-		if ( element->flags_int & INTFLAG_PRESSED )
+		if ( element->flags & FLAG_DISABLED )
+		{
+			col.a /= 2;
+		}
+		else if ( element->flags_int & INTFLAG_PRESSED )
 		{
 			x += 1;
 			y += 1;
@@ -386,22 +392,23 @@ static void skin_textured_draw_checkbox( MGuiElement* element )
 	
 	col.hex = element->colour.hex;
 
-	// Checkbox toggled
-	if ( element->flags & FLAG_CHECKBOX_CHECKED )
-		primitive = &skin->textures.checkbox_checked;
-
-	// Checkbox has focus
-	else if ( element->flags_int & INTFLAG_FOCUS )
-		primitive = &skin->textures.checkbox_focus;
-	
-	// Idle checkbox
-	else
-		primitive = &skin->textures.checkbox;
-
 	if ( element->flags & FLAG_DISABLED )
 	{
-		colour_multiply( &col, &col, 0.75f );
-		col.a = element->colour.a;
+		// Checkbox toggled
+		if ( element->flags & FLAG_CHECKBOX_CHECKED )
+			primitive = &skin->textures.checkbox_off_checked;
+
+		// Checkbox idle
+		else primitive = &skin->textures.checkbox_off;
+	}
+	else
+	{
+		// Checkbox toggled
+		if ( element->flags & FLAG_CHECKBOX_CHECKED )
+			primitive = &skin->textures.checkbox_checked;
+
+		// Checkbox idle
+		else primitive = &skin->textures.checkbox;
 	}
 
 	skin_textured_draw_bordered_panel( skin->texture, primitive, &element->bounds, &element->colour,
@@ -456,13 +463,18 @@ static void skin_textured_draw_editbox( MGuiElement* element )
 
 	if ( text != NULL )
 	{
+		col = text->colour;
+
+		if ( editbox->flags & FLAG_DISABLED )
+			col.a /= 2;
+
 		// This is a really ugly hack to make mgui_get_text return the correct buffer:
 		// We replace the MGuiText buffer with our own (with masked input etc cool)
 		// while we render, and put the original buffer back afterwards
 		tmp = editbox->text->buffer;
 		editbox->text->buffer = editbox->buffer;
 
-		renderer->set_draw_colour( &text->colour );
+		renderer->set_draw_colour( &col );
 		renderer->draw_text( text->font->data, text->buffer, text->pos.x, text->pos.y,
 							 text->flags, text->tags, text->num_tags );
 
