@@ -53,7 +53,7 @@ MGuiTitlebar* mgui_create_titlebar( MGuiWindow* parent )
 	MGuiTitlebar* titlebar;
 
 	titlebar = mem_alloc_clean( sizeof(*titlebar) );
-	titlebar->flags_int = INTFLAG_NOTEXT;
+	titlebar->flags_int = INTFLAG_NOTEXT|INTFLAG_NOPARENT;
 
 	mgui_element_create( cast_elem(titlebar), NULL );
 

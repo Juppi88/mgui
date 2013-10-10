@@ -58,6 +58,8 @@ MGuiWindowButton* mgui_create_windowbutton( MGuiWindow* parent )
 	extern MGuiFont* wndbutton_font; // Font used for the close button X
 
 	button = mem_alloc_clean( sizeof(*button) );
+	button->flags_int = INTFLAG_NOPARENT;
+
 	mgui_element_create( cast_elem(button), NULL );
 
 	button->flags |= (FLAG_BORDER|FLAG_BACKGROUND|FLAG_MOUSECTRL);

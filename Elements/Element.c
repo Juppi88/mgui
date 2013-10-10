@@ -47,7 +47,7 @@ void mgui_element_create( MGuiElement* element, MGuiElement* parent )
 	element->colour.hex = COL_ELEMENT;
 	element->z_depth = 1.0f;
 
-	if ( parent )
+	if ( parent != NULL )
 	{
 		// Add this element to it's parents children
 		mgui_add_child( parent, element );
@@ -55,7 +55,7 @@ void mgui_element_create( MGuiElement* element, MGuiElement* parent )
 		// Set alpha to parent's value, if the parent is an element
 		element->colour.a = parent->colour.a;
 	}
-	else
+	else if ( BIT_OFF( element->flags_int, INTFLAG_NOPARENT ) )
 	{
 		// Add this element to the main layer list
 		list_push( layers, cast_node(element) );
@@ -440,12 +440,13 @@ MYLLY_INLINE MGuiElement* mgui_get_element_at_test_self( MGuiElement* element, i
 	node_t* node;
 	MGuiElement *ret, *tmp = NULL;
 
-	// Check that the element is actually visible
-	if ( BIT_OFF( element->flags, FLAG_VISIBLE ) )
+	// Check that the element is actually visible and active
+	if ( BIT_OFF( element->flags, FLAG_VISIBLE ) ||
+		 BIT_ON( element->flags, FLAG_DISABLED ) )
 	{
 		return NULL;
 	}
-
+	
 	// Check that the point is within the element (or one of it's sub-elements)
 	if ( ( ret = mgui_get_element_at_test_bounds( element, x, y ) ) == NULL )
 	{
@@ -470,7 +471,7 @@ MYLLY_INLINE MGuiElement* mgui_get_element_at_test_self( MGuiElement* element, i
 	{
 		return NULL;
 	}
-
+	
 	return ret;
 }
 

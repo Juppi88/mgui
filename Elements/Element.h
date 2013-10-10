@@ -27,6 +27,7 @@ enum MGUI_INTERNAL_FLAGS {
 	INTFLAG_PRESSED		= 1 << 3,	/* The element is pressed down */
 	INTFLAG_NOTEXT		= 1 << 4,	/* Element has no text */
 	INTFLAG_LAYER		= 1 << 5,	/* This element is a main GUI layer */
+	INTFLAG_NOPARENT	= 1 << 6,	/* This element has no parent */
 };
 
 typedef enum MGUI_TYPE {
