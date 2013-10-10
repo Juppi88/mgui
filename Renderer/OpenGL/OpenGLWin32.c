@@ -102,9 +102,9 @@ GLuint mgui_opengl_load_bitmap_texture( const char_t* path, uint32* width, uint3
 
 	glTexParameteri( GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR );
 	glTexParameteri( GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR );
-
-	glTexImage2D( GL_TEXTURE_2D, 0, GL_RGBA, w, h, 0, GL_RGBA, GL_UNSIGNED_BYTE, bm.bmBits );
-
+	
+	glTexImage2D( GL_TEXTURE_2D, 0, GL_RGBA, bm.bmWidth, bm.bmHeight, 0, GL_RGBA, GL_UNSIGNED_BYTE, bm.bmBits );
+	
 	DeleteObject( bitmap );
 
 	*width = w;
