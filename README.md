@@ -1,3 +1,5 @@
+# Mylly GUI
+
 Mylly GUI (MGUI) is a graphical user interface library written in C. The main goals of the project are to create a simple-to-use, lightweight and easily portable GUI library for games and game modifications. While the library is mainly targeted for games and mods, the modular nature and separated rendering functions also allow it to be used in standalone graphical applications as well. This is demonstrated with the [official test application](https://github.com/teejii88/mguitest). You can find screenshots displaying Mylly GUI on [imgur](http://imgur.com/a/X6gX6).
 
 Some of the features MGUI currently offers are:
