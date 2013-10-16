@@ -388,9 +388,6 @@ static void skin_textured_draw_checkbox( MGuiElement* element )
 {
 	MGuiTexturedSkin* skin = (MGuiTexturedSkin*)element->skin;
 	MGuiTexBorder* primitive;
-	colour_t col;
-	
-	col.hex = element->colour.hex;
 
 	if ( element->flags & FLAG_DISABLED )
 	{
