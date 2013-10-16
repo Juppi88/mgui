@@ -629,12 +629,14 @@ void mgui_element_update_abs_pos( MGuiElement* elem )
 
 	if ( elem == NULL ) return;
 
-	if ( elem->parent )
+	if ( elem->parent != NULL )
 	{
 		r = &elem->parent->bounds;
 
 		elem->bounds.x = r->x + (int16)( elem->pos.x * r->w );
 		elem->bounds.y = r->y + (int16)( elem->pos.y * r->h );
+		elem->offset.x = elem->bounds.x - r->x;
+		elem->offset.y = elem->bounds.y - r->y;
 	}
 	else
 	{
@@ -642,7 +644,7 @@ void mgui_element_update_abs_pos( MGuiElement* elem )
 		elem->bounds.y = (int16)( elem->pos.y * draw_size.y );
 	}
 
-	if ( elem->text )
+	if ( elem->text != NULL )
 	{
 		elem->text->bounds = &elem->bounds;
 		mgui_text_update_position( elem->text );
@@ -667,10 +669,12 @@ void mgui_element_update_abs_size( MGuiElement* elem )
 
 	if ( elem == NULL ) return;
 
-	if ( elem->parent )
+	if ( elem->parent != NULL )
 	{
 		elem->bounds.w = (uint16)( elem->size.x * elem->parent->bounds.w );
 		elem->bounds.h = (uint16)( elem->size.y * elem->parent->bounds.h );
+		elem->offset.x = elem->bounds.x - elem->parent->bounds.x;
+		elem->offset.y = elem->bounds.y - elem->parent->bounds.y;
 	}
 	else
 	{
@@ -678,7 +682,7 @@ void mgui_element_update_abs_size( MGuiElement* elem )
 		elem->bounds.h = (uint16)( elem->size.y * draw_size.y );
 	}
 
-	if ( elem->text )
+	if ( elem->text != NULL )
 	{
 		elem->text->bounds = &elem->bounds;
 		mgui_text_update_position( elem->text );
@@ -707,12 +711,14 @@ void mgui_element_update_rel_pos( MGuiElement* elem )
 
 	if ( elem == NULL ) return;
 
-	if ( elem->parent )
+	if ( elem->parent != NULL )
 	{
 		r = &elem->parent->bounds;
 
 		elem->pos.x = (float)( elem->bounds.x - r->x ) / r->w;
 		elem->pos.y = (float)( elem->bounds.y - r->y ) / r->h;
+		elem->offset.x = elem->bounds.x - r->x;
+		elem->offset.y = elem->bounds.y - r->y;
 	}
 	else
 	{
@@ -720,7 +726,7 @@ void mgui_element_update_rel_pos( MGuiElement* elem )
 		elem->pos.y = (float)elem->bounds.y / draw_size.y;
 	}
 
-	if ( elem->text )
+	if ( elem->text != NULL )
 	{
 		elem->text->bounds = &elem->bounds;
 		mgui_text_update_position( elem->text );
@@ -745,10 +751,12 @@ void mgui_element_update_rel_size( MGuiElement* elem )
 
 	if ( elem == NULL ) return;
 
-	if ( elem->parent )
+	if ( elem->parent != NULL )
 	{
 		elem->size.x = (float)elem->bounds.w / elem->parent->bounds.w;
 		elem->size.y = (float)elem->bounds.h / elem->parent->bounds.h;
+		elem->offset.x = elem->bounds.x - elem->parent->bounds.x;
+		elem->offset.y = elem->bounds.y - elem->parent->bounds.y;
 	}
 	else
 	{
@@ -756,7 +764,7 @@ void mgui_element_update_rel_size( MGuiElement* elem )
 		elem->size.y = (float)elem->bounds.h / draw_size.y;
 	}
 
-	if ( elem->text )
+	if ( elem->text != NULL )
 	{
 		elem->text->bounds = &elem->bounds;
 		mgui_text_update_position( elem->text );
@@ -770,7 +778,7 @@ void mgui_element_update_rel_size( MGuiElement* elem )
 
 	mgui_element_request_redraw_all();
 
-	if ( !elem->children ) return;
+	if ( elem->children == NULL ) return;
 
 	list_foreach( elem->children, node )
 	{
@@ -782,26 +790,34 @@ void mgui_element_update_child_pos( MGuiElement* elem )
 {
 	node_t* node;
 	rectangle_t* r;
+	bool size_changed = false;
 
 	if ( elem == NULL || elem->parent == NULL ) return;
 
 	r = &elem->parent->bounds;
 
-	elem->bounds.x = r->x + (int16)( elem->pos.x * r->w );
-	elem->bounds.y = r->y + (int16)( elem->pos.y * r->h );
-
-	if ( BIT_ON( elem->flags, FLAG_AUTO_RESIZE ) )
+	if ( elem->flags & FLAG_AUTO_RESIZE )
 	{
+		elem->bounds.x = r->x + (int16)( elem->pos.x * r->w );
+		elem->bounds.y = r->y + (int16)( elem->pos.y * r->h );
 		elem->bounds.w = (uint16)( elem->size.x * r->w );
 		elem->bounds.h = (uint16)( elem->size.y * r->h );
+
+		elem->offset.x = (int16)( elem->pos.x * r->w );
+		elem->offset.y = (int16)( elem->pos.y * r->h );
+
+		size_changed = true;
+	}
+	else
+	{
+		elem->bounds.x = r->x + elem->offset.x;
+		elem->bounds.y = r->y + elem->offset.y;
 	}
 
 	if ( elem->callbacks->on_bounds_change )
-	{
-		elem->callbacks->on_bounds_change( elem, true, false );
-	}
+		elem->callbacks->on_bounds_change( elem, true, size_changed );
 
-	if ( elem->text )
+	if ( elem->text != NULL )
 	{
 		elem->text->bounds = &elem->bounds;
 		mgui_text_update_position( elem->text );

@@ -61,6 +61,7 @@ struct MGuiElement
 	uint32					flags;			// Element flags
 	uint32					flags_int;		// Internal flags
 	rectangle_t				bounds;			// Absolute boundaries for this element (in pixels)
+	vectorscreen_t			offset;			// Offset from parent position
 	float					z_depth;		// Z depth index (active if depth test is ebabled and supported)
 	MGuiElement*			parent;			// Parent element, NULL if none
 	list_t*					children;		// List of children elements

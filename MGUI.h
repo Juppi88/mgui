@@ -76,7 +76,7 @@ enum MGUI_FLAGS
 	FLAG_DRAGGABLE			= 1 << 5,	/* This element can be dragged */
 	FLAG_CLIP				= 1 << 6,	/* Clip text within the element if it exceeds the boundaries */
 	FLAG_WRAP				= 1 << 7,	/* Wrap text if it exceeds the boundaries (if applicable) */
-	FLAG_AUTO_RESIZE		= 1 << 8,	/* Resize element automatically if parent size changes */
+	FLAG_AUTO_RESIZE		= 1 << 8,	/* Resize and reposition element automatically if parent size changes */
 	FLAG_INHERIT_ALPHA		= 1 << 9,	/* Element will inherit alpha from it's parent element */
 	FLAG_ANIMATION			= 1 << 10,	/* Enable animations (if applicable) */
 	FLAG_TABSTOP			= 1 << 11,	/* Tab press can switch focus to this element */

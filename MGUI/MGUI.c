@@ -258,8 +258,6 @@ void mgui_resize( uint16 width, uint16 height )
 	node_t *node, *node2;
 	MGuiElement* element;
 
-	MGuiRenderer* tmp;
-
 	draw_rect.w = draw_size.w = width;
 	draw_rect.h = draw_size.h = height;
 
