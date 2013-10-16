@@ -255,8 +255,10 @@ void mgui_set_skin( const char_t* skinimg )
 
 void mgui_resize( uint16 width, uint16 height )
 {
-	node_t* node;
+	node_t *node, *node2;
 	MGuiElement* element;
+
+	MGuiRenderer* tmp;
 
 	draw_rect.w = draw_size.w = width;
 	draw_rect.h = draw_size.h = height;
@@ -271,8 +273,18 @@ void mgui_resize( uint16 width, uint16 height )
 		element = cast_elem(node);
 
 		if ( element->type == GUI_CANVAS )
-			element->bounds = draw_rect;
+		{
+			if ( element->children == NULL ) continue;
+
+			list_foreach( element->children, node2 )
+			{
+				mgui_element_update_child_pos( cast_elem(node2) );
+			}
+
+		}
 	}
+
+	mgui_element_request_redraw_all();
 }
 
 void mgui_screen_pos_to_world( const vector3_t* src, vector3_t* dst )

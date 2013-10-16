@@ -125,7 +125,20 @@ void CRenderer::Resize( uint32 w, uint32 h )
 	width = w;
 	height = h;
 
-	bitmap->SetResolution( (float)w, (float)h );
+	if ( graphics == rendererGraphics )
+		graphics = NULL;
+
+	// Re-create the graphics context
+	delete rendererGraphics;
+	delete bitmap;
+
+	Gdiplus::Graphics gfx( deviceContext );
+
+	bitmap = new Gdiplus::Bitmap( width, height, &gfx );
+	rendererGraphics = Gdiplus::Graphics::FromImage( bitmap );
+
+	if ( graphics == NULL )
+		graphics = rendererGraphics;
 }
 
 DRAW_MODE CRenderer::SetDrawMode( DRAW_MODE mode )
@@ -460,11 +473,13 @@ void CRenderer::DestroyRenderTarget( MGuiRendTarget* target )
 void CRenderer::DrawRenderTarget( const MGuiRendTarget* target, int32 x, int32 y, uint32 w, uint32 h )
 {
 	CRenderTarget* cache = (CRenderTarget*)target;
+	Gdiplus::RectF area;
 
 	if ( cache == NULL ) return;
 	if ( cache->bitmap == NULL ) return;
 
-	graphics->DrawImage( cache->bitmap, x, y, (INT)w, (INT)h );
+	area = Gdiplus::RectF( (float)x, (float)y, (float)w, (float)h );
+	graphics->DrawImage( cache->bitmap, area, (Gdiplus::REAL)x, (Gdiplus::REAL)y, (Gdiplus::REAL)w, (Gdiplus::REAL)h, Gdiplus::UnitPixel );
 }
 
 void CRenderer::EnableRenderTarget( const MGuiRendTarget* target, int32 x, int32 y )
