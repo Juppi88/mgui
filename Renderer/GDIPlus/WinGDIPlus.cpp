@@ -28,6 +28,10 @@ MGuiRenderer* mgui_gdiplus_initialize( void* wnd )
 	if ( status != Gdiplus::Ok ) return NULL;
 
 	// GDI+ was initialized successfully, so let's set up the renderer.
+	renderer.properties = REND_SUPPORTS_TEXTTAGS |
+						  REND_SUPPORTS_TEXTURES |
+						  REND_SUPPORTS_TARGETS;
+						  
 	renderer.begin					= CRenderer::Begin;
 	renderer.end					= CRenderer::End;
 	renderer.resize					= CRenderer::Resize;

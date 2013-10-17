@@ -52,12 +52,7 @@ void mgui_opengl_initialize_system( void* window )
 	wglMakeCurrent( dc, context );
 
 	GetClientRect( hwnd, &rect );
-
-	glMatrixMode( GL_PROJECTION );
-	glLoadIdentity();
-	glOrtho( rect.left, rect.right, rect.bottom, rect.top, -1.0, 1.0 );
-	glMatrixMode( GL_MODELVIEW );
-	glViewport( 0, 0, rect.right - rect.left, rect.bottom - rect.top );
+	renderer_resize( rect.right - rect.left, rect.bottom - rect.top );
 }
 
 void mgui_opengl_shutdown_system( void )

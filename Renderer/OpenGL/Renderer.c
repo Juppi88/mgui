@@ -73,6 +73,8 @@ static LINE_STATUS	line_status				= LINE_IDLE;	// Text underline status
 static bool			line_continue			= false;		// Continue drawing an underline
 static int32		x_offset				= 0;			// Current drawing offset (X)
 static int32		y_offset				= 0;			// Current drawing offset (Y)
+uint32				screen_width			= 0;			// Screen width
+uint32				screen_height			= 0;			// Screen height
 
 // --------------------------------------------------
 
@@ -106,6 +108,7 @@ void renderer_begin( void )
 {
 	glClear( GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT );
 	glClearColor( 0.0f, 0.0f, 0.0f, 0.0f );
+	glClearDepth( 1.0f );
 	glBlendFunc( GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA );
 	glAlphaFunc( GL_GREATER, 1.0f );
 	glEnableClientState( GL_VERTEX_ARRAY );
@@ -126,10 +129,14 @@ void renderer_end( void )
 
 void renderer_resize( uint32 width, uint32 height )
 {
+	screen_width = width;
+	screen_height = height;
+
 	glViewport( 0, 0, width, height );
 
 	glMatrixMode( GL_PROJECTION );
 	glLoadIdentity();
+	glOrtho( 0.0f, width, height, 0.0f, -1.0f, 1.0f ); 
 
 	glMatrixMode( GL_MODELVIEW );
 	glLoadIdentity();
@@ -193,7 +200,7 @@ void renderer_start_clip( int32 x, int32 y, uint32 w, uint32 h )
 	glGetIntegerv( GL_VIEWPORT, &view[0] );
 	y = view[3] - ( y + h );
 
-	glScissor( x, y, w, h );
+	glScissor( x - x_offset, y + y_offset, w, h );
 	glEnable( GL_SCISSOR_TEST );
 
 	clip_rect.x = (int16)x;
@@ -580,13 +587,13 @@ void renderer_draw_render_target( const MGuiRendTarget* target, int32 x, int32 y
 	u = (float)w / buffer->data.width;
 	v = (float)h / buffer->data.height;
 
-	renderer_add_vertex_tex( x, y, 0, v );
-	renderer_add_vertex_tex( x+w, y, u, v );
-	renderer_add_vertex_tex( x, y+h, 0, 0 );
+	renderer_add_vertex_tex( x, y, 0, 1 );
+	renderer_add_vertex_tex( x+w, y, u, 1 );
+	renderer_add_vertex_tex( x, y+h, 0, 1 - v );
 
-	renderer_add_vertex_tex( x+w, y, u, v );
-	renderer_add_vertex_tex( x+w, y+h, u, 0 );
-	renderer_add_vertex_tex( x, y+h, 0, 0 );
+	renderer_add_vertex_tex( x+w, y, u, 1 );
+	renderer_add_vertex_tex( x+w, y+h, u, 1 - v );
+	renderer_add_vertex_tex( x, y+h, 0, 1 - v );
 }
 
 void renderer_enable_render_target( const MGuiRendTarget* target, int32 x, int32 y )
@@ -596,7 +603,7 @@ void renderer_enable_render_target( const MGuiRendTarget* target, int32 x, int32
 	if ( target == NULL ) return;
 	if ( !GLEW_EXT_framebuffer_object ) return;
 
-	// Store old framebuffer.
+	// Store the old framebuffer.
 	glGetIntegerv( GL_FRAMEBUFFER_BINDING_EXT, (GLint*)&buffer->old_buffer );
 
 	// Enable our framebuffer.
@@ -607,6 +614,19 @@ void renderer_enable_render_target( const MGuiRendTarget* target, int32 x, int32
 	buffer->y_offset = y_offset;
 	x_offset = x;
 	y_offset = y;
+
+	// Store current matrices and viewport so we can restore them later.
+	glPushAttrib( GL_VIEWPORT_BIT );
+	glViewport( 0, 0, buffer->data.width, buffer->data.height );
+
+	glMatrixMode( GL_PROJECTION );
+	glPushMatrix();
+	glLoadIdentity();
+	glOrtho( 0.0f, buffer->data.width, buffer->data.height, 0.0f, -1.0f, 1.0f ); 
+
+	glMatrixMode( GL_MODELVIEW );
+	glPushMatrix();
+	glLoadIdentity();
 }
 
 void renderer_disable_render_target( const MGuiRendTarget* target )
@@ -616,11 +636,27 @@ void renderer_disable_render_target( const MGuiRendTarget* target )
 	if ( target == NULL ) return;
 	if ( !GLEW_EXT_framebuffer_object ) return;
 
-	// Restore old framebuffer.
+	// Restore the old framebuffer.
 	glBindFramebufferEXT( GL_FRAMEBUFFER_EXT, buffer->old_buffer );
 
-	x_offset = buffer->x_offset;
-	y_offset = buffer->y_offset;
+	if ( buffer->old_buffer != 0 )
+	{
+		x_offset = buffer->x_offset;
+		y_offset = buffer->y_offset;
+	}
+	else
+	{
+		x_offset = 0;
+		y_offset = 0;
+	}
+
+	// Restore old matrices and viewport.
+	glMatrixMode( GL_MODELVIEW );
+	glPopMatrix();
+	glMatrixMode( GL_PROJECTION );
+	glPopMatrix();
+
+	glPopAttrib();
 }
 
 void renderer_screen_pos_to_world( const vector3_t* src, vector3_t* dst )
@@ -648,7 +684,7 @@ void renderer_world_pos_to_screen( const vector3_t* src, vector3_t* dst )
 	}
 }
 
-void renderer_flush( void )
+static void renderer_flush( void )
 {
 	if ( num_vertices == 0 ) return;
 
@@ -668,7 +704,7 @@ void renderer_flush( void )
 	num_vertices = 0;
 }
 
-MYLLY_INLINE void renderer_add_vertex( int32 x, int32 y )
+MYLLY_INLINE static void renderer_add_vertex( int32 x, int32 y )
 {
 	x -= x_offset;
 	y -= y_offset;
@@ -687,7 +723,7 @@ MYLLY_INLINE void renderer_add_vertex( int32 x, int32 y )
 	}
 }
 
-MYLLY_INLINE void renderer_add_vertex_2d( int32 x, int32 y, float z )
+MYLLY_INLINE static void renderer_add_vertex_2d( int32 x, int32 y, float z )
 {
 	vertex->x = (float)x;
 	vertex->y = (float)y;
@@ -703,7 +739,7 @@ MYLLY_INLINE void renderer_add_vertex_2d( int32 x, int32 y, float z )
 	vertex++;
 }
 
-MYLLY_INLINE void renderer_add_vertex_tex( int32 x, int32 y, float u, float v )
+MYLLY_INLINE static void renderer_add_vertex_tex( int32 x, int32 y, float u, float v )
 {
 	x -= x_offset;
 	y -= y_offset;
@@ -722,7 +758,7 @@ MYLLY_INLINE void renderer_add_vertex_tex( int32 x, int32 y, float u, float v )
 	}
 }
 
-MYLLY_INLINE void renderer_add_vertex_tex_2d( int32 x, int32 y, float z, float u, float v )
+MYLLY_INLINE static void renderer_add_vertex_tex_2d( int32 x, int32 y, float z, float u, float v )
 {
 	vertex->x = (float)x;
 	vertex->y = (float)y;
@@ -738,7 +774,7 @@ MYLLY_INLINE void renderer_add_vertex_tex_2d( int32 x, int32 y, float z, float u
 	vertex++;
 }
 
-MYLLY_INLINE void renderer_check_buffer_for_space( uint32 vertices )
+MYLLY_INLINE static void renderer_check_buffer_for_space( uint32 vertices )
 {
 	if ( num_vertices + vertices >= MAX_VERT-1 )
 	{
@@ -747,7 +783,7 @@ MYLLY_INLINE void renderer_check_buffer_for_space( uint32 vertices )
 	}
 }
 
-MYLLY_INLINE uint32 renderer_draw_char( const Font* font, uint32 c, int32 x, int32 y, uint32 flags )
+MYLLY_INLINE static uint32 renderer_draw_char( const Font* font, uint32 c, int32 x, int32 y, uint32 flags )
 {
 	float tx1, ty1, tx2, ty2;
 	uint32 w, h, spacing;

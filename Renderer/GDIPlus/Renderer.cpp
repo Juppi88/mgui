@@ -71,6 +71,8 @@ private:
 	Gdiplus::Bitmap*	bitmap;
 	Gdiplus::Graphics*	graphics;
 	Gdiplus::Graphics*	oldGraphics;
+	int32				oldX;
+	int32				oldY;
 };
 
 // --------------------------------------------------
@@ -176,7 +178,7 @@ void CRenderer::ResetDrawTransform( void )
 void CRenderer::StartClip( int32 x, int32 y, uint32 w, uint32 h )
 {
 	CalculateOffset( x, y );
-	graphics->SetClip( Gdiplus::Rect( x, y, w, h ), Gdiplus::CombineModeReplace );
+	graphics->SetClip( Gdiplus::Rect( x, y, w, h ) );
 }
 
 void CRenderer::EndClip( void )
@@ -260,6 +262,8 @@ void CRenderer::DrawTexturedRect( const MGuiRendTexture* tex, int32 x, int32 y, 
 
 	if ( texture == NULL ) return;
 	if ( texture->bitmap == NULL ) return;
+
+	CalculateOffset( x, y );
 
 	width = texture->width;
 	height = texture->height;
@@ -479,7 +483,8 @@ void CRenderer::DrawRenderTarget( const MGuiRendTarget* target, int32 x, int32 y
 	if ( cache->bitmap == NULL ) return;
 
 	area = Gdiplus::RectF( (float)x, (float)y, (float)w, (float)h );
-	graphics->DrawImage( cache->bitmap, area, (Gdiplus::REAL)x, (Gdiplus::REAL)y, (Gdiplus::REAL)w, (Gdiplus::REAL)h, Gdiplus::UnitPixel );
+	
+	graphics->DrawImage( cache->bitmap, area, 0, 0, (Gdiplus::REAL)w, (Gdiplus::REAL)h, Gdiplus::UnitPixel );
 }
 
 void CRenderer::EnableRenderTarget( const MGuiRendTarget* target, int32 x, int32 y )
@@ -492,6 +497,8 @@ void CRenderer::EnableRenderTarget( const MGuiRendTarget* target, int32 x, int32
 	cache->oldGraphics = graphics;
 	graphics = cache->graphics;
 
+	cache->oldX = drawOffsetX;
+	cache->oldY = drawOffsetY;
 	drawOffsetX = x;
 	drawOffsetY = y;
 
@@ -505,8 +512,17 @@ void CRenderer::DisableRenderTarget( const MGuiRendTarget* target )
 	if ( cache == NULL ) return;
 
 	graphics = cache->oldGraphics;
-	drawOffsetX = 0;
-	drawOffsetY = 0;
+
+	if ( graphics == rendererGraphics )
+	{
+		drawOffsetX = cache->oldX;
+		drawOffsetY = cache->oldY;
+	}
+	else
+	{
+		drawOffsetX = 0;
+		drawOffsetY = 0;
+	}
 }
 
 void CRenderer::ScreenPosToWorld( const vector3_t* src, vector3_t* dst )

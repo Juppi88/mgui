@@ -136,10 +136,8 @@ void CRenderer::Initialize( void )
 	d3dDevice->CreateVertexBuffer( MAX_VERT * sizeof(Vertex), D3DUSAGE_WRITEONLY|D3DUSAGE_DYNAMIC, D3DFVF_TEXTURED, D3DPOOL_DEFAULT, &vertexBuffer, NULL );
 	d3dDevice->CreateVertexBuffer( MAX_VERT * sizeof(Vertex3D), D3DUSAGE_WRITEONLY|D3DUSAGE_DYNAMIC, D3DFVF_TEXTURED_3D, D3DPOOL_DEFAULT, &vertexBuffer3d, NULL );
 
-	// Create state blocks
+	// Create a norm state block.
 	d3dDevice->CreateStateBlock( D3DSBT_ALL, &normState );
-	d3dDevice->CreateStateBlock( D3DSBT_ALL, &drawState );
-	d3dDevice->CreateStateBlock( D3DSBT_ALL, &drawState3d );
 
 	// Initialize our state blocks and set the states we're going to need for drawing the UI stuff.
 
@@ -245,8 +243,17 @@ void CRenderer::End( void )
 
 void CRenderer::Resize( uint32 w, uint32 h )
 {
+	extern D3DPRESENT_PARAMETERS params;
+
 	screenWidth = w;
 	screenHeight = h;
+
+	params.BackBufferWidth = w;
+	params.BackBufferHeight = h;
+	
+	CRenderer::Shutdown();
+	d3dDevice->Reset( &params );
+	CRenderer::Initialize();
 }
 
 DRAW_MODE CRenderer::SetDrawMode( DRAW_MODE mode )
@@ -314,9 +321,9 @@ void CRenderer::StartClip( int32 x, int32 y, uint32 w, uint32 h )
 	clip.h = (uint16)h;
 	clipping = true;
 
-	r.left = (LONG)x;
+	r.left = (LONG)x - drawOffsetX;
 	r.right = (LONG)( x + w );
-	r.top = (LONG)y;
+	r.top = (LONG)y - drawOffsetY;
 	r.bottom = (LONG)( y + h );
 
 	d3dDevice->SetRenderState( D3DRS_SCISSORTESTENABLE, TRUE );

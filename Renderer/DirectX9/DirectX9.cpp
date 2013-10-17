@@ -49,6 +49,11 @@ MGuiRenderer* mgui_directx9_initialize( void* wnd )
 	if ( FAILED( hr ) ) return NULL;
 
 	// Device was created successfully, so let's set up the renderer.
+	renderer.properties = REND_SUPPORTS_TEXTTAGS |
+						  REND_SUPPORTS_TEXTURES |
+						  REND_SUPPORTS_TARGETS |
+						  REND_RESET_ON_RESIZE;
+
 	renderer.begin					= CRenderer::Begin;
 	renderer.end					= CRenderer::End;
 	renderer.resize					= CRenderer::Resize;

@@ -37,6 +37,10 @@ MGuiRenderer* mgui_opengl_initialize( void* window )
 		exit_app_with_error( "Could not initialize GLEW" );
 	}
 
+	renderer.properties = REND_SUPPORTS_TEXTTAGS |
+						  REND_SUPPORTS_TEXTURES;
+						  REND_SUPPORTS_TARGETS;
+
 	renderer.begin					= renderer_begin;
 	renderer.end					= renderer_end;
 	renderer.resize					= renderer_resize;

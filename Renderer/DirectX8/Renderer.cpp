@@ -248,8 +248,17 @@ void CRenderer::End( void )
 
 void CRenderer::Resize( uint32 w, uint32 h )
 {
+	extern D3DPRESENT_PARAMETERS params;
+
 	screenWidth = w;
 	screenHeight = h;
+
+	params.BackBufferWidth = w;
+	params.BackBufferHeight = h;
+
+	CRenderer::Shutdown();
+	d3dDevice->Reset( &params );
+	CRenderer::Initialize();
 }
 
 DRAW_MODE CRenderer::SetDrawMode( DRAW_MODE mode )
