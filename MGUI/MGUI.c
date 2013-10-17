@@ -65,12 +65,12 @@ void mgui_initialize( void* wndhandle, uint32 parameters )
 	params = parameters;
 
 	// Get the initial size of the window.
-	get_window_size( wndhandle, &draw_size.w, &draw_size.h );
+	get_window_drawable_size( wndhandle, &draw_size.ux, &draw_size.uy );
 
 	draw_rect.x = 0;
 	draw_rect.y = 0;
-	draw_rect.w = draw_size.x;
-	draw_rect.h = draw_size.y;
+	draw_rect.w = draw_size.ux;
+	draw_rect.h = draw_size.uy;
 
 	defskin = mgui_setup_skin_simple();
 	skin = defskin;
@@ -235,8 +235,6 @@ void mgui_set_renderer( MGuiRenderer* rend )
 		mgui_texturemgr_initialize_all();
 		mgui_fontmgr_initialize_all();
 		mgui_initialize_elements();
-
-		//renderer->resize( draw_size.w, draw_size.h ); 
 	}
 }
 
@@ -257,13 +255,28 @@ void mgui_resize( uint16 width, uint16 height )
 {
 	node_t *node, *node2;
 	MGuiElement* element;
+	MGuiRenderer* tmprend;
+	bool reset;
 
 	draw_rect.w = draw_size.w = width;
 	draw_rect.h = draw_size.h = height;
 
-	// Let the renderer know the new window size.
 	if ( renderer != NULL )
-		renderer->resize( width, height ); 
+	{
+		tmprend = renderer;
+		reset = BIT_ON( renderer->properties, REND_RESET_ON_RESIZE );
+
+		// Invalidate everything (fonts, textures, render caches).
+		if ( reset )
+			mgui_set_renderer( NULL );
+
+		// Let the renderer know the new window size.
+		tmprend->resize( width, height ); 
+
+		// Reinitialize everything (fonts, textures, render caches).
+		if ( reset )
+			mgui_set_renderer( tmprend );
+	}
 
 	// Update all canvases.
 	list_foreach( layers, node )
@@ -287,12 +300,14 @@ void mgui_resize( uint16 width, uint16 height )
 
 void mgui_screen_pos_to_world( const vector3_t* src, vector3_t* dst )
 {
-	if ( renderer ) renderer->screen_pos_to_world( src, dst );
+	if ( renderer != NULL )
+		renderer->screen_pos_to_world( src, dst );
 }
 
 void mgui_world_pos_to_screen( const vector3_t* src, vector3_t* dst )
 {
-	if ( renderer ) renderer->world_pos_to_screen( src, dst );
+	if ( renderer != NULL )
+		renderer->world_pos_to_screen( src, dst );
 }
 
 static void mgui_initialize_elements( void )

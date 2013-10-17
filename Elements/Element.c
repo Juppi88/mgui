@@ -22,8 +22,8 @@
 // --------------------------------------------------
 
 extern vectorscreen_t draw_size;
-extern list_t* layers;
 extern MGuiRenderer* renderer;
+extern list_t* layers;
 
 // --------------------------------------------------
 

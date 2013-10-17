@@ -17,6 +17,14 @@
 #include "Math/Matrix4.h"
 #include "Math/Vector3.h"
 
+enum RENDPROPS {
+	REND_SUPPORTS_TEXTTAGS	= 1 << 0,	// Renderer supports text format tags
+	REND_SUPPORTS_TEXTURES	= 1 << 1,	// Renderer supports textures
+	REND_SUPPORTS_TARGETS	= 1 << 2,	// Renderer supports render targets (cache)
+	REND_RESET_ON_RESIZE	= 1 << 3,	// Renderer must be reset when resizing
+	REND_FORCE_DWORD		= 0x7fffffff
+};
+
 typedef enum {
 	DRAWING_INVALID,
 	DRAWING_2D,			// Draw 2D entities on top of everything else
@@ -66,6 +74,10 @@ typedef struct {
 
 struct MGuiRenderer
 {
+	// Renderer property flags, used internally by the GUI library.
+	// See enum RENDPROPS above.
+	uint32			properties;
+
 	// --------------------------------------------------
 	// Scene begin/end
 	// --------------------------------------------------
