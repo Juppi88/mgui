@@ -315,19 +315,16 @@ void mgui_element_initialize( MGuiElement* element )
 	if ( element == NULL ) return;
 
 	// Intialize all resources with the renderer
-	if ( element->flags & FLAG_CACHE_TEXTURE )
+	if ( element->flags & FLAG_CACHE_TEXTURE && element->cache == NULL )
 	{
-		if ( element->cache == NULL )
-		{
-			r = element->callbacks->get_clip_region ?
-				element->callbacks->get_clip_region( element, &r ), r :
-				&element->bounds;
+		r = element->callbacks->get_clip_region ?
+			element->callbacks->get_clip_region( element, &r ), r :
+			&element->bounds;
 
-			element->cache = renderer->create_render_target( r->w, r->h );
-		}
+		element->cache = renderer->create_render_target( r->w, r->h );
 	}
 
-	if ( !element->children ) return;
+	if ( element->children == NULL ) return;
 
 	// Do it for all the child elements as well
 	list_foreach( element->children, node )
@@ -342,17 +339,14 @@ void mgui_element_invalidate( MGuiElement* element )
 
 	if ( element == NULL ) return;
 
-	// Intialize all resources with the renderer
-	if ( element->flags & FLAG_CACHE_TEXTURE )
+	// Invalidate all resources with the renderer
+	if ( element->cache != NULL )
 	{
-		if ( element->cache != NULL )
-		{
-			renderer->destroy_render_target( element->cache );
-			element->cache = NULL;
-		}
+		renderer->destroy_render_target( element->cache );
+		element->cache = NULL;
 	}
 
-	if ( !element->children ) return;
+	if ( element->children == NULL ) return;
 
 	// Do it for all the child elements as well
 	list_foreach( element->children, node )
