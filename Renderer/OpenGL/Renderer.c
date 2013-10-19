@@ -507,7 +507,9 @@ MGuiRendTarget* renderer_create_render_target( uint32 width, uint32 height )
 	GLenum draw_buffer;
 	uint32 w = 32, h = 32;
 
-	if ( !GLEW_EXT_framebuffer_object ) return NULL;
+	if ( !MYLLY_EXT_framebuffer_object ||
+		 !MYLLY_GL_2_0 )
+		 return NULL;
 
 	target = mem_alloc_clean( sizeof(*target) );
 
@@ -559,7 +561,7 @@ void renderer_destroy_render_target( MGuiRendTarget* target )
 
 	glDeleteTextures( 1, &buffer->texture );
 
-	if ( GLEW_EXT_framebuffer_object )
+	if ( MYLLY_EXT_framebuffer_object )
 		glDeleteFramebuffersEXT( 1, &buffer->frame_buffer );
 
 	mem_free( buffer );
@@ -601,7 +603,7 @@ void renderer_enable_render_target( const MGuiRendTarget* target, int32 x, int32
 	RenderTarget* buffer = (RenderTarget*)target;
 
 	if ( target == NULL ) return;
-	if ( !GLEW_EXT_framebuffer_object ) return;
+	if ( !MYLLY_EXT_framebuffer_object ) return;
 
 	// Store the old framebuffer.
 	glGetIntegerv( GL_FRAMEBUFFER_BINDING_EXT, (GLint*)&buffer->old_buffer );
@@ -634,7 +636,7 @@ void renderer_disable_render_target( const MGuiRendTarget* target )
 	RenderTarget* buffer = (RenderTarget*)target;
 
 	if ( target == NULL ) return;
-	if ( !GLEW_EXT_framebuffer_object ) return;
+	if ( !MYLLY_EXT_framebuffer_object ) return;
 
 	// Restore the old framebuffer.
 	glBindFramebufferEXT( GL_FRAMEBUFFER_EXT, buffer->old_buffer );

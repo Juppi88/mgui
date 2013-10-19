@@ -14,11 +14,7 @@
 #define __MYLLY_GUI_OPENGL_RENDERER_H
 
 #include "MGUI/Renderer/Renderer.h"
-
-#include <gl/glew.h>
-#include <gl/GL.h>
-#include <gl/glext.h>
-#include <gl/GLU.h>
+#include "Extensions.h" // This will automatically include the OpenGL headers
 
 // Used for drawing an underline for text (format tags)
 typedef enum {

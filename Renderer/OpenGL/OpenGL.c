@@ -10,6 +10,7 @@
  **********************************************************************/
 
 #include "OpenGL.h"
+#include "Extensions.h"
 #include "Renderer.h"
 #include "Platform/Utils.h"
 
@@ -31,11 +32,8 @@ MGuiRenderer* mgui_opengl_initialize( void* window )
 	// Do platform specific initialization.
 	mgui_opengl_initialize_system( window );
 
-	// Initialize GLEW.
-	if ( glewInit() != GLEW_OK )
-	{
-		exit_app_with_error( "Could not initialize GLEW" );
-	}
+	// Initialize extensions.
+	mgui_opengl_initialize_extensions();
 
 	renderer.properties = REND_SUPPORTS_TEXTTAGS |
 						  REND_SUPPORTS_TEXTURES;
