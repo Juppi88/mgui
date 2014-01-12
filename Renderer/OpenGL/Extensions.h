@@ -49,6 +49,44 @@ glCheckFramebufferStatusEXT_t __glCheckFramebufferStatusEXT;
 #define glFramebufferTextureEXT __glFramebufferTextureEXT
 #define glCheckFramebufferStatusEXT __glCheckFramebufferStatusEXT
 
+
+// --------------------------------------------------
+// --- ARB_vertex_buffer_object
+// --------------------------------------------------
+
+extern bool MYLLY_ARB_vertex_buffer_object;
+
+typedef void ( EXTAPIENTRY *glGenBuffersARB_t )( GLsizei n, GLuint* ids );
+typedef void ( EXTAPIENTRY *glBindBufferARB_t )( GLenum target, GLuint id );
+typedef void ( EXTAPIENTRY *glDeleteBuffersARB_t )( GLsizei n, GLuint* ids );
+typedef void ( EXTAPIENTRY *glBufferDataARB_t )( GLenum target, GLsizei size, const void* data, GLenum usage );
+typedef void ( EXTAPIENTRY *glBufferSubDataARB_t )( GLenum target, GLint offset, GLsizei size, void* data );
+typedef void* ( EXTAPIENTRY *glMapBufferARB_t )( GLenum target, GLenum access );
+typedef void* ( EXTAPIENTRY *glMapBufferRangeARB_t )( GLenum target, GLintptr offset, GLsizeiptr length, GLbitfield access );
+typedef GLboolean ( EXTAPIENTRY *glUnmapBufferARB_t )( GLenum target );
+typedef void ( EXTAPIENTRY *glFlushMappedBufferRangeARB_t )( GLenum target, GLintptr offset, GLsizeiptr length );
+
+glGenBuffersARB_t __glGenBuffersARB;
+glBindBufferARB_t __glBindBufferARB;
+glDeleteBuffersARB_t __glDeleteBuffersARB;
+glBufferDataARB_t __glBufferDataARB;
+glBufferSubDataARB_t __glBufferSubDataARB;
+glMapBufferARB_t __glMapBufferARB;
+glMapBufferRangeARB_t __glMapBufferRangeARB;
+glUnmapBufferARB_t __glUnmapBufferARB;
+glFlushMappedBufferRangeARB_t __glFlushMappedBufferRangeARB;
+
+#define glGenBuffersARB __glGenBuffersARB
+#define glBindBufferARB __glBindBufferARB
+#define glDeleteBuffersARB __glDeleteBuffersARB
+#define glBufferDataARB __glBufferDataARB
+#define glBufferSubDataARB __glBufferSubDataARB
+#define glMapBufferARB __glMapBufferARB
+#define glMapBufferRangeARB __glMapBufferRangeARB
+#define glUnmapBufferARB __glUnmapBufferARB
+#define glFlushMappedBufferRangeARB __glFlushMappedBufferRangeARB
+
+
 // --------------------------------------------------
 // --- OpenGL 2.0 functions
 // --------------------------------------------------

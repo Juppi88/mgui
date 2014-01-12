@@ -52,16 +52,19 @@ typedef struct {
 // --------------------------------------------------
 
 typedef struct {
-	float x, y, z;
-	float u, v;
-	uint8 r, g, b, a;
+	GLfloat x, y, z;
+	GLfloat u, v;
+	GLbyte r, g, b, a;
 } Vertex;
 
 // --------------------------------------------------
 
 static uint32		num_vertices			= 0;			// Number of vetrices stored into the buffer
+static uint32		num_indices				= 0;			// Number of indices stored into the index buffer
 static Vertex*		vertex					= NULL;			// Pointer to current vertex
+static GLushort*	index					= NULL;			// Pointer to current index
 static Vertex		vertex_buffer[MAX_VERT];				// Vertex buffer
+static GLushort		index_buffer[MAX_VERT];					// Index buffer
 static DRAW_MODE	draw_mode				= DRAWING_2D;	// Current draw mode
 static GLbyte		colour[4]				= { 0,0,0,0 };	// Current drawing colour in OpenGL format
 static colour_t		draw_colour				= { 0 };		// Current drawing colour
@@ -98,10 +101,12 @@ GLuint						mgui_opengl_load_bitmap_texture	( const char_t* path, uint32* width,
 
 void renderer_initialize( void )
 {
+	// Nothing to do here.
 }
 
 void renderer_shutdown( void )
 {
+	// Nothing to do here either.
 }
 
 void renderer_begin( void )
@@ -111,17 +116,32 @@ void renderer_begin( void )
 	glClearDepth( 1.0f );
 	glBlendFunc( GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA );
 	glAlphaFunc( GL_GREATER, 1.0f );
-	glEnableClientState( GL_VERTEX_ARRAY );
 	glEnable( GL_BLEND );
 
+	glEnableClientState( GL_VERTEX_ARRAY );
+	glEnableClientState( GL_COLOR_ARRAY );
+	glEnableClientState( GL_TEXTURE_COORD_ARRAY );
+
 	vertex = &vertex_buffer[0];
+	index = &index_buffer[0];
+
 	num_vertices = 0;
+	num_indices = 0;
 }
 
 void renderer_end( void )
 {
 	renderer_flush();
+	
 	glDisableClientState( GL_VERTEX_ARRAY );
+	glDisableClientState( GL_COLOR_ARRAY );
+	glDisableClientState( GL_TEXTURE_COORD_ARRAY );
+
+	vertex = &vertex_buffer[0];
+	index = &index_buffer[0];
+
+	num_vertices = 0;
+	num_indices = 0;
 
 	// Do platform specific processing (swap buffers).
 	mgui_opengl_swap_buffers();
@@ -192,13 +212,10 @@ void renderer_reset_draw_transform( void )
 
 void renderer_start_clip( int32 x, int32 y, uint32 w, uint32 h )
 {
-	GLint view[4];
-
 	renderer_flush();
 
 	// Translate OpenGL coordinates to MGUI units
-	glGetIntegerv( GL_VIEWPORT, &view[0] );
-	y = view[3] - ( y + h );
+	y = screen_height - ( y + h );
 
 	glScissor( x - x_offset, y + y_offset, w, h );
 	glEnable( GL_SCISSOR_TEST );
@@ -220,6 +237,8 @@ void renderer_end_clip( void )
 
 void renderer_draw_rect( int32 x, int32 y, uint32 w, uint32 h )
 {
+	GLushort idx1, idx2;
+
 	if ( draw_texture != 0 )
 	{
 		renderer_flush();
@@ -230,13 +249,21 @@ void renderer_draw_rect( int32 x, int32 y, uint32 w, uint32 h )
 
 	renderer_check_buffer_for_space( 6 );
 
+	*index++ = (GLushort)num_vertices;
 	renderer_add_vertex( x, y );
+
+	idx1 = (GLushort)num_vertices; *index++ = idx1;
 	renderer_add_vertex( x+w, y );
+
+	idx2 = (GLushort)num_vertices; *index++ = idx2;
 	renderer_add_vertex( x, y+h );
 
-	renderer_add_vertex( x+w, y );
+	*index++ = idx1;
+
+	*index++ = (GLushort)num_vertices;
 	renderer_add_vertex( x+w, y+h );
-	renderer_add_vertex( x, y+h );
+	
+	*index++ = idx2;
 }
 
 void renderer_draw_triangle( int32 x1, int32 y1, int32 x2, int32 y2, int32 x3, int32 y3 )
@@ -251,8 +278,13 @@ void renderer_draw_triangle( int32 x1, int32 y1, int32 x2, int32 y2, int32 x3, i
 
 	renderer_check_buffer_for_space( 3 );
 
+	*index++ = (GLushort)num_vertices;
 	renderer_add_vertex( x1, y1 );
+
+	*index++ = (GLushort)num_vertices;
 	renderer_add_vertex( x2, y2 );
+
+	*index++ = (GLushort)num_vertices;
 	renderer_add_vertex( x3, y3 );
 }
 
@@ -302,6 +334,7 @@ void renderer_destroy_texture( MGuiRendTexture* tex )
 void renderer_draw_textured_rect( const MGuiRendTexture* tex, int32 x, int32 y, uint32 w, uint32 h, const float uv[] )
 {
 	Texture* texture = (Texture*)tex;
+	GLushort idx1, idx2;
 
 	if ( texture == NULL ) return;
 
@@ -315,13 +348,23 @@ void renderer_draw_textured_rect( const MGuiRendTexture* tex, int32 x, int32 y, 
 		glEnable( GL_TEXTURE_2D );
 	}
 
+	renderer_check_buffer_for_space( 6 );
+
+	*index++ = (GLushort)num_vertices;
 	renderer_add_vertex_tex( x, y, uv[0], 1 - uv[1] );
+
+	idx1 = (GLushort)num_vertices; *index++ = idx1;
 	renderer_add_vertex_tex( x+w, y, uv[2], 1 - uv[1] );
+
+	idx2 = (GLushort)num_vertices; *index++ = idx2;
 	renderer_add_vertex_tex( x, y+h, uv[0], 1 - uv[3] );
 
-	renderer_add_vertex_tex( x+w, y, uv[2], 1 - uv[1] );
+	*index++ = idx1;
+
+	*index++ = (GLushort)num_vertices;
 	renderer_add_vertex_tex( x+w, y+h, uv[2], 1 - uv[3] );
-	renderer_add_vertex_tex( x, y+h, uv[0], 1 - uv[3] );
+
+	*index++ = idx2;
 }
 
 MGuiRendFont* renderer_load_font( const char_t* name, uint8 size, uint8 flags, uint8 charset, uint32 firstc, uint32 lastc )
@@ -570,6 +613,7 @@ void renderer_destroy_render_target( MGuiRendTarget* target )
 void renderer_draw_render_target( const MGuiRendTarget* target, int32 x, int32 y, uint32 w, uint32 h )
 {
 	RenderTarget* buffer = (RenderTarget*)target;
+	GLushort idx1, idx2;
 	float u, v;
 	
 	if ( buffer == NULL ) return;
@@ -589,13 +633,21 @@ void renderer_draw_render_target( const MGuiRendTarget* target, int32 x, int32 y
 	u = (float)w / buffer->data.width;
 	v = (float)h / buffer->data.height;
 
+	*index++ = (GLushort)num_vertices;
 	renderer_add_vertex_tex( x, y, 0, 1 );
+
+	idx1 = (GLushort)num_vertices; *index++ = idx1;
 	renderer_add_vertex_tex( x+w, y, u, 1 );
+
+	idx2 = (GLushort)num_vertices; *index++ = idx2;
 	renderer_add_vertex_tex( x, y+h, 0, 1 - v );
 
-	renderer_add_vertex_tex( x+w, y, u, 1 );
+	*index++ = idx1;
+
+	*index++ = (GLushort)num_vertices;
 	renderer_add_vertex_tex( x+w, y+h, u, 1 - v );
-	renderer_add_vertex_tex( x, y+h, 0, 1 - v );
+
+	*index++ = idx2;
 }
 
 void renderer_enable_render_target( const MGuiRendTarget* target, int32 x, int32 y )
@@ -691,22 +743,19 @@ static void renderer_flush( void )
 	if ( num_vertices == 0 ) return;
 
 	glVertexPointer( 3, GL_FLOAT, sizeof(Vertex), &vertex_buffer[0].x );
-	glEnableClientState( GL_VERTEX_ARRAY );
-
 	glColorPointer( 4, GL_UNSIGNED_BYTE, sizeof(Vertex), &vertex_buffer[0].r );
-	glEnableClientState( GL_COLOR_ARRAY );
-
 	glTexCoordPointer( 2, GL_FLOAT, sizeof(Vertex), &vertex_buffer[0].u );
-	glEnableClientState( GL_TEXTURE_COORD_ARRAY );
 
-	glDrawArrays( GL_TRIANGLES, 0, (GLsizei)num_vertices );
-	glFlush();
+	glDrawElements( GL_TRIANGLES, (GLsizei)num_indices, GL_UNSIGNED_SHORT, &index_buffer[0] );
 
 	vertex = &vertex_buffer[0];
+	index = &index_buffer[0];
+
 	num_vertices = 0;
+	num_indices = 0;
 }
 
-MYLLY_INLINE static void renderer_add_vertex( int32 x, int32 y )
+MYLLY_FORCE_INLINE static void renderer_add_vertex( int32 x, int32 y )
 {
 	x -= x_offset;
 	y -= y_offset;
@@ -725,23 +774,18 @@ MYLLY_INLINE static void renderer_add_vertex( int32 x, int32 y )
 	}
 }
 
-MYLLY_INLINE static void renderer_add_vertex_2d( int32 x, int32 y, float z )
+MYLLY_FORCE_INLINE static void renderer_add_vertex_2d( int32 x, int32 y, float z )
 {
 	vertex->x = (float)x;
 	vertex->y = (float)y;
 	vertex->z = z;
-	vertex->u = 0;
-	vertex->v = 0;
-	vertex->r = colour[0];
-	vertex->g = colour[1];
-	vertex->b = colour[2];
-	vertex->a = colour[3];
+	*(uint32*)&vertex->r = *(uint32*)&colour[0];
 
 	num_vertices++;
 	vertex++;
 }
 
-MYLLY_INLINE static void renderer_add_vertex_tex( int32 x, int32 y, float u, float v )
+MYLLY_FORCE_INLINE static void renderer_add_vertex_tex( int32 x, int32 y, float u, float v )
 {
 	x -= x_offset;
 	y -= y_offset;
@@ -760,41 +804,39 @@ MYLLY_INLINE static void renderer_add_vertex_tex( int32 x, int32 y, float u, flo
 	}
 }
 
-MYLLY_INLINE static void renderer_add_vertex_tex_2d( int32 x, int32 y, float z, float u, float v )
+MYLLY_FORCE_INLINE static void renderer_add_vertex_tex_2d( int32 x, int32 y, float z, float u, float v )
 {
 	vertex->x = (float)x;
 	vertex->y = (float)y;
 	vertex->z = z;
 	vertex->u = u;
 	vertex->v = v;
-	vertex->r = colour[0];
-	vertex->g = colour[1];
-	vertex->b = colour[2];
-	vertex->a = colour[3];
+	*(uint32*)&vertex->r = *(uint32*)&colour[0];
 
 	num_vertices++;
 	vertex++;
 }
 
-MYLLY_INLINE static void renderer_check_buffer_for_space( uint32 vertices )
+MYLLY_FORCE_INLINE static void renderer_check_buffer_for_space( uint32 vertices )
 {
-	if ( num_vertices + vertices >= MAX_VERT-1 )
+	if ( num_indices + vertices >= MAX_VERT-1 )
 	{
-		// Vertex buffer is almost full, flush it.
+		// Vertex/index buffer is almost full, flush the buffers.
 		renderer_flush();
 	}
+
+	num_indices += vertices;
 }
 
-MYLLY_INLINE static uint32 renderer_draw_char( const Font* font, uint32 c, int32 x, int32 y, uint32 flags )
+MYLLY_FORCE_INLINE static uint32 renderer_draw_char( const Font* font, uint32 c, int32 x, int32 y, uint32 flags )
 {
 	float tx1, ty1, tx2, ty2;
 	uint32 w, h, spacing;
 	colour_t col;
 	rectangle_t r;
+	GLushort idx1, idx2;
 	static colour_t shadow_colour = { 0 };
 	static int32 shadow_offset = 1;
-
-	renderer_check_buffer_for_space( 12 );
 
 	tx1 = font->tex_coords[c][0];
 	tx2 = font->tex_coords[c][2];
@@ -820,24 +862,44 @@ MYLLY_INLINE static uint32 renderer_draw_char( const Font* font, uint32 c, int32
 		col.hex = draw_colour.hex;
 		renderer_set_draw_colour( &shadow_colour );
 
+		renderer_check_buffer_for_space( 6 );
+
+		*index++ = (GLushort)num_vertices;
 		renderer_add_vertex_tex( x+shadow_offset, y+shadow_offset, tx1, ty1 );
+
+		idx1 = (GLushort)num_vertices; *index++ = idx1;
 		renderer_add_vertex_tex( x+w+shadow_offset, y+shadow_offset, tx2, ty1 );
+
+		idx2 = (GLushort)num_vertices; *index++ = idx2;
 		renderer_add_vertex_tex( x+shadow_offset, y+h+shadow_offset, tx1, ty2 );
 
-		renderer_add_vertex_tex( x+w+shadow_offset, y+shadow_offset, tx2, ty1 );
+		*index++ = idx1;
+
+		*index++ = (GLushort)num_vertices;
 		renderer_add_vertex_tex( x+w+shadow_offset, y+h+shadow_offset, tx2, ty2 );
-		renderer_add_vertex_tex( x+shadow_offset, y+h+shadow_offset, tx1, ty2 );
+
+		*index++ = idx2;
 
 		renderer_set_draw_colour( &col );
 	}
 
+	renderer_check_buffer_for_space( 6 );
+
+	*index++ = (GLushort)num_vertices;
 	renderer_add_vertex_tex( x, y, tx1, ty1 );
+
+	idx1 = (GLushort)num_vertices; *index++ = idx1;
 	renderer_add_vertex_tex( x+w, y, tx2, ty1 );
+
+	idx2 = (GLushort)num_vertices; *index++ = idx2;
 	renderer_add_vertex_tex( x, y+h, tx1, ty2 );
 
-	renderer_add_vertex_tex( x+w, y, tx2, ty1 );
+	*index++ = idx1;
+
+	*index++ = (GLushort)num_vertices;
 	renderer_add_vertex_tex( x+w, y+h, tx2, ty2 );
-	renderer_add_vertex_tex( x, y+h, tx1, ty2 );
+
+	*index++ = idx2;
 
 	return ( w - 2 * font->spacing );
 }
