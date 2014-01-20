@@ -336,6 +336,8 @@ void mgui_resize( uint16 width, uint16 height )
 	draw_rect.w = draw_size.w = width;
 	draw_rect.h = draw_size.h = height;
 
+	if ( layers == NULL ) return;
+
 	if ( renderer != NULL )
 	{
 		tmprend = renderer;
