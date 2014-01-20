@@ -1,13 +1,13 @@
-/**********************************************************************
+/**
  *
- * PROJECT:		Mylly GUI
- * FILE:		MGUI.c
- * LICENCE:		See Licence.txt
- * PURPOSE:		A basic GUI library written in C.
+ * @file		MGUI.c
+ * @copyright	Tuomo Jauhiainen 2012-2014
+ * @licence		See Licence.txt
+ * @brief		MGUI core functions.
  *
- *				(c) Tuomo Jauhiainen 2012-13
+ * @details		Functions to initialize and run MGUI.
  *
- **********************************************************************/
+ **/
 
 #include "MGUI.h"
 #include "Element.h"
@@ -44,6 +44,18 @@ static void mgui_invalidate_elements( void );
 
 // --------------------------------------------------
 
+/**
+ * @brief Initializes the library.
+ *
+ * @details This function initializes Mylly GUI and prepares it for
+ * the application. It must always be called before calling anything else.
+ * You can use this function to hook user input automatically, or force
+ * MGUI to redraw the window only when there is something new to draw.
+ *
+ * @param wndhandle A handle to the window that MGUI will draw to (HWND on Windows, syswindow_t on linux - see Lib-Platform)
+ * @param parameters - A bitfield for special initialization parameters (see @ref MGUI_PARAMETERS)
+ * @sa MGUI_PARAMETERS
+ */
 void mgui_initialize( void* wndhandle, uint32 parameters )
 {
 	if ( parameters & MGUI_PROCESS_INPUT ||
@@ -78,6 +90,13 @@ void mgui_initialize( void* wndhandle, uint32 parameters )
 	layers = list_create();
 }
 
+/**
+ * @brief Shuts down the library and cleans up memory.
+ *
+ * @details This function shuts down Mylly GUI frees all the memory
+ * allocated by it. After calling this function, no other MGUI function
+ * should be called.
+ */
 void mgui_shutdown( void )
 {
 	node_t *node, *tmp;
@@ -93,8 +112,8 @@ void mgui_shutdown( void )
 		layers = NULL;
 	}
 
-	// Cleanup the skin.
-	// Dont cleanup the defskin if its the same as skin else things will go bang
+	// Cleanup the skin. Don't destroy the default skin if its the same
+	// as the current skin or things will go bang.
 	if ( ( defskin ) && ( defskin != skin ) )
 	{
 		mem_free( defskin );
@@ -117,14 +136,25 @@ void mgui_shutdown( void )
 	}
 }
 
+/**
+ * @brief Pre-processes all elements.
+ *
+ * @details This function refreshes texture caches for all the elements that
+ * use them. It should be called from the application's main loop. It is not
+ * necessary to call this function if no element uses texture caching.
+ */
 void mgui_pre_process( void )
 {
 	node_t* node;
 	MGuiElement* element;
 
 	// Do we have cached textures to refresh?
-	if ( !redraw_cache ) return;
-	if ( renderer == NULL || layers == NULL ) return;
+	if ( !redraw_cache )
+		return;
+
+	// Make sure the library is actually initialized and we have a valid renderer.
+	if ( renderer == NULL || layers == NULL )
+		return;
 
 	renderer->begin();
 	renderer->set_draw_mode( DRAWING_2D );
@@ -144,6 +174,13 @@ void mgui_pre_process( void )
 	redraw_cache = false;
 }
 
+/**
+ * @brief Processes the library.
+ *
+ * @details This function processes everything within the library
+ * (drawing, user input, animations). It should be called from the
+ * application's main loop.
+ */
 void mgui_process( void )
 {
 	node_t* node;
@@ -157,8 +194,8 @@ void mgui_process( void )
 	
 	tick_count = get_tick_count();
 
-	if ( renderer == NULL ) return;
-	if ( layers == NULL ) return;
+	if ( renderer == NULL || layers == NULL )
+		return;
 	
 	// Redraw the scene, process and render all elements.
 	if ( redraw_all )
@@ -208,11 +245,29 @@ void mgui_process( void )
 	}
 }
 
+/**
+ * @brief Forces a window redraw.
+ *
+ * @details This function forces the application to redraw the current window.
+ * If MGUI was not initialized with the parameter @ref MGUI_USE_DRAW_EVENT,
+ * this function will not do anything.
+ *
+ * @sa mgui_initialize
+ */
 void mgui_force_redraw( void )
 {
 	redraw_all = true;
 }
 
+/**
+ * @brief Sets the renderer.
+ *
+ * @details This function can be used to set or change the renderer which is
+ * used to draw into the window. If a renderer has already been set, all data
+ * related to that renderer will be deestroyed and reloaded with the new renderer.
+ *
+ * @param rend A pointer to a valid @ref MGuiRenderer struct
+ */
 void mgui_set_renderer( MGuiRenderer* rend )
 {
 	if ( renderer != NULL )
@@ -238,9 +293,18 @@ void mgui_set_renderer( MGuiRenderer* rend )
 	}
 }
 
+/**
+ * @brief Changes the GUI skin.
+ *
+ * @details This function can be used to change the skin that MGUI uses.
+ * You can choose between a textured skin (loaded from an image file) or
+ * a basic textureless skin.
+ *
+ * @param skinimg Filename of a valid skin texture, or NULL for a textureless skin
+ */
 void mgui_set_skin( const char_t* skinimg )
 {
-	if ( !skinimg )
+	if ( skinimg == NULL || *skinimg == '\0' )
 	{
 		// If the user didn't provide a skin texture, use the default basic skin.
 		skin = defskin;
@@ -248,9 +312,20 @@ void mgui_set_skin( const char_t* skinimg )
 	}
 
 	skin = mgui_setup_skin_textured( skinimg );
-	if ( skin == NULL ) skin = defskin;
+
+	if ( skin == NULL )
+		skin = defskin;
 }
 
+/**
+ * @brief Lets MGUI know that the size of the window has changed.
+ *
+ * @details This function can be used to inform MGUI about a change
+ * in the size of the window it is drawing to.
+ *
+ * @param width The new width of the drawable area
+ * @param height The new height of the drawable area
+ */
 void mgui_resize( uint16 width, uint16 height )
 {
 	node_t *node, *node2;
@@ -298,12 +373,32 @@ void mgui_resize( uint16 width, uint16 height )
 	mgui_element_request_redraw_all();
 }
 
+/**
+ * @brief Converts on-screen coordinates to 3D world coordinates.
+ *
+ * @details This function converts window coordinates to 3D world
+ * coordinates. The z field of the screen coordinate means distance
+ * from the screen, 1 being at the monitor level.
+ *
+ * @param src A pointer to a vector3_t struct that contains the on-screen coordinates
+ * @param dst A pointer to a vector3_t struct that will receive the 3D world coordinates
+ */
 void mgui_screen_pos_to_world( const vector3_t* src, vector3_t* dst )
 {
 	if ( renderer != NULL )
 		renderer->screen_pos_to_world( src, dst );
 }
 
+/**
+ * @brief Converts 3D world coordinates to on-screen coordinates.
+ *
+ * @details This function converts 3D world coordinates to window
+ * coordinates. The z field of the screen coordinate means distance
+ * from the screen, 1 being at the monitor level.
+ *
+ * @param src A pointer to a vector3_t struct that contains the 3D world coordinates
+ * @param dst A pointer to a vector3_t struct that will receive the on-screen coordinates
+ */
 void mgui_world_pos_to_screen( const vector3_t* src, vector3_t* dst )
 {
 	if ( renderer != NULL )

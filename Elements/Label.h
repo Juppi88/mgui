@@ -1,13 +1,13 @@
-/**********************************************************************
+/**
  *
- * PROJECT:		Mylly GUI
- * FILE:		Label.h
- * LICENCE:		See Licence.txt
- * PURPOSE:		GUI label related functions.
+ * @file		Label.h
+ * @copyright	Tuomo Jauhiainen 2012-2014
+ * @licence		See Licence.txt
+ * @brief		GUI label related functions.
  *
- *				(c) Tuomo Jauhiainen 2012-13
- * 
- **********************************************************************/
+ * @details		Functions and structures related to GUI labels.
+ *
+ **/
 
 #pragma once
 #ifndef __MGUI_LABEL_H
@@ -15,13 +15,17 @@
 
 #include "Element.h"
 
+/**
+ * @brief GUI label.
+ * @details Label is a container for static text that can not be interacted with.
+ */
 struct MGuiLabel {
-	MGuiElement;	// Inherit all generic element properties
+	MGuiElement;	///< Inherit MGuiElement members.
 };
 
-MGuiLabel*	mgui_create_label			( MGuiElement* parent );
-MGuiLabel*	mgui_create_label_ex		( MGuiElement* parent, int16 x, int16 y, uint32 flags, uint32 col, const char_t* text );
+MGuiLabel*	mgui_create_label		( MGuiElement* parent );
+MGuiLabel*	mgui_create_label_ex	( MGuiElement* parent, int16 x, int16 y, uint32 flags, uint32 col, const char_t* text );
 
-void		mgui_label_make_text_fit	( MGuiLabel* label );
+void		mgui_label_make_text_fit ( MGuiLabel* label );
 
 #endif /* __MGUI_LABEL_H */

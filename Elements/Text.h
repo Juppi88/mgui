@@ -1,13 +1,13 @@
-/**********************************************************************
+/**
  *
- * PROJECT:		Mylly GUI
- * FILE:		Text.h
- * LICENCE:		See Licence.txt
- * PURPOSE:		A struct for text buffer and its properties.
+ * @file		Text.h
+ * @copyright	Tuomo Jauhiainen 2012-2014
+ * @licence		See Licence.txt
+ * @brief		A structure for a text buffer and its properties.
  *
- *				(c) Tuomo Jauhiainen 2012-13
+ * @details		Functions to manipulate MGUI strings.
  *
- **********************************************************************/
+ **/
 
 #pragma once
 #ifndef __MGUI_TEXT_H

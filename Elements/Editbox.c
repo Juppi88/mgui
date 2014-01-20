@@ -1,13 +1,13 @@
-/**********************************************************************
+/**
  *
- * PROJECT:		Mylly GUI
- * FILE:		Editbox.c
- * LICENCE:		See Licence.txt
- * PURPOSE:		GUI editbox related functions.
+ * @file		Editbox.c
+ * @copyright	Tuomo Jauhiainen 2012-2014
+ * @licence		See Licence.txt
+ * @brief		GUI editbox related functions.
  *
- *				(c) Tuomo Jauhiainen 2012-13
+ * @details		Functions and structures related to GUI editboxes.
  *
- **********************************************************************/
+ **/
 
 #include "Editbox.h"
 #include "Skin.h"
@@ -25,32 +25,32 @@ extern uint32 tick_count;
 
 // --------------------------------------------------
 
-static void			mgui_editbox_refresh_cursor_bounds	( struct MGuiEditbox* editbox );
-static void			mgui_editbox_erase_text				( struct MGuiEditbox* editbox, uint32 begin, uint32 end );
-static void			mgui_editbox_insert_text			( struct MGuiEditbox* editbox, const char_t* text, size_t len );
-static void			mgui_editbox_select_all				( struct MGuiEditbox* editbox );
-static void			mgui_editbox_cut_selection			( struct MGuiEditbox* editbox );
-static void			mgui_editbox_copy_selection			( struct MGuiEditbox* editbox );
-static void			mgui_editbox_paste_selection		( struct MGuiEditbox* editbox );
-static void			mgui_editbox_press_backspace		( struct MGuiEditbox* editbox );
-static void			mgui_editbox_press_delete			( struct MGuiEditbox* editbox );
-static void			mgui_editbox_press_return			( struct MGuiEditbox* editbox );
-static void			mgui_editbox_move_left				( struct MGuiEditbox* editbox );
-static void			mgui_editbox_move_right				( struct MGuiEditbox* editbox );
-static void			mgui_editbox_press_home				( struct MGuiEditbox* editbox );
-static void			mgui_editbox_press_end				( struct MGuiEditbox* editbox );
+static void		mgui_editbox_refresh_cursor_bounds	( struct MGuiEditbox* editbox );
+static void		mgui_editbox_erase_text				( struct MGuiEditbox* editbox, uint32 begin, uint32 end );
+static void		mgui_editbox_insert_text			( struct MGuiEditbox* editbox, const char_t* text, size_t len );
+static void		mgui_editbox_select_all				( struct MGuiEditbox* editbox );
+static void		mgui_editbox_cut_selection			( struct MGuiEditbox* editbox );
+static void		mgui_editbox_copy_selection			( struct MGuiEditbox* editbox );
+static void		mgui_editbox_paste_selection		( struct MGuiEditbox* editbox );
+static void		mgui_editbox_press_backspace		( struct MGuiEditbox* editbox );
+static void		mgui_editbox_press_delete			( struct MGuiEditbox* editbox );
+static void		mgui_editbox_press_return			( struct MGuiEditbox* editbox );
+static void		mgui_editbox_move_left				( struct MGuiEditbox* editbox );
+static void		mgui_editbox_move_right				( struct MGuiEditbox* editbox );
+static void		mgui_editbox_press_home				( struct MGuiEditbox* editbox );
+static void		mgui_editbox_press_end				( struct MGuiEditbox* editbox );
 
 // Editbox callback handlers
-static void			mgui_editbox_destroy				( MGuiElement* element );
-static void			mgui_editbox_render					( MGuiElement* element );
-static void			mgui_editbox_process				( MGuiElement* element );
-static void			mgui_editbox_on_bounds_change		( MGuiElement* element, bool pos, bool size );
-static void			mgui_editbox_on_text_change			( MGuiElement* element );
-static void			mgui_editbox_on_mouse_click			( MGuiElement* element, int16 x, int16 y, MOUSEBTN button );
-static void			mgui_editbox_on_mouse_release		( MGuiElement* element, int16 x, int16 y, MOUSEBTN button );
-static void			mgui_editbox_on_mouse_drag			( MGuiElement* element, int16 x, int16 y );
-static bool			mgui_editbox_on_character			( MGuiElement* element, char_t c );
-static bool			mgui_editbox_on_key_press			( MGuiElement* element, uint32 key, bool down );
+static void		mgui_editbox_destroy				( MGuiElement* element );
+static void		mgui_editbox_render					( MGuiElement* element );
+static void		mgui_editbox_process				( MGuiElement* element );
+static void		mgui_editbox_on_bounds_change		( MGuiElement* element, bool pos, bool size );
+static void		mgui_editbox_on_text_change			( MGuiElement* element );
+static void		mgui_editbox_on_mouse_click			( MGuiElement* element, int16 x, int16 y, MOUSEBTN button );
+static void		mgui_editbox_on_mouse_release		( MGuiElement* element, int16 x, int16 y, MOUSEBTN button );
+static void		mgui_editbox_on_mouse_drag			( MGuiElement* element, int16 x, int16 y );
+static bool		mgui_editbox_on_character			( MGuiElement* element, char_t c );
+static bool		mgui_editbox_on_key_press			( MGuiElement* element, uint32 key, bool down );
 
 // --------------------------------------------------
 
@@ -78,6 +78,15 @@ static struct MGuiCallbacks callbacks =
 
 // --------------------------------------------------
 
+/**
+ * @brief Creates an editbox.
+ *
+ * @details This function creates a GUI editbox. If the parent element
+ * is NULL, the editbox will become a layer.
+ *
+ * @param parent The parent element, or NULL if the element is to be created without a parent
+ * @returns A pointer to the created editbox
+ */
 MGuiEditbox* mgui_create_editbox( MGuiElement* parent )
 {
 	struct MGuiEditbox* editbox;
@@ -110,6 +119,23 @@ MGuiEditbox* mgui_create_editbox( MGuiElement* parent )
 	return cast_elem(editbox);
 }
 
+/**
+ * @brief Creates an editbox (extended).
+ *
+ * @details This function creates a GUI editbox with the given parameters.
+ * If the parent element is NULL, the editbox will become a layer.
+ *
+ * @param parent The parent element, or NULL if the element is to be created without a parent
+ * @param x The absolute x coordinate relative to the parent
+ * @param y The absolute y coordinate relative to the parent
+ * @param w The absolute width of the editbox
+ * @param h The absolute height of the editbox
+ * @param flags Any additional flags that will be applied as a bitmask (see @ref MGUI_FLAGS)
+ * @param col The colour of the editbox as a 32bit hex integer
+ * @param text Default text in the editbox (can be NULL)
+ *
+ * @returns A pointer to the created editbox
+ */
 MGuiEditbox* mgui_create_editbox_ex( MGuiElement* parent, int16 x, int16 y, uint16 w, uint16 h, uint32 flags, uint32 col, const char_t* text )
 {
 	MGuiEditbox* editbox;
@@ -360,6 +386,15 @@ static bool mgui_editbox_on_key_press( MGuiElement* element, uint32 key, bool do
 	return true;
 }
 
+/**
+ * @brief Returns whether an editbox has text selected.
+ *
+ * @details This function returns whether the user has selected
+ * text within an editbox by painting (a portion of) the text.
+ *
+ * @param editbox The editbox to check the selection for
+ * @returns true if the user has selected text within this editbox, false otherwise
+ */
 bool mgui_editbox_has_text_selected( MGuiEditbox* editbox )
 {
 	struct MGuiEditbox* edit;
@@ -370,6 +405,16 @@ bool mgui_editbox_has_text_selected( MGuiEditbox* editbox )
 	return ( edit->cursor_pos != edit->cursor_end );
 }
 
+/**
+ * @brief Copies the selected text from an editbox into a text buffer.
+ *
+ * @details This function copies the text selected by the user into
+ * another text buffer.
+ *
+ * @param editbox The editbox to retrieve the selection of
+ * @param buf A pointer to a text buffer that will receive the selection
+ * @param buflen The length of the buffer in characters
+ */
 void mgui_editbox_get_selection( MGuiEditbox* editbox, char_t* buf, size_t buflen )
 {
 	size_t len;
@@ -397,6 +442,16 @@ void mgui_editbox_get_selection( MGuiEditbox* editbox, char_t* buf, size_t bufle
 	mstrcpy( buf, &editbox->text->buffer[pos], len );
 }
 
+/**
+ * @brief Selects a portion of the text within an editbox.
+ *
+ * @details This function selects and paints a portion of the text
+ * within an editbox.
+ *
+ * @param editbox The editbox to set the selection of
+ * @param begin Beginning of the selection, offset from the beginning of the text
+ * @param end End of the selection, offset from the beginning of the text
+ */
 void mgui_editbox_select_text( MGuiEditbox* editbox, uint32 begin, uint32 end )
 {
 	struct MGuiEditbox* edit;
@@ -419,6 +474,15 @@ void mgui_editbox_select_text( MGuiEditbox* editbox, uint32 begin, uint32 end )
 	mgui_editbox_refresh_cursor_bounds( edit );
 }
 
+/**
+ * @brief Returns the current position of the editbox's cursor.
+ *
+ * @details This function returns the position of the editbox's cursor
+ * as an offset from the beginning of the string.
+ *
+ * @param editbox The editbox to get the cursor position of
+ * @returns The position of the cursor, as an offset from the beginning of the string
+ */
 uint32 mgui_editbox_get_cursor_pos( MGuiEditbox* editbox )
 {
 	struct MGuiEditbox* edit;
@@ -430,6 +494,14 @@ uint32 mgui_editbox_get_cursor_pos( MGuiEditbox* editbox )
 	return edit->cursor_pos;
 }
 
+/**
+ * @brief Sets the position of the editbox's cursor.
+ *
+ * @details This function moves the editbox's cursor to the given offset.
+ *
+ * @param editbox The editbox to set the cursor position of
+ * @param pos The new position for the cursor, as an offset from the beginning of the string
+ */
 void mgui_editbox_set_cursor_pos( MGuiEditbox* editbox, uint32 pos )
 {
 	struct MGuiEditbox* edit;

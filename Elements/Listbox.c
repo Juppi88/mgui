@@ -1,13 +1,13 @@
-/**********************************************************************
+/**
  *
- * PROJECT:		Mylly GUI
- * FILE:		Listbox.c
- * LICENCE:		See Licence.txt
- * PURPOSE:		GUI listbox related functions.
+ * @file		Listbox.c
+ * @copyright	Tuomo Jauhiainen 2012-2014
+ * @licence		See Licence.txt
+ * @brief		GUI listbox related functions.
  *
- *				(c) Tuomo Jauhiainen 2012-13
+ * @details		Functions and structures related to GUI listboxes.
  *
- **********************************************************************/
+ **/
 
 #include "Listbox.h"
 #include "Skin.h"
@@ -60,6 +60,15 @@ static struct MGuiCallbacks callbacks =
 
 // --------------------------------------------------
 
+/**
+ * @brief Creates a listbox.
+ *
+ * @details This function creates a GUI listbox. If the parent element
+ * is NULL, the listbox will become a layer.
+ *
+ * @param parent The parent element, or NULL if the element is to be created without a parent
+ * @returns A pointer to the created listbox
+ */
 MGuiListbox* mgui_create_listbox( MGuiElement* parent )
 {
 	struct MGuiListbox* listbox;
@@ -97,6 +106,23 @@ MGuiListbox* mgui_create_listbox( MGuiElement* parent )
 	return cast_elem(listbox);
 }
 
+/**
+ * @brief Creates a listbox (extended).
+ *
+ * @details This function creates a GUI listbox with the given parameters.
+ * If the parent element is NULL, the listbox will become a layer.
+ *
+ * @param parent The parent element, or NULL if the element is to be created without a parent
+ * @param x The absolute x coordinate relative to the parent
+ * @param y The absolute y coordinate relative to the parent
+ * @param w The absolute width of the listbox
+ * @param h The absolute height of the listbox
+ * @param flags Any additional flags that will be applied as a bitmask (see @ref MGUI_FLAGS)
+ * @param col The background colour of the listbox as a 32bit hex integer
+ * @param select_col The background colour of a selected item as a 32bit hex integer
+ *
+ * @returns A pointer to the created listbox
+ */
 MGuiListbox* mgui_create_listbox_ex( MGuiElement* parent, int16 x, int16 y, uint16 w, uint16 h, uint32 flags, uint32 col, uint32 select_col )
 {
 	MGuiListbox* listbox;
@@ -399,6 +425,16 @@ static void mgui_listbox_remove_selected( struct MGuiListbox* listbox )
 	listbox->selected = 0;
 }
 
+/**
+ * @brief Adds a new item to a listbox.
+ *
+ * @details This function adds a new item to the listbox and returns a pointer
+ * to the created item.
+ *
+ * @param listbox The listbox to add an item to
+ * @param text Text that will go on the item
+ * @returns Pointer to an MGuiListboxItem container
+ */
 MGuiListboxItem* mgui_listbox_add_item( MGuiListbox* listbox, const char_t* text )
 {
 	MGuiListboxItem* item;
@@ -424,6 +460,14 @@ MGuiListboxItem* mgui_listbox_add_item( MGuiListbox* listbox, const char_t* text
 	return item;
 }
 
+/**
+ * @brief Removes an item from a listbox.
+ *
+ * @details This function removes a previously added item from a listbox.
+ *
+ * @param listbox The listbox to remove an item from
+ * @param item The item to be removed
+ */
 void mgui_listbox_remove_item( MGuiListbox* listbox, MGuiListboxItem* item )
 {
 	struct MGuiListbox* list = (struct MGuiListbox*)listbox;
@@ -450,6 +494,13 @@ void mgui_listbox_remove_item( MGuiListbox* listbox, MGuiListboxItem* item )
 	}
 }
 
+/**
+ * @brief Removes all items from a listbox.
+ *
+ * @details This function cleans up a listbox (all items are removed).
+ *
+ * @param listbox The listbox to clean
+ */
 void mgui_listbox_clean( MGuiListbox* listbox )
 {
 	struct MGuiListbox* list = (struct MGuiListbox*)listbox;
@@ -471,6 +522,16 @@ void mgui_listbox_clean( MGuiListbox* listbox )
 	}
 }
 
+/**
+ * @brief Set a comparison function for autosort.
+ *
+ * @details This function sets am item comparison function that will
+ * be used for autosorting.
+ *
+ * @param listbox The listbox to add the sort function to
+ * @param func A function that compares two listbox items (see @ref mgui_listbox_sort_t)
+ * @sa mgui_listbox_sort_t
+ */
 void mgui_listbox_set_sort_function( MGuiListbox* listbox, mgui_listbox_sort_t func )
 {
 	struct MGuiListbox* list;
@@ -481,6 +542,14 @@ void mgui_listbox_set_sort_function( MGuiListbox* listbox, mgui_listbox_sort_t f
 	list->sort = func;
 }
 
+/**
+ * @brief Returns the number of items in a listbox.
+ *
+ * @details This function returns the number of added items in a listbox.
+ *
+ * @param listbox The listbox to get the item count of
+ * @returns The number of items
+ */
 uint32 mgui_listbox_get_item_count( MGuiListbox* listbox )
 {
 	struct MGuiListbox* list;
@@ -491,6 +560,14 @@ uint32 mgui_listbox_get_item_count( MGuiListbox* listbox )
 	return list->items->size;
 }
 
+/**
+ * @brief Returns the number of selected items in a listbox.
+ *
+ * @details This function returns the number of selected items in a listbox.
+ *
+ * @param listbox The listbox to get the item count of
+ * @returns The number of selected items
+ */
 uint32 mgui_listbox_get_selected_count( MGuiListbox* listbox )
 {
 	struct MGuiListbox* list;
@@ -501,6 +578,14 @@ uint32 mgui_listbox_get_selected_count( MGuiListbox* listbox )
 	return list->selected;
 }
 
+/**
+ * @brief Returns the first item in a listbox.
+ *
+ * @details This function returns the first item in the listbox.
+ *
+ * @param listbox The listbox to get the first item of
+ * @returns Pointer to the first item, or NULL if the listbox has no  items
+ */
 MGuiListboxItem* mgui_listbox_get_first_item( MGuiListbox* listbox )
 {
 	struct MGuiListbox* list;
@@ -513,6 +598,14 @@ MGuiListboxItem* mgui_listbox_get_first_item( MGuiListbox* listbox )
 	return (MGuiListboxItem*)list_begin( list->items );
 }
 
+/**
+ * @brief Returns the next item in a listbox.
+ *
+ * @details This function returns the next item from another listbox item.
+ *
+ * @param item A pointer to a listbox item
+ * @returns Pointer to the next item, or NULL if the passed item was the last one
+ */
 MGuiListboxItem* mgui_listbox_get_next_item( MGuiListboxItem* item )
 {
 	struct MGuiListbox* list;
@@ -526,6 +619,14 @@ MGuiListboxItem* mgui_listbox_get_next_item( MGuiListboxItem* item )
 	return ( next != list_end( list->items ) ) ? (MGuiListboxItem*)next : NULL;
 }
 
+/**
+ * @brief Returns the first selected item in a listbox.
+ *
+ * @details This function returns the first selected item in the listbox.
+ *
+ * @param listbox The listbox to get the first selected item of
+ * @returns Pointer to the first selected item, or NULL if the listbox has no selected items
+ */
 MGuiListboxItem* mgui_listbox_get_selected_item( MGuiListbox* listbox )
 {
 	struct MGuiListbox* list;
@@ -545,6 +646,15 @@ MGuiListboxItem* mgui_listbox_get_selected_item( MGuiListbox* listbox )
 	return NULL;
 }
 
+/**
+ * @brief Returns the next selected item in a listbox.
+ *
+ * @details This function returns the next selected item
+ * from another listbox item.
+ *
+ * @param item A pointer to a listbox item
+ * @returns Pointer to the next selected item, or NULL if the passed item was the last one
+ */
 MGuiListboxItem* mgui_listbox_get_next_selected_item( MGuiListboxItem* item )
 {
 	struct MGuiListbox* list;
@@ -564,11 +674,27 @@ MGuiListboxItem* mgui_listbox_get_next_selected_item( MGuiListboxItem* item )
 	return NULL;
 }
 
+/**
+ * @brief Returns the text bound to a listbox item.
+ *
+ * @details This function returns the text bound to a certain listbox item.
+ *
+ * @param item Pointer to a listbox item
+ * @returns Pointer to a text buffer that contains the text
+ */
 const char_t* mgui_listbox_get_item_text( MGuiListboxItem* item )
 {
 	return ( item != NULL ) ? item->text : NULL;
 }
 
+/**
+ * @brief Sets the text bound to a listbox item.
+ *
+ * @details This function changes the text bound to a listbox item.
+ *
+ * @param item Pointer to a listbox item
+ * @param text The new text value
+ */
 void mgui_listbox_set_item_text( MGuiListboxItem* item, const char_t* text )
 {
 	if ( item == NULL || text == NULL || item->parent == NULL )
@@ -592,17 +718,43 @@ void mgui_listbox_set_item_text( MGuiListboxItem* item, const char_t* text )
 	mgui_text_measure_buffer( item->parent->font, item->text, &item->text_bounds.uw, &item->text_bounds.uh );
 }
 
+/**
+ * @brief Returns the user data bound to a listbox item.
+ *
+ * @details This function returns the user data bound to a listbox item.
+ *
+ * @param item Pointer to a listbox item
+ * @returns Pointer to the user data that has been bound to the item, or NULL if there is no data
+ */
 void* mgui_listbox_get_item_data( MGuiListboxItem* item )
 {
 	return ( item != NULL ) ? item->data : NULL;
 }
 
+/**
+ * @brief Sets the user data bound to a listbox item.
+ *
+ * @details This function sets or changes the user data
+ * that is bound to a listbox item.
+ *
+ * @param item Pointer to a listbox item
+ * @param data Pointer to the user data
+ */
 void mgui_listbox_set_item_data( MGuiListboxItem* item, void* data )
 {
 	if ( item == NULL ) return;
 	item->data = data;
 }
 
+/**
+ * @brief Returns the background colour of a selected item.
+ *
+ * @details This function returns the background colour of a listbox item
+ * that has been selected by the user.
+ *
+ * @param listbox The listbox to get the selection colour of
+ * @param col A pointer to a colour_t struct that will receive the colour
+ */
 void mgui_listbox_get_selected_colour( MGuiListbox* listbox, colour_t* col )
 {
 	struct MGuiListbox* list;
@@ -613,6 +765,15 @@ void mgui_listbox_get_selected_colour( MGuiListbox* listbox, colour_t* col )
 	*col = list->select_colour;
 }
 
+/**
+ * @brief Sets the background colour of a selected item.
+ *
+ * @details This function changes the background colour of a listbox item
+ * that has been selected by the user.
+ *
+ * @param listbox The listbox to change the selection colour of
+ * @param col A pointer to a colour_t struct that contains the new colour
+ */
 void mgui_listbox_set_selected_colour( MGuiListbox* listbox, const colour_t* col )
 {
 	struct MGuiListbox* list;
@@ -627,6 +788,16 @@ void mgui_listbox_set_selected_colour( MGuiListbox* listbox, const colour_t* col
 	mgui_element_request_redraw( listbox );
 }
 
+/**
+ * @brief Returns the background colour of a selected item.
+ *
+ * @details This function returns the background colour of a listbox
+ * item that has been selected by the user. The colour is returned as
+ * a 32bit hex integer in 0xRRGGBBAA format.
+ *
+ * @param listbox The listbox to get the selection colour of
+ * @returns The background colour as a 32bit integer
+ */
 uint32 mgui_listbox_get_selected_colour_i( MGuiListbox* listbox )
 {
 	struct MGuiListbox* list;
@@ -637,7 +808,17 @@ uint32 mgui_listbox_get_selected_colour_i( MGuiListbox* listbox )
 	return list->select_colour.hex;
 }
 
-void mgui_listbox_set_selected_colour_i( MGuiListbox* listbox, uint32 hex )
+/**
+ * @brief Sets the background colour of a selected item.
+ *
+ * @details This function changes the background colour of a listbox
+ * item that has been selected by the user. The colour is passed as
+ * a 32bit hex integer in 0xRRGGBBAA format.
+ *
+ * @param listbox The listbox to change the selection colour of
+ * @param col The new colour as a 32bit integer
+ */
+void mgui_listbox_set_selected_colour_i( MGuiListbox* listbox, uint32 col )
 {
 	struct MGuiListbox* list;
 
@@ -645,7 +826,7 @@ void mgui_listbox_set_selected_colour_i( MGuiListbox* listbox, uint32 hex )
 
 	list = (struct MGuiListbox*)listbox;
 
-	list->select_colour.hex = hex;
+	list->select_colour.hex = col;
 	list->select_colour.a = list->colour.a;
 
 	mgui_element_request_redraw( listbox );

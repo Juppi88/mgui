@@ -1,13 +1,13 @@
-/**********************************************************************
+/**
  *
- * PROJECT:		Mylly GUI
- * FILE:		Button.h
- * LICENCE:		See Licence.txt
- * PURPOSE:		GUI button related functions.
+ * @file		Button.h
+ * @copyright	Tuomo Jauhiainen 2012-2014
+ * @licence		See Licence.txt
+ * @brief		GUI button related functions.
  *
- *				(c) Tuomo Jauhiainen 2012-13
+ * @details		Functions and structures related to GUI buttons.
  *
- **********************************************************************/
+ **/
 
 #pragma once
 #ifndef __MGUI_BUTTON_H
@@ -15,9 +15,14 @@
 
 #include "Element.h"
 
-struct MGuiButton
-{
-	MGuiElement;	// Inherit all generic element properties
+/**
+ * @brief GUI button.
+ *
+ * @details A button is an element that provides the user a simple way to
+ * trigger an event by clicking the element.
+ */
+struct MGuiButton {
+	MGuiElement;	///< Inherit MGuiElement members.
 };
 
 MGuiButton*		mgui_create_button		( MGuiElement* parent );

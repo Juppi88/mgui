@@ -1,13 +1,13 @@
-/**********************************************************************
+/**
  *
- * PROJECT:		Mylly GUI
- * FILE:		Checkbox.h
- * LICENCE:		See Licence.txt
- * PURPOSE:		GUI checkbox related functions.
+ * @file		Checkbox.h
+ * @copyright	Tuomo Jauhiainen 2012-2014
+ * @licence		See Licence.txt
+ * @brief		GUI checkbox related functions.
  *
- *				(c) Tuomo Jauhiainen 2012-13
- * 
- **********************************************************************/
+ * @details		Functions and structures related to GUI checkboxes.
+ *
+ **/
 
 #pragma once
 #ifndef __MGUI_CHECKBOX_H
@@ -15,8 +15,12 @@
 
 #include "Element.h"
 
+/**
+ * @brief GUI checkbox.
+ * @details Checkbox is a data input element that can be toggled by clicking it.
+ */
 struct MGuiCheckbox {
-	MGuiElement;	// Inherit all generic element properties
+	MGuiElement;	///< Inherit MGuiElement members.
 };
 
 MGuiCheckbox*	mgui_create_checkbox	( MGuiElement* parent );

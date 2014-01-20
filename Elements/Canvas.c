@@ -1,14 +1,13 @@
-/**********************************************************************
+/**
  *
- * PROJECT:		Mylly GUI
- * FILE:		Canvas.c
- * LICENCE:		See Licence.txt
- * PURPOSE:		GUI canvas related functions. Canvas is an invisible
- *				element that can be used as a parent for everything else.
+ * @file		Canvas.c
+ * @copyright	Tuomo Jauhiainen 2012-2014
+ * @licence		See Licence.txt
+ * @brief		GUI canvas related functions.
  *
- *				(c) Tuomo Jauhiainen 2012-13
+ * @details		Functions and structures related to GUI canvases.
  *
- **********************************************************************/
+ **/
 
 #include "Canvas.h"
 #include "Renderer.h"
@@ -51,6 +50,16 @@ static struct MGuiCallbacks callbacks =
 
 // --------------------------------------------------
 
+/**
+ * @brief Creates a canvas.
+ *
+ * @details This function creates a GUI canvas. Canvas is an invisible
+ * element that can be used as a parent for everything else. If the parent
+ * element is NULL, the canvas will become a layer.
+ *
+ * @param parent The parent element, or NULL if the element is to be created without a parent
+ * @returns A pointer to the created canvas
+ */
 MGuiCanvas* mgui_create_canvas( MGuiElement* parent )
 {
 	struct MGuiCanvas* canvas;

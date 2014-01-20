@@ -1,13 +1,13 @@
-/**********************************************************************
+/**
  *
- * PROJECT:		Mylly GUI
- * FILE:		Label.c
- * LICENCE:		See Licence.txt
- * PURPOSE:		GUI label related functions.
+ * @file		Label.c
+ * @copyright	Tuomo Jauhiainen 2012-2014
+ * @licence		See Licence.txt
+ * @brief		GUI label related functions.
  *
- *				(c) Tuomo Jauhiainen 2012-13
+ * @details		Functions and structures related to GUI labels.
  *
- **********************************************************************/
+ **/
 
 #include "Label.h"
 #include "Skin.h"
@@ -16,8 +16,8 @@
 // --------------------------------------------------
 
 // Label callback handlers
-static void		mgui_label_render				( MGuiElement* label );
-static void		mgui_label_on_text_change		( MGuiElement* label );
+static void		mgui_label_render			( MGuiElement* label );
+static void		mgui_label_on_text_change	( MGuiElement* label );
 
 // --------------------------------------------------
 
@@ -45,6 +45,15 @@ static struct MGuiCallbacks callbacks =
 
 // --------------------------------------------------
 
+/**
+ * @brief Creates a label.
+ *
+ * @details This function creates a GUI label. If the parent element
+ * is NULL, the label will become a layer.
+ *
+ * @param parent The parent element, or NULL if the element is to be created without a parent
+ * @returns A pointer to the created label
+ */
 MGuiLabel* mgui_create_label( MGuiElement* parent )
 {
 	struct MGuiLabel* label;
@@ -68,6 +77,21 @@ MGuiLabel* mgui_create_label( MGuiElement* parent )
 	return cast_elem(label);
 }
 
+/**
+ * @brief Creates a label (extended).
+ *
+ * @details This function creates a GUI label with the given parameters.
+ * If the parent element is NULL, the label will become a layer.
+ *
+ * @param parent The parent element, or NULL if the element is to be created without a parent
+ * @param x The absolute x coordinate relative to the parent
+ * @param y The absolute y coordinate relative to the parent
+ * @param flags Any additional flags that will be applied as a bitmask (see @ref MGUI_FLAGS)
+ * @param col The text colour of the label as a 32bit hex integer
+ * @param text The text to be displayed
+ *
+ * @returns A pointer to the created label
+ */
 MGuiLabel* mgui_create_label_ex( MGuiElement* parent, int16 x, int16 y, uint32 flags, uint32 col, const char_t* text )
 {
 	MGuiLabel* label;
@@ -92,6 +116,14 @@ static void mgui_label_on_text_change( MGuiElement* label )
 	mgui_label_make_text_fit( label );
 }
 
+/**
+ * @brief Forces the size of the label to match the size of the text.
+ *
+ * @details This function resizes the label to make its size match
+ * the size of the text exactly.
+ *
+ * @param label The label to resize
+ */
 void mgui_label_make_text_fit( MGuiLabel* label )
 {
 	uint16 w, h, padding;

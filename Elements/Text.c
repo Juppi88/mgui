@@ -1,13 +1,13 @@
-/**********************************************************************
+/**
  *
- * PROJECT:		Mylly GUI
- * FILE:		Text.c
- * LICENCE:		See Licence.txt
- * PURPOSE:		A struct for text buffer and its properties.
+ * @file		Text.c
+ * @copyright	Tuomo Jauhiainen 2012-2014
+ * @licence		See Licence.txt
+ * @brief		A structure for a text buffer and its properties.
  *
- *				(c) Tuomo Jauhiainen 2012-13
+ * @details		Functions to manipulate MGUI strings.
  *
- **********************************************************************/
+ **/
 
 #include "Text.h"
 #include "Renderer.h"
@@ -406,6 +406,17 @@ static bool parse_end_tag( const char_t* text, char_t* in )
 	return true;
 }
 
+/**
+ * @brief Strips format tags from a string.
+ *
+ * @details This function strips format tags from a text buffer
+ * and returns the number of format tags found.
+ *
+ * @param text A pointer to a buffer that is to be stripped
+ * @param buf A pointer to a buffer that will receive the stripped string
+ * @param buflen The size of the buffer in characters
+ * @returns The number of stripped tags
+ */
 uint32 mgui_text_strip_format_tags( const char_t* text, char_t* buf, size_t buflen )
 {
 	const char_t* s = text;

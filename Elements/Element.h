@@ -1,13 +1,13 @@
-/**********************************************************************
+/**
  *
- * PROJECT:		Mylly GUI
- * FILE:		Element.h
- * LICENCE:		See Licence.txt
- * PURPOSE:		A base for all real-world GUI elements.
+ * @file		Element.h
+ * @copyright	Tuomo Jauhiainen 2012-2014
+ * @licence		See Licence.txt
+ * @brief		MGUI element functions.
  *
- *				(c) Tuomo Jauhiainen 2012-13
+ * @details		Element function implementations. MGuiElement is the base struct for all GUI widgets.
  *
- **********************************************************************/
+ **/
 
 #pragma once
 #ifndef __MGUI_ELEMENT_H
@@ -30,6 +30,7 @@ enum MGUI_INTERNAL_FLAGS {
 	INTFLAG_NOPARENT	= 1 << 6,	/* This element has no parent */
 };
 
+/* The following values are used only internally. */
 typedef enum MGUI_TYPE {
 	GUI_NONE,
 	GUI_BUTTON,
@@ -55,37 +56,46 @@ typedef enum MGUI_TYPE {
 	GUI_FORCE_DWORD = 0x7FFFFFFF
 } MGUI_TYPE;
 
-struct MGuiElement
-{
-	node_t;									// Next and previous elements (linked list node)
-	uint32					flags;			// Element flags
-	uint32					flags_int;		// Internal flags
-	rectangle_t				bounds;			// Absolute boundaries for this element (in pixels)
-	vectorscreen_t			offset;			// Offset from parent position
-	float					z_depth;		// Z depth index (active if depth test is ebabled and supported)
-	MGuiElement*			parent;			// Parent element, NULL if none
-	list_t*					children;		// List of children elements
-	enum MGUI_TYPE			type;			// The type of this GUI element
-	vector2_t				pos;			// Relative position (within parent element)
-	vector2_t				size;			// Relative size (within parent element)
-	colour_t				colour;			// Element colour
-	MGuiText*				text;			// Text on this element (label, title etc)
-	MGuiFont*				font;			// Default font used for all the text on this element
-	MGuiSkin*				skin;			// Skin to be used for rendering
-	MGuiRendTarget*			cache;			// Texture cache for rendering
-	mgui_event_handler_t	event_handler;	// User event handler callback
-	void*					event_data;		// User-specified data to be passed via event_handler
+/**
+ * @brief GUI element.
+ *
+ * @details This is the base struct for all real world element types.
+ * All the other element types are inherited from this generic container.
+ */
+struct MGuiElement {
+	node_t;									///< Linked list node, points to next and previous elements
+	uint32					flags;			///< Element property flags (see @ref MGUI_FLAGS)
+	uint32					flags_int;		///< Internal flags, used by element processing and rendering
+	rectangle_t				bounds;			///< Absolute bounding rectangle of this element (in pixels)
+	vectorscreen_t			offset;			///< Offset from parent's position
+	float					z_depth;		///< Draw depth index (valid if @ref FLAG_DEPTH_TEST is ebabled and supported)
+	MGuiElement*			parent;			///< Pointer to parent element, NULL if this element is a layer
+	list_t*					children;		///< List of children elements
+	MGUI_TYPE				type;			///< Element type identifier
+	vector2_t				pos;			///< Relative position (within parent element)
+	vector2_t				size;			///< Relative size (within parent element)
+	colour_t				colour;			///< The main colour of the element (usually the background)
+	MGuiText*				text;			///< A pointer to a text buffer container, can be NULL if the element type does not support text
+	MGuiFont*				font;			///< Default font used to render all the text in this element
+	MGuiSkin*				skin;			///< Skin to be used for rendering
+	MGuiRendTarget*			cache;			///< Pointer to a texture cache (valid only if @ref FLAG_CACHE_TEXTURE is enabled and supported)
+	mgui_event_handler_t	event_handler;	///< User event handler function
+	void*					event_data;		///< User-specified data to be passed via event_handler
 
-	// ---------- Transform info for 3D elements ----------
+	/**
+	 * @brief Transform information for 3D elements.
+	 */
 
 	struct MGuiTransform {
-		vector3_t	position;
-		vector3_t	rotation;
-		vector2_t	size;
-		matrix4_t	transform;
-	} *transform;
+		vector3_t	position;				///< Position of the element in 3D space
+		vector3_t	rotation;				///< Rotation of the element in 3D space
+		vector2_t	size;					///< Size of the element in 3D space
+		matrix4_t	transform;				///< A transform matrix used for rendering this element
+	} *transform;							///< Transform information for 3D elements. Valid if @ref FLAG_3D_ENTITY is enabled.
 
-	// ---------- Internal callbacks ----------
+	/**
+	 * @brief Internal callback functions.
+	 */
 
 	struct MGuiCallbacks {
 		void		( *destroy )			( MGuiElement* element );
@@ -108,7 +118,7 @@ struct MGuiElement
 		void		( *on_mouse_wheel )		( MGuiElement* element, float diff );
 		bool		( *on_character )		( MGuiElement* element, char_t c );
 		bool		( *on_key_press )		( MGuiElement* element, uint32 key, bool down );
-	} *callbacks;
+	} *callbacks;							///< Internal callback functions.
 };
 
 // Generic element functions

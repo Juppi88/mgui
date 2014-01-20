@@ -1,13 +1,13 @@
-/**********************************************************************
+/**
  *
- * PROJECT:		Mylly GUI
- * FILE:		Button.c
- * LICENCE:		See Licence.txt
- * PURPOSE:		GUI button related functions.
+ * @file		Button.c
+ * @copyright	Tuomo Jauhiainen 2012-2014
+ * @licence		See Licence.txt
+ * @brief		GUI button related functions.
  *
- *				(c) Tuomo Jauhiainen 2012-13
+ * @details		Functions and structures related to GUI buttons.
  *
- **********************************************************************/
+ **/
 
 #include "Button.h"
 #include "Skin.h"
@@ -49,6 +49,15 @@ static struct MGuiCallbacks callbacks =
 
 // --------------------------------------------------
 
+/**
+ * @brief Creates a button.
+ *
+ * @details This function creates a GUI button. If the parent element
+ * is NULL, the button will become a layer.
+ *
+ * @param parent The parent element, or NULL if the element is to be created without a parent
+ * @returns A pointer to the created button
+ */
 MGuiButton* mgui_create_button( MGuiElement* parent )
 {
 	struct MGuiButton* button;
@@ -70,6 +79,23 @@ MGuiButton* mgui_create_button( MGuiElement* parent )
 	return cast_elem(button);
 }
 
+/**
+ * @brief Creates a button (extended).
+ *
+ * @details This function creates a GUI button with the given parameters.
+ * If the parent element is NULL, the button will become a layer.
+ *
+ * @param parent The parent element, or NULL if the element is to be created without a parent
+ * @param x The absolute x coordinate relative to the parent
+ * @param y The absolute y coordinate relative to the parent
+ * @param w The absolute width of the button
+ * @param h The absolute height of the button
+ * @param flags Any additional flags that will be applied as a bitmask (see @ref MGUI_FLAGS)
+ * @param col The colour of the button as a 32bit hex integer
+ * @param text The text on the button
+ *
+ * @returns A pointer to the created button
+ */
 MGuiButton* mgui_create_button_ex( MGuiElement* parent, int16 x, int16 y, uint16 w, uint16 h, uint32 flags, uint32 col, const char_t* text )
 {
 	MGuiButton* button;

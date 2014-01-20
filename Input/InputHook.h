@@ -1,13 +1,13 @@
-/**********************************************************************
+/**
  *
- * PROJECT:		Mylly GUI
- * FILE:		InputHook.h
- * LICENCE:		See Licence.txt
- * PURPOSE:		GUI input handler.
+ * @file		InputHook.h
+ * @copyright	Tuomo Jauhiainen 2012-2014
+ * @licence		See Licence.txt
+ * @brief		MGUI input handler.
  *
- *				(c) Tuomo Jauhiainen 2012-13
+ * @details		User input hooking and processing.
  *
- **********************************************************************/
+ **/
 
 #pragma once
 #ifndef __MYLLY_GUI_INPUTHOOK_H

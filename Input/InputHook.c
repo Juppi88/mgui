@@ -1,13 +1,13 @@
-/**********************************************************************
+/**
  *
- * PROJECT:		Mylly GUI
- * FILE:		InputHook.c
- * LICENCE:		See Licence.txt
- * PURPOSE:		GUI input handler.
+ * @file		InputHook.c
+ * @copyright	Tuomo Jauhiainen 2012-2014
+ * @licence		See Licence.txt
+ * @brief		MGUI input handler.
  *
- *				(c) Tuomo Jauhiainen 2012-13
+ * @details		User input hooking and processing.
  *
- **********************************************************************/
+ **/
 
 #include "InputHook.h"
 #include "Element.h"
@@ -65,16 +65,34 @@ void mgui_input_cleanup_references( MGuiElement* element )
 	if ( element == kbfocus ) kbfocus = NULL;
 }
 
+/**
+ * @brief Returns the element that has keyboard focus.
+ *
+ * @details This function returns the element that currently
+ * has keyboard focus. The function will return NULL if no
+ * element has focus right now.
+ *
+ * @return The element that has keyboard focus
+ */
 MGuiElement* mgui_get_focus( void )
 {
 	return kbfocus;
 }
 
+/**
+ * @brief Sets the element that has keyboard focus.
+ *
+ * @details This function changes or sets the element that
+ * has keyboard focus. If you pass NULL, all elements will
+ * lose keyboard focus.
+ *
+ * @param element The element that will receive keyboard focus
+ */
 void mgui_set_focus( MGuiElement* element )
 {
 	MGuiEvent event;
 
-	if ( kbfocus )
+	if ( kbfocus != NULL )
 	{
 		if ( kbfocus->event_handler )
 		{
@@ -91,7 +109,8 @@ void mgui_set_focus( MGuiElement* element )
 		kbfocus = NULL;
 	}
 
-	if ( !element ) return;
+	if ( element == NULL )
+		return;
 
 	if ( BIT_ON( element->flags, FLAG_KBCTRL ) &&
 		 BIT_ON( element->flags, FLAG_VISIBLE ) )

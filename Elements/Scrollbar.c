@@ -1,13 +1,13 @@
-/**********************************************************************
+/**
  *
- * PROJECT:		Mylly GUI
- * FILE:		Scrollbar.c
- * LICENCE:		See Licence.txt
- * PURPOSE:		GUI scrollbar related functions.
+ * @file		Scrollbar.c
+ * @copyright	Tuomo Jauhiainen 2012-2014
+ * @licence		See Licence.txt
+ * @brief		GUI scrollbar related functions.
  *
- *				(c) Tuomo Jauhiainen 2012-13
+ * @details		Functions and structures related to GUI scrollbars.
  *
- **********************************************************************/
+ **/
 
 #include "Scrollbar.h"
 #include "Skin.h"
@@ -58,6 +58,15 @@ static struct MGuiCallbacks callbacks =
 
 // --------------------------------------------------
 
+/**
+ * @brief Creates a scrollbar.
+ *
+ * @details This function creates a GUI scrollbar. If the parent element
+ * is NULL, the scrollbar will become a layer.
+ *
+ * @param parent The parent element, or NULL if the element is to be created without a parent
+ * @returns A pointer to the created scrollbar
+ */
 MGuiScrollbar* mgui_create_scrollbar( MGuiElement* parent )
 {
 	struct MGuiScrollbar* scrollbar;
@@ -83,6 +92,22 @@ MGuiScrollbar* mgui_create_scrollbar( MGuiElement* parent )
 	return cast_elem(scrollbar);
 }
 
+/**
+ * @brief Creates a scrollbar (extended).
+ *
+ * @details This function creates a GUI scrollbar with the given parameters.
+ * If the parent element is NULL, the scrollbar will become a layer.
+ *
+ * @param parent The parent element, or NULL if the element is to be created without a parent
+ * @param x The absolute x coordinate relative to the parent
+ * @param y The absolute y coordinate relative to the parent
+ * @param w The absolute width of the scrollbar
+ * @param h The absolute height of the scrollbar
+ * @param flags Any additional flags that will be applied as a bitmask (see @ref MGUI_FLAGS)
+ * @param col The colour of the scrollbar as a 32bit hex integer
+ *
+ * @returns A pointer to the created scrollbar
+ */
 MGuiScrollbar* mgui_create_scrollbar_ex( MGuiElement* parent, int16 x, int16 y, uint16 w, uint16 h, uint32 flags, uint32 col )
 {
 	MGuiScrollbar* scrollbar;
@@ -434,11 +459,24 @@ static void mgui_scrollbar_process_nudge( struct MGuiScrollbar* scrollbar )
 	}
 }
 
+/**
+ * @brief Sets all scrollbar parameters with a single function.
+ *
+ * @details This function can be used to set all scrollbar parameters
+ * with a single function call.
+ *
+ * @param scrollbar The scrollbar to set the parameters of
+ * @param content The size of the content
+ * @param step The step amount that clicking a button will cause
+ * @param position The position of the bar as an offset from the top/left edge (scaled between 0 and content)
+ * @param size The size of actual bar, scaled between 0 and 1
+ */
 void mgui_scrollbar_set_params( MGuiScrollbar* scrollbar, float content, float step, float position, float size )
 {
 	struct MGuiScrollbar* bar;
 
-	if ( scrollbar == NULL ) return;
+	if ( scrollbar == NULL )
+		return;
 
 	bar = (struct MGuiScrollbar*)scrollbar;
 
@@ -450,21 +488,41 @@ void mgui_scrollbar_set_params( MGuiScrollbar* scrollbar, float content, float s
 	mgui_scrollbar_update_bounds( bar );
 }
 
+/**
+ * @brief Returns the content size of a scrollbar.
+ *
+ * @details This function returns the size of the content for a scrollbar.
+ * Content size is used as a reference value for the position of the bar.
+ *
+ * @param scrollbar The scrollbar to get the content size of
+ * @returns Current content size
+ */
 float mgui_scrollbar_get_content_size( MGuiScrollbar* scrollbar )
 {
 	struct MGuiScrollbar* bar;
 
-	if ( scrollbar == NULL ) return 0;
+	if ( scrollbar == NULL )
+		return 0;
 
 	bar = (struct MGuiScrollbar*)scrollbar;
 	return bar->content_size;
 }
 
+/**
+* @brief Sets the content size of a scrollbar.
+*
+* @details This function sets the size of the content for a scrollbar.
+* Content size is used as a reference value for the position of the bar.
+*
+* @param scrollbar The scrollbar to set the content size of
+* @param size The size of the content
+*/
 void mgui_scrollbar_set_content_size( MGuiScrollbar* scrollbar, float size )
 {
 	struct MGuiScrollbar* bar;
 
-	if ( scrollbar == NULL ) return;
+	if ( scrollbar == NULL )
+		return;
 
 	bar = (struct MGuiScrollbar*)scrollbar;
 	bar->content_size = size;
@@ -473,41 +531,83 @@ void mgui_scrollbar_set_content_size( MGuiScrollbar* scrollbar, float size )
 	mgui_scrollbar_update_bounds( bar );
 }
 
+/**
+ * @brief Returns the step size of a scrollbar.
+ *
+ * @details This function returns the step size of a scrollbar.
+ * Step size is the distance the bar moves when one of the scrollbar
+ * buttons is pressed.
+ *
+ * @param scrollbar The scrollbar to get the step size of
+ * @returns Current step size
+ */
 float mgui_scrollbar_get_step_size( MGuiScrollbar* scrollbar )
 {
 	struct MGuiScrollbar* bar;
 
-	if ( scrollbar == NULL ) return 0;
+	if ( scrollbar == NULL )
+		return 0;
 
 	bar = (struct MGuiScrollbar*)scrollbar;
 	return bar->step_size;
 }
 
+/**
+ * @brief Sets the step size of a scrollbar.
+ *
+ * @details This function sets the step size of a scrollbar.
+ * Step size is the distance the bar moves when one of the scrollbar
+ * buttons is pressed.
+ *
+ * @param scrollbar The scrollbar to set the step size of
+ * @param size The new step size
+ */
 void mgui_scrollbar_set_step_size( MGuiScrollbar* scrollbar, float size )
 {
 	struct MGuiScrollbar* bar;
 
-	if ( scrollbar == NULL ) return;
+	if ( scrollbar == NULL )
+		return;
 
 	bar = (struct MGuiScrollbar*)scrollbar;
 	bar->step_size = size;
 }
 
+/**
+ * @brief Returns the bar position of a scrollbar.
+ *
+ * @details This function returns the position of the bar for a scrollbar.
+ * The position is scaled between 0 and the size of the content.
+ *
+ * @param scrollbar The scrollbar to get the bar position of
+ * @returns Current bar position
+ */
 float mgui_scrollbar_get_bar_pos( MGuiScrollbar* scrollbar )
 {
 	struct MGuiScrollbar* bar;
 
-	if ( scrollbar == NULL ) return 0;
+	if ( scrollbar == NULL )
+		return 0;
 
 	bar = (struct MGuiScrollbar*)scrollbar;
 	return bar->bar_position;
 }
 
+/**
+ * @brief Sets the bar position of a scrollbar.
+ *
+ * @details This function sets the position of the bar for a scrollbar.
+ * The position is scaled between 0 and the size of the content.
+ *
+ * @param scrollbar The scrollbar to set the bar position of
+ * @param position The new position for the bar
+ */
 void mgui_scrollbar_set_bar_pos( MGuiScrollbar* scrollbar, float position )
 {
 	struct MGuiScrollbar* bar;
 
-	if ( scrollbar == NULL ) return;
+	if ( scrollbar == NULL )
+		return;
 
 	bar = (struct MGuiScrollbar*)scrollbar;
 	bar->bar_position = math_clampf( position, 0, bar->content_size );
@@ -515,16 +615,37 @@ void mgui_scrollbar_set_bar_pos( MGuiScrollbar* scrollbar, float position )
 	mgui_scrollbar_update_bounds( bar );
 }
 
+/**
+ * @brief Returns the bar size of a scrollbar.
+ *
+ * @details This function returns the size of the actual bar for a scrollbar.
+ * The size is relative to the absolute size of the bar and it is scaled
+ * between 0 and 1.
+ *
+ * @param scrollbar The scrollbar to get the bar size of
+ * @returns Bar size scaled between 0 and 1
+ */
 float mgui_scrollbar_get_bar_size( MGuiScrollbar* scrollbar )
 {
 	struct MGuiScrollbar* bar;
 
-	if ( scrollbar == NULL ) return 0;
+	if ( scrollbar == NULL )
+		return 0;
 
 	bar = (struct MGuiScrollbar*)scrollbar;
 	return bar->bar_size;
 }
 
+/**
+ * @brief Sets the bar size of a scrollbar.
+ *
+ * @details This function sets the size of the actual bar for a scrollbar.
+ * The size is relative to the absolute size of the bar and it is scaled
+ * between 0 and 1.
+ *
+ * @param scrollbar The scrollbar to set the bar size of
+ * @param size The new size of the bar
+ */
 void mgui_scrollbar_set_bar_size( MGuiScrollbar* scrollbar, float size )
 {
 	struct MGuiScrollbar* bar;
@@ -539,16 +660,35 @@ void mgui_scrollbar_set_bar_size( MGuiScrollbar* scrollbar, float size )
 	mgui_element_request_redraw( scrollbar );
 }
 
+/**
+ * @brief Returns the background shade of a scrollbar.
+ *
+ * @details This function returns the background shade of a scrollbar.
+ * The shade is a percentage of the main colour (scaled between 0 and 1).
+ *
+ * @param scrollbar The scrollbar to get the background shade of
+ * @returns Current background shade
+ */
 float mgui_scrollbar_get_bg_shade( MGuiScrollbar* scrollbar )
 {
 	struct MGuiScrollbar* bar;
 
-	if ( scrollbar == NULL ) return 0;
+	if ( scrollbar == NULL )
+		return 0;
 
 	bar = (struct MGuiScrollbar*)scrollbar;
 	return bar->bg_shade;
 }
 
+/**
+ * @brief Sets the background shade of a scrollbar.
+ *
+ * @details This function sets the background of a scrollbar. The shade
+ * is a percentage of the main colour (scaled between 0 and 1).
+ *
+ * @param scrollbar The scrollbar to set the background shade of
+ * @param shade The new background shade
+ */
 void mgui_scrollbar_set_bg_shade( MGuiScrollbar* scrollbar, float shade )
 {
 	struct MGuiScrollbar* bar;

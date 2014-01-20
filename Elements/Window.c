@@ -1,13 +1,13 @@
-/**********************************************************************
+/**
  *
- * PROJECT:		Mylly GUI
- * FILE:		Window.c
- * LICENCE:		See Licence.txt
- * PURPOSE:		GUI window related functions.
+ * @file		Window.c
+ * @copyright	Tuomo Jauhiainen 2012-2014
+ * @licence		See Licence.txt
+ * @brief		GUI window related functions.
  *
- *				(c) Tuomo Jauhiainen 2012-13
+ * @details		Functions and structures related to GUI windows.
  *
- **********************************************************************/
+ **/
 
 #include "Window.h"
 #include "WindowButton.h"
@@ -60,6 +60,15 @@ static struct MGuiCallbacks callbacks =
 
 // --------------------------------------------------
 
+/**
+ * @brief Creates a window.
+ *
+ * @details This function creates a GUI window. If the parent element
+ * is NULL, the window will become a layer.
+ *
+ * @param parent The parent element, or NULL if the element is to be created without a parent
+ * @returns A pointer to the created window
+ */
 MGuiWindow* mgui_create_window( MGuiElement* parent )
 {
 	struct MGuiWindow* window;
@@ -85,6 +94,23 @@ MGuiWindow* mgui_create_window( MGuiElement* parent )
 	return cast_elem(window);
 }
 
+/**
+ * @brief Creates a window (extended).
+ *
+ * @details This function creates a GUI window with the given parameters.
+ * If the parent element is NULL, the window will become a layer.
+ *
+ * @param parent The parent element, or NULL if the element is to be created without a parent
+ * @param x The absolute x coordinate relative to the parent
+ * @param y The absolute y coordinate relative to the parent
+ * @param w The absolute width of the window
+ * @param h The absolute height of the window
+ * @param flags Any additional flags that will be applied as a bitmask (see @ref MGUI_FLAGS)
+ * @param col The background colour of the window as a 32bit hex integer
+ * @param text The text to be shown on the titlebar
+ *
+ * @returns A pointer to the created window
+ */
 MGuiWindow* mgui_create_window_ex( MGuiElement* parent, int16 x, int16 y, uint16 w, uint16 h, uint32 flags, uint32 col, const char_t* text )
 {
 	MGuiWindow* window;
@@ -341,25 +367,50 @@ static void mgui_window_on_mouse_drag( MGuiElement* window, int16 x, int16 y )
 	mgui_element_request_redraw_all();
 }
 
+/**
+ * @brief Returns the titlebar colour of a window.
+ *
+ * @details This function returns the colour of the titlebar for a window.
+ * If MGUI is using a textureless skin, this colour will also be applied
+ * to the border of the window.
+ *
+ * @param window The window to get the titlebar colour of
+ * @param col A pointer to a colour_t struct that will receive the colour
+ */
 void mgui_window_get_title_colour( MGuiWindow* window, colour_t* col )
 {
 	MGuiTitlebar* titlebar;
 
-	if ( window == NULL || col == NULL ) return;
+	if ( window == NULL || col == NULL )
+		return;
 
 	titlebar = ((struct MGuiWindow*)window)->titlebar;
-	if ( titlebar == NULL ) return;
+	if ( titlebar == NULL )
+		return;
 
-	*col = titlebar->colour;
+	col->hex = titlebar->colour.hex;
 }
 
+/**
+ * @brief Sets the titlebar colour of a window.
+ *
+ * @details This function sets the colour of the titlebar for a window.
+ * If MGUI is using a textureless skin, this colour will also be applied
+ * to the border of the window.
+ *
+ * @param window The window to set the titlebar colour of
+ * @param col A pointer to a colour_t struct that contains the new colour
+ */
 void mgui_window_set_title_colour( MGuiWindow* window, const colour_t* col )
 {
 	struct MGuiWindow* wnd;
 	wnd = (struct MGuiWindow*)window;
 
-	if ( wnd == NULL || col == NULL ) return;
-	if ( wnd->titlebar == NULL ) return;
+	if ( wnd == NULL || col == NULL )
+		return;
+
+	if ( wnd->titlebar == NULL )
+		return;
 
 	wnd->titlebar->colour = *col;
 	wnd->titlebar->colour.a = window->colour.a;
@@ -370,25 +421,49 @@ void mgui_window_set_title_colour( MGuiWindow* window, const colour_t* col )
 	mgui_element_request_redraw( window );
 }
 
+/**
+ * @brief Returns the titlebar colour of a window as a 32bit integer.
+ *
+ * @details This function gets the colour of the titlebar for a window.
+ * If MGUI is using a textureless skin, this colour will also be applied
+ * to the border of the window. The colour is returned as a 32bit hex
+ * integer in format 0xRRGGBBAA.
+ *
+ * @param window The window to get the titlebar colour of
+ * @returns Titlebar colour as a 32bit integer
+ */
 uint32 mgui_window_get_title_colour_i( MGuiWindow* window )
 {
 	MGuiTitlebar* titlebar;
 
-	if ( window == NULL ) return 0;
+	if ( window == NULL )
+		return 0;
 
 	titlebar = ((struct MGuiWindow*)window)->titlebar;
-	if ( titlebar == NULL ) return 0;
+	if ( titlebar == NULL )
+		return 0;
 
 	return titlebar->colour.hex;
 }
 
+/**
+ * @brief Sets the titlebar colour of a window as a 32bit integer.
+ *
+ * @details This function sets the colour of the titlebar for a window.
+ * If MGUI is using a textureless skin, this colour will also be applied
+ * to the border of the window. The colour is passed as a 32bit hex
+ * integer in format 0xRRGGBBAA.
+ *
+ * @param window The window to set the titlebar colour of
+ * @param hex The new titlebar colour as a 32bit integer
+ */
 void mgui_window_set_title_colour_i( MGuiWindow* window, uint32 hex )
 {
 	struct MGuiWindow* wnd;
 	wnd = (struct MGuiWindow*)window;
 
-	if ( wnd == NULL ) return;
-	if ( wnd->titlebar == NULL ) return;
+	if ( wnd == NULL || wnd->titlebar == NULL )
+		return;
 
 	wnd->titlebar->colour.hex = hex;
 	wnd->titlebar->colour.a = window->colour.a;
@@ -399,9 +474,20 @@ void mgui_window_set_title_colour_i( MGuiWindow* window, uint32 hex )
 	mgui_element_request_redraw( window );
 }
 
+/**
+ * @brief Returns the click offset for a window when it is being dragged.
+ *
+ * @details This function returns the offset of user's click when the window
+ * is being dragged. This offset is in pixels and relative to the position of
+ * the window. Note that the value is not valid if the window is not being dragged.
+ *
+ * @param window The window to get the drag offset of
+ * @param pos A pointer to a vectorscreen_t struct that will receive the offset coordinates
+ */
 void mgui_window_get_drag_offset( MGuiWindow* window, vectorscreen_t* pos )
 {
-	if ( window == NULL || pos == NULL ) return;
+	if ( window == NULL || pos == NULL )
+		return;
 
 	*pos = ((struct MGuiWindow*)window)->click_offset;
 }

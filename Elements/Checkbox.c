@@ -1,13 +1,13 @@
-/**********************************************************************
+/**
  *
- * PROJECT:		Mylly GUI
- * FILE:		Checkbox.c
- * LICENCE:		See Licence.txt
- * PURPOSE:		GUI checkbox related functions.
+ * @file		Checkbox.c
+ * @copyright	Tuomo Jauhiainen 2012-2014
+ * @licence		See Licence.txt
+ * @brief		GUI checkbox related functions.
  *
- *				(c) Tuomo Jauhiainen 2012-13
+ * @details		Functions and structures related to GUI checkboxes.
  *
- **********************************************************************/
+ **/
 
 #include "Checkbox.h"
 #include "Skin.h"
@@ -45,6 +45,15 @@ static struct MGuiCallbacks callbacks =
 
 // --------------------------------------------------
 
+/**
+ * @brief Creates a checkbox.
+ *
+ * @details This function creates a GUI checkbox. If the parent element
+ * is NULL, the checkbox will become a layer.
+ *
+ * @param parent The parent element, or NULL if the element is to be created without a parent
+ * @returns A pointer to the created checkbox
+ */
 MGuiCheckbox* mgui_create_checkbox( MGuiElement* parent )
 {
 	struct MGuiCheckbox* checkbox;
@@ -67,6 +76,20 @@ MGuiCheckbox* mgui_create_checkbox( MGuiElement* parent )
 	return cast_elem(checkbox);
 }
 
+/**
+ * @brief Creates a checkbox (extended).
+ *
+ * @details This function creates a GUI checkbox with the given parameters.
+ * If the parent element is NULL, the checkbox will become a layer.
+ *
+ * @param parent The parent element, or NULL if the element is to be created without a parent
+ * @param x The absolute x coordinate relative to the parent
+ * @param y The absolute y coordinate relative to the parent
+ * @param flags Any additional flags that will be applied as a bitmask (see @ref MGUI_FLAGS)
+ * @param col The colour of the checkbox as a 32bit hex integer
+ *
+ * @returns A pointer to the created checkbox
+ */
 MGuiCheckbox* mgui_create_checkbox_ex( MGuiElement* parent, int16 x, int16 y, uint32 flags, uint32 col )
 {
 	MGuiCheckbox* checkbox;
