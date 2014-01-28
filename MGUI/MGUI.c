@@ -291,6 +291,11 @@ void mgui_set_renderer( MGuiRenderer* rend )
 		mgui_fontmgr_initialize_all();
 		mgui_initialize_elements();
 	}
+	else
+	{
+		// Make sure that when the renderer is set to NULL we don't refer to an invalid pointer.
+		renderer = NULL;
+	}
 }
 
 /**
