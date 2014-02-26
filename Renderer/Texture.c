@@ -80,7 +80,7 @@ void mgui_texturemgr_invalidate_all( void )
 MGuiTexture* mgui_texture_create( const char_t* texture_file )
 {
 	MGuiTexture* texture;
-	uint32 width, height;
+	uint32 width = 0, height = 0;
 
 	if ( texture_file == NULL ) return NULL;
 
@@ -95,7 +95,7 @@ MGuiTexture* mgui_texture_create( const char_t* texture_file )
 	texture->filename = str_dup( texture_file, 0 );
 	texture->refcount = 1;
 
-	if ( renderer )
+	if ( renderer != NULL )
 	{
 		texture->data = renderer->load_texture( texture_file, &width, &height );
 		texture->width = (uint16)width;

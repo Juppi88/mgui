@@ -139,16 +139,16 @@ static void mgui_font_copy_to_texture( void* src, void* dest, uint32 width, uint
 
 		for ( x = 0; x < width; x += 4 )
 		{
-			alpha = (uint8)( *pixels++ >> 8 );
+			alpha = (uint8)( ( *pixels++ >> 8 ) & 0xFF );
 			*dst++ = (uint16)( alpha << 8 ) | 0x0FFF;
 
-			alpha = (uint8)( *pixels++ >> 8 );
+			alpha = (uint8)( ( *pixels++ >> 8 ) & 0xFF );
 			*dst++ = (uint16)( alpha << 8 ) | 0x0FFF;
 
-			alpha = (uint8)( *pixels++ >> 8 );
+			alpha = (uint8)( ( *pixels++ >> 8 ) & 0xFF );
 			*dst++ = (uint16)( alpha << 8 ) | 0x0FFF;
 
-			alpha = (uint8)( *pixels++ >> 8 );
+			alpha = (uint8)( ( *pixels++ >> 8 ) & 0xFF );
 			*dst++ = (uint16)( alpha << 8 ) | 0x0FFF;
 		}
 

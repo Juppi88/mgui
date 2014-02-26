@@ -165,10 +165,10 @@ void mgui_text_update_dimensions( MGuiText* text )
 
 void mgui_text_update_position( MGuiText* text )
 {
-	uint16 x, y, w, h;
+	int16 x, y, w, h;
 
-	if ( text == NULL ) return;
-	if ( text->bounds == NULL ) return;
+	if ( text == NULL || text->bounds == NULL )
+		return;
 
 	x = text->bounds->x + text->pad.left;
 	y = text->bounds->y + text->pad.top - text->font->size;
