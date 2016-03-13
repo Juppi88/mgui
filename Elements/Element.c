@@ -539,7 +539,13 @@ void mgui_add_child( MGuiElement* parent, MGuiElement* child )
 	if ( child->parent != NULL ) return;
 	if ( BIT_ON( child->flags, FLAG_3D_ENTITY ) ) return;
 	if ( BIT_ON( child->flags, FLAG_DEPTH_TEST ) ) return;
-	if ( BIT_ON( child->flags_int, INTFLAG_LAYER ) ) return;
+
+	// If the child object is a layer, remove it from the layer list first.
+	if ( BIT_ON( child->flags_int, INTFLAG_LAYER ) )
+	{
+		child->flags_int &= ~INTFLAG_LAYER;
+		list_remove( layers, cast_node(child) );
+	}
 
 	if ( parent != NULL )
 	{
@@ -548,12 +554,17 @@ void mgui_add_child( MGuiElement* parent, MGuiElement* child )
 
 		list_push( parent->children, cast_node(child) );
 		child->parent = parent;
+
+		if ( child->type != GUI_NONE )
+			mgui_element_update_child_pos( child );
 	}
 	else
 	{
 		list_push( layers, cast_node(child) );
 		child->flags_int |= INTFLAG_LAYER;
 	}
+
+	mgui_element_request_redraw( parent );
 }
 
 /**
